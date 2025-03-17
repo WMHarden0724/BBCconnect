@@ -70,7 +70,6 @@ struct AvatarImageView : View {
 					ZStack(alignment: .topLeading) {
 						self.avatarImage()
 							.clipShape(Circle())
-							.opacity(self.viewModel.loadingState.isLoading ? 0 : 1)
 						
 						Image(systemName: "pencil.circle")
 							.imageScale(.large)
@@ -84,14 +83,9 @@ struct AvatarImageView : View {
 							.shadow(radius: 3)
 							.opacity(self.viewModel.loadingState.isLoading ? 0 : 1)
 						
-						if self.viewModel.loadingState.isLoading {
-							ProgressView()
-								.background(
-									Color.primaryMain
-										.frame(width: 150, height: 150)
-										.clipShape(Circle())
-								)
-						}
+						ProgressView()
+							.tint(Color.primaryContrast)
+							.opacity(self.viewModel.loadingState.isLoading ? 1 : 0)
 					}
 				}
 				.disabled(self.viewModel.loadingState.isLoading)
