@@ -48,17 +48,8 @@ struct AuthenticationSignUpView: View {
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
-			Button(action: {
+			BButton(style: .primary, text: "Sign Up") {
 				self.signUp()
-			}) {
-				Text("Sign Up")
-					.font(.headline)
-					.foregroundColor(.primaryContrast)
-					.padding()
-					.frame(maxWidth: .infinity)
-					.background(Color.primaryMain)
-					.cornerRadius(12)
-					.shadow(radius: 4)
 			}
 			
 			Spacer()

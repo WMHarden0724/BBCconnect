@@ -38,17 +38,8 @@ struct AuthenticationLogInView: View {
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
-			Button(action: {
-				self.login()
-			}) {
-				Text("Log In")
-					.font(.headline)
-					.foregroundColor(.primaryContrast)
-					.padding()
-					.frame(maxWidth: .infinity)
-					.background(Color.primaryMain)
-					.cornerRadius(12)
-					.shadow(radius: 4)
+			BButton(style: .primary, text: "Log In") {
+				self.logIn()
 			}
 			
 			VStack(spacing: 0) {
@@ -77,7 +68,7 @@ struct AuthenticationLogInView: View {
 		.backgroundIgnoreSafeArea()
 	}
 	
-	private func login() {
+	private func logIn() {
 		if self.email.isEmpty || self.password.isEmpty {
 			withAnimation {
 				self.errorMessage = "Invalid email and password."

@@ -29,27 +29,9 @@ struct AuthenticationLanding: View {
 				VStack(spacing: Dimens.vertical) {
 					Spacer()
 					
-					NavigationLink(value: NavigationDestination.signUp) {
-						Text("Sign Up")
-							.font(.headline)
-							.foregroundColor(.primaryContrast)
-							.padding()
-							.frame(maxWidth: .infinity)
-							.background(Color.primaryMain)
-							.cornerRadius(12)
-							.shadow(radius: 4)
-					}
+					BNavigationLink(style: .primary, value: NavigationDestination.signUp, text: "Sign Up")
 					
-					NavigationLink(value: NavigationDestination.logIn) {
-						Text("Log In")
-							.font(.headline)
-							.foregroundColor(.secondaryContrast)
-							.padding()
-							.frame(maxWidth: .infinity)
-							.background(Color.secondaryMain)
-							.cornerRadius(12)
-							.shadow(radius: 4)
-					}
+					BNavigationLink(style: .secondary, value: NavigationDestination.signUp, text: "Log In")
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
 				.padding(.bottom, Dimens.vertical)
