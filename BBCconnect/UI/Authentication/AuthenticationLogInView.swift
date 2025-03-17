@@ -9,13 +9,11 @@ import SwiftUI
 
 struct AuthenticationLogInView: View {
 	
+	@StateObject private var viewModel = AuthenticationViewModel()
+	
 	@State private var viewSize: CGSize = .zero
 	@State private var email = ""
 	@State private var password = ""
-	@State private var errorMessage = ""
-	
-	@State private var isShowingEmailView = false
-	@State private var isLoading = false
 	
 	var body: some View {
 		VStack(spacing: Dimens.vertical) {
@@ -25,8 +23,8 @@ struct AuthenticationLogInView: View {
 				.font(.body)
 				.padding(.top, Dimens.vertical)
 			
-			if !errorMessage.isEmpty {
-				Text(self.errorMessage)
+			if let error = self.viewModel.error {
+				Text(error)
 					.font(.caption)
 					.foregroundColor(.errorMain)
 			}
@@ -39,7 +37,7 @@ struct AuthenticationLogInView: View {
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
-			BButton(style: .primary, text: "Log In") {
+			BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
 				self.logIn()
 			}
 			
@@ -48,20 +46,15 @@ struct AuthenticationLogInView: View {
 					.font(.body)
 					.foregroundColor(.primaryMain)
 				
-				Button(action: {
-					
-				}) {
-					Text("biblebaptistchurchconnect@gmail.com")
-						.font(.body)
-						.foregroundColor(.blue)
-				}
-				.sheet(isPresented: self.$isShowingEmailView) {
-					EmailView(isPresented: self.$isShowingEmailView, recipient: "biblebaptistchurchconnect@gmail.com", subject: "Log in issues", body: "")
-				}
+				Text("biblebaptistchurchconnect@gmail.com")
+					.font(.body)
+					.foregroundColor(.blue)
 			}
 			
 			Spacer()
 		}
+		.animation(.easeInOut, value: self.viewModel.error)
+		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in
 			self.viewSize = size
 		}
@@ -70,29 +63,8 @@ struct AuthenticationLogInView: View {
 	}
 	
 	private func logIn() {
-		if self.email.isEmpty || self.password.isEmpty {
-			withAnimation {
-				self.errorMessage = "Invalid email and password."
-			}
-			return
-		}
-		
-		withAnimation {
-			self.errorMessage = ""
-			self.isLoading = true
-		}
-		
-		User.loginUser(UserLogIn(email: self.email,
-								 password: self.password)) { result in
-			switch result {
-			case .success(let auth):
-				UserCfg.logIn(result: auth)
-			case .failure(let error):
-				withAnimation {
-					self.errorMessage = error.localizedDescription
-					self.isLoading = false
-				}
-			}
+		Task {
+			await self.viewModel.loginUser(email: self.email, password: self.password)
 		}
 	}
 }

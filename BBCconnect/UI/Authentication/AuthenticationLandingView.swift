@@ -31,7 +31,7 @@ struct AuthenticationLanding: View {
 					
 					BNavigationLink(style: .primary, value: NavigationDestination.signUp, text: "Sign Up")
 					
-					BNavigationLink(style: .secondary, value: NavigationDestination.signUp, text: "Log In")
+					BNavigationLink(style: .secondary, value: NavigationDestination.logIn, text: "Log In")
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
 				.padding(.bottom, Dimens.vertical)

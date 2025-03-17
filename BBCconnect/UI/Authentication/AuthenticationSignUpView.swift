@@ -9,14 +9,13 @@ import SwiftUI
 
 struct AuthenticationSignUpView: View {
 	
+	@StateObject private var viewModel = AuthenticationViewModel()
+	
 	@State private var viewSize: CGSize = .zero
 	@State private var email = ""
 	@State private var firstName = ""
 	@State private var lastName = ""
 	@State private var password = ""
-	@State private var errorMessage = ""
-	
-	@State private var isLoading = false
 	
 	var body: some View {
 		VStack(spacing: Dimens.vertical) {
@@ -26,8 +25,8 @@ struct AuthenticationSignUpView: View {
 				.font(.body)
 				.padding(.top, Dimens.vertical)
 			
-			if !errorMessage.isEmpty {
-				Text(self.errorMessage)
+			if let error = self.viewModel.error {
+				Text(error)
 					.font(.caption)
 					.foregroundColor(.errorMain)
 			}
@@ -50,12 +49,14 @@ struct AuthenticationSignUpView: View {
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
-			BButton(style: .primary, text: "Sign Up") {
+			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
 				self.signUp()
 			}
 			
 			Spacer()
 		}
+		.animation(.easeInOut, value: self.viewModel.error)
+		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in
 			self.viewSize = size
 		}
@@ -64,31 +65,11 @@ struct AuthenticationSignUpView: View {
 	}
 	
 	private func signUp() {
-		if self.email.isEmpty || self.firstName.isEmpty || self.lastName.isEmpty || self.password.isEmpty {
-			withAnimation {
-				self.errorMessage = "Please check all required fields."
-			}
-			return
-		}
-		
-		withAnimation {
-			self.errorMessage = ""
-			self.isLoading = true
-		}
-		
-		User.createUser(UserSignUp(first_name: self.firstName,
-								   last_name: self.lastName,
-								   email: self.email,
-								   password: self.password)) { result in
-			switch result {
-			case .success(let auth):
-				UserCfg.logIn(result: auth)
-			case .failure(let error):
-				withAnimation {
-					self.errorMessage = error.localizedDescription
-					self.isLoading = false
-				}
-			}
+		Task {
+			await self.viewModel.createUser(email: self.email,
+											firstName: self.firstName,
+											lastName: self.lastName,
+											password: self.password)
 		}
 	}
 }

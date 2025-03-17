@@ -32,22 +32,55 @@ enum BButtonStyle {
 
 struct BButton : View {
 	
-	let style: BButtonStyle
-	let text: String
-	let action: () -> Void
+	private let style: BButtonStyle
+	private let text: String
+	private var isLoading: Bool
+	private let action: () -> Void
+	
+	init(
+		style: BButtonStyle,
+		text: String,
+		action: @escaping () -> Void
+	) {
+		self.style = style
+		self.text = text
+		self.isLoading = false
+		self.action = action
+	}
+	
+	init(
+		style: BButtonStyle,
+		text: String,
+		isLoading: Bool = true,
+		action: @escaping () -> Void
+	) {
+		self.style = style
+		self.text = text
+		self.action = action
+		self.isLoading = isLoading
+	}
 	
 	var body: some View {
 		Button(action: {
 			self.action()
 		}) {
-			Text(self.text)
-				.font(.headline)
-				.foregroundColor(self.style.foreground)
-				.padding()
-				.frame(maxWidth: .infinity)
-				.background(self.style.background)
-				.cornerRadius(12)
+			ZStack {
+				Text(self.text)
+					.font(.headline)
+					.foregroundColor(self.style.foreground)
+					.padding()
+					.frame(maxWidth: .infinity)
+					.opacity(self.isLoading ? 0 : 1)
+				
+				if self.isLoading {
+					ProgressView()
+						.progressViewStyle(CircularProgressViewStyle(tint: self.style.foreground))
+				}
+			}
+			.background(self.style.background)
+			.cornerRadius(12)
 		}
+		.disabled(self.isLoading)
 	}
 }
 
