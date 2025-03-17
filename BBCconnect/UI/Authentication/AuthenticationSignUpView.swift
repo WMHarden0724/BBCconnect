@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct AuthenticationSignUpView: View {
-		
+	
 	@State private var viewSize: CGSize = .zero
 	@State private var email = ""
 	@State private var firstName = ""
 	@State private var lastName = ""
 	@State private var password = ""
 	@State private var errorMessage = ""
+	
+	@State private var isLoading = false
 	
 	var body: some View {
 		VStack(spacing: Dimens.vertical) {
@@ -71,8 +73,22 @@ struct AuthenticationSignUpView: View {
 		
 		withAnimation {
 			self.errorMessage = ""
+			self.isLoading = true
 		}
 		
-		// TODO
+		User.createUser(UserSignUp(first_name: self.firstName,
+								   last_name: self.lastName,
+								   email: self.email,
+								   password: self.password)) { result in
+			switch result {
+			case .success(let auth):
+				UserCfg.logIn(result: auth)
+			case .failure(let error):
+				withAnimation {
+					self.errorMessage = error.localizedDescription
+					self.isLoading = false
+				}
+			}
+		}
 	}
 }

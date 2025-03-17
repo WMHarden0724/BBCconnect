@@ -15,6 +15,7 @@ struct AuthenticationLogInView: View {
 	@State private var errorMessage = ""
 	
 	@State private var isShowingEmailView = false
+	@State private var isLoading = false
 	
 	var body: some View {
 		VStack(spacing: Dimens.vertical) {
@@ -78,8 +79,20 @@ struct AuthenticationLogInView: View {
 		
 		withAnimation {
 			self.errorMessage = ""
+			self.isLoading = true
 		}
 		
-		// TODO
+		User.loginUser(UserLogIn(email: self.email,
+								 password: self.password)) { result in
+			switch result {
+			case .success(let auth):
+				UserCfg.logIn(result: auth)
+			case .failure(let error):
+				withAnimation {
+					self.errorMessage = error.localizedDescription
+					self.isLoading = false
+				}
+			}
+		}
 	}
 }
