@@ -14,6 +14,8 @@ struct AuthenticationLogInView: View {
 	@State private var password = ""
 	@State private var errorMessage = ""
 	
+	@State private var isShowingEmailView = false
+	
 	var body: some View {
 		VStack(spacing: Dimens.vertical) {
 			
@@ -47,6 +49,23 @@ struct AuthenticationLogInView: View {
 					.background(Color.primaryMain)
 					.cornerRadius(12)
 					.shadow(radius: 4)
+			}
+			
+			VStack(spacing: 0) {
+				Text("Can't log in? Contact Video Booth at")
+					.font(.body)
+					.foregroundColor(.primaryMain)
+				
+				Button(action: {
+					
+				}) {
+					Text("biblebaptistchurchconnect@gmail.com")
+						.font(.body)
+						.foregroundColor(.blue)
+				}
+				.sheet(isPresented: self.$isShowingEmailView) {
+					EmailView(isPresented: self.$isShowingEmailView, recipient: "biblebaptistchurchconnect@gmail.com", subject: "Log in issues", body: "")
+				}
 			}
 			
 			Spacer()
