@@ -62,7 +62,7 @@ struct AvatarImageView : View {
 	}
 	
 	var body: some View {
-		VStack {
+		VStack(spacing: 0) {
 			if self.style == .large {
 				Button(action: {
 					self.showChangeAvatarAlert.toggle()

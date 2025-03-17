@@ -114,7 +114,7 @@ class APIManager {
 	private var cancellables = Set<AnyCancellable>()
 	
 	// System logger
-	let logger = Logger(subsystem: "com.bbcbwk.BBCconnect", category: "APIManager")
+	let logger = LogUtils.createLogger(tag: "APIManager")
 	
 	private init() {}
 	

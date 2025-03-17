@@ -26,7 +26,7 @@ struct AuthenticationLanding: View {
 				
 				// TODO add your background image here
 				
-				VStack(spacing: Dimens.vertical) {
+				VStack(spacing: Dimens.verticalPadding) {
 					Spacer()
 					
 					BNavigationLink(style: .primary, value: NavigationDestination.signUp, text: "Sign Up")
@@ -34,7 +34,7 @@ struct AuthenticationLanding: View {
 					BNavigationLink(style: .secondary, value: NavigationDestination.logIn, text: "Log In")
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
-				.padding(.bottom, Dimens.vertical)
+				.padding(.bottom, Dimens.verticalPadding)
 				.navigationDestination(for: NavigationDestination.self) { dest in
 					if dest == .signUp {
 						AuthenticationSignUpView()

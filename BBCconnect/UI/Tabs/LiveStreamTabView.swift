@@ -10,7 +10,7 @@ import SwiftUI
 struct LiveStreamTabView : View {
 	
 	var body: some View {
-		VStack {
+		VStack(spacing: Dimens.verticalPadding) {
 			Spacer()
 			Image(systemName: "video")
 				.imageScale(.large)

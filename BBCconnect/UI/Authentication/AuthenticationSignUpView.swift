@@ -19,12 +19,12 @@ struct AuthenticationSignUpView: View {
 	@State private var password = ""
 	
 	var body: some View {
-		VStack(spacing: Dimens.vertical) {
+		VStack(spacing: Dimens.verticalPadding) {
 			
 			Text("Sign up for a BBC Connect account to ensure your data is up to date across your devices.")
 				.foregroundColor(.textPrimary)
 				.font(.body)
-				.padding(.top, Dimens.vertical)
+				.padding(.top, Dimens.verticalPadding)
 			
 			if let error = self.viewModel.error {
 				Text(error)

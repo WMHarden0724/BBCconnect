@@ -11,7 +11,7 @@ struct HomeTabView : View {
 	
 	var body: some View {
 		NavigationStack {
-			VStack {
+			VStack(spacing: Dimens.verticalPadding) {
 				Spacer()
 				Image(systemName: "house")
 					.imageScale(.large)

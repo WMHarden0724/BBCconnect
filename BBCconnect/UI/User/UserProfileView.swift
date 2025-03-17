@@ -18,13 +18,13 @@ struct UserProfileView : View {
 	@State private var viewSize: CGSize = .zero
 	
 	var body: some View {
-		VStack {
+		VStack(spacing: Dimens.verticalPadding) {
 			AvatarImageView(style: .large)
 			
 			Text("\(self.firstName) \(self.lastName)")
 				.font(.largeTitle)
 				.foregroundColor(.textPrimary)
-				.padding(.top, Dimens.vertical)
+				.padding(.top, Dimens.verticalPadding)
 			
 			Spacer()
 			
@@ -33,7 +33,7 @@ struct UserProfileView : View {
 			BButton(style: .destructive, text: "Log Out") {
 				self.showLogoutAlert.toggle()
 			}
-			.padding(.bottom, Dimens.vertical)
+			.padding(.bottom, Dimens.verticalPadding)
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
 		.backgroundIgnoreSafeArea()

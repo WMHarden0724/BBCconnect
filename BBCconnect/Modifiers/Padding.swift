@@ -17,7 +17,7 @@ public struct PaddingModifier: ViewModifier {
 	private var defaultPadding: CGFloat
 	private var ratio: CGFloat?
 	
-	public init(viewWidth: CGFloat, maxViewWidth: CGFloat, defaultPadding: CGFloat = Dimens.horizontal, ratio: CGFloat? = nil) {
+	public init(viewWidth: CGFloat, maxViewWidth: CGFloat, defaultPadding: CGFloat = Dimens.horizontalPadding, ratio: CGFloat? = nil) {
 		self.viewWidth = viewWidth
 		self.maxViewWidth = maxViewWidth
 		self.defaultPadding = defaultPadding
@@ -34,7 +34,7 @@ public struct PaddingModifier: ViewModifier {
 			.detectOrientationChanged(self.$orientation)
 	}
 	
-	public static func calculatePadding(orientation: UIDeviceOrientation, viewWidth: CGFloat, maxViewWidth: CGFloat = 600, defaultPadding: CGFloat = Dimens.horizontal, ratio: CGFloat? = nil) -> CGFloat {
+	public static func calculatePadding(orientation: UIDeviceOrientation, viewWidth: CGFloat, maxViewWidth: CGFloat = 600, defaultPadding: CGFloat = Dimens.horizontalPadding, ratio: CGFloat? = nil) -> CGFloat {
 		if let ratio = ratio {
 			return viewWidth * ratio
 		}
@@ -51,7 +51,7 @@ public struct PaddingModifier: ViewModifier {
 
 public extension View {
 	
-	func applyHorizontalPadding(viewWidth: CGFloat, maxViewWidth: CGFloat = 600, defaultPadding: CGFloat = Dimens.horizontal, ratio: CGFloat? = nil) -> some View {
+	func applyHorizontalPadding(viewWidth: CGFloat, maxViewWidth: CGFloat = 600, defaultPadding: CGFloat = Dimens.horizontalPadding, ratio: CGFloat? = nil) -> some View {
 		modifier(PaddingModifier(viewWidth: viewWidth, maxViewWidth: maxViewWidth, defaultPadding: defaultPadding, ratio: ratio))
 	}
 }
