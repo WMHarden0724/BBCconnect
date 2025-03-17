@@ -31,7 +31,7 @@ public struct LightColors {
 	static let secondaryDark = UIColor(red: 0.773, green: 0.776, blue: 0.788, alpha: 1)
 	static let textDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
 	static let textPrimary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
-	static let textSecondary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.7019607843137254)
+	static let textSecondary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5019607843137254)
 }
 
 public struct DarkColors {
@@ -55,7 +55,7 @@ public struct DarkColors {
 	static let secondaryDark = UIColor(red: 0.180, green: 0.192, blue: 0.200, alpha: 1)
 	static let textDisabled = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.2)
 	static let textPrimary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let textSecondary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.7019607843137254)
+	static let textSecondary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.5019607843137254)
 	static let actionActive = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.5607843137254902)
 }
 

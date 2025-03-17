@@ -20,7 +20,7 @@ public class Theme {
 		appearance.shadowColor = .clear
 
 		// 🎨 Change title font
-		appearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .title1)]
+		appearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .headline)]
 		appearance.largeTitleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .largeTitle)]
 
 		// 🔙 Remove back button text (invisible title)
@@ -40,6 +40,10 @@ public class Theme {
 		let standardTabBarAppearance = UITabBarAppearance()
 		standardTabBarAppearance.configureWithDefaultBackground()
 		standardTabBarAppearance.backgroundColor = UIColor(Color.background)
+		standardTabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primaryMain)
+		standardTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.primaryMain)]
+		standardTabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.textSecondary)
+		standardTabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(Color.textSecondary)]
 		
 		let tabBar = UITabBar.appearance()
 		tabBar.standardAppearance = standardTabBarAppearance

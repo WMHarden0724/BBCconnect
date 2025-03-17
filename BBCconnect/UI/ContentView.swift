@@ -10,28 +10,18 @@ import SwiftUI
 struct ContentView: View {
 	
 	var body: some View {
-		NavigationStack {
-			VStack {
-				Spacer()
-				Image(systemName: "globe")
-					.imageScale(.large)
-					.foregroundStyle(.tint)
-				Text("Hello, world!")
-					.frame(maxWidth: .infinity)
-				Spacer()
-			}
-			.padding()
-			.backgroundIgnoreSafeArea()
-			.navigationBarTitleDisplayMode(.inline)
-			.navigationTitle(Date.now.formatted(.dateTime.month().day().year()))
-			.toolbar {
-				ToolbarItem(placement: .navigationBarTrailing) {
-					NavigationLink(destination: UserProfileView()) {
-						AvatarImageView(style: .small)
-					}
+		TabView {
+			HomeTabView()
+				.tabItem {
+					Label("Home", systemImage: "house")
 				}
-			}
+			
+			LiveStreamTabView()
+				.tabItem {
+					Label("Stream", systemImage: "video")
+				}
 		}
+		.tint(.primaryMain)
 		.checkAuthentication()
 	}
 }
