@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import os
 
 // MARK: - API Error Enum with detailed descriptions
 public enum APIError: Error, LocalizedError, Equatable {
@@ -28,7 +29,7 @@ public enum APIError: Error, LocalizedError, Equatable {
 		case .decodingFailed(let error): return "Decoding error: \(error.localizedDescription)"
 		case .networkError(let message): return "Network error: \(message)"
 		case .httpError(let statusCode): return "HTTP error: \(statusCode)"
-		case .apiError(let message): return "API Error: \(message)"
+		case .apiError(let message): return message
 		}
 	}
 	
@@ -81,12 +82,14 @@ enum APIEndpoint {
 	case createUser
 	case login
 	case userProfile
+	case userAvatar
 	
 	var path: String {
 		switch self {
 		case .createUser: return "/user/create"
 		case .login: return "/user/login"
 		case .userProfile: return "/user/profile"
+		case .userAvatar: return "/user/avatar"
 		}
 	}
 	
@@ -95,6 +98,7 @@ enum APIEndpoint {
 		case .createUser: return .post
 		case .login: return .post
 		case .userProfile: return .get
+		case .userAvatar: return .put
 		}
 	}
 }
@@ -103,8 +107,14 @@ enum APIEndpoint {
 class APIManager {
 	static let shared = APIManager()
 	
-	private let baseURL = URL(string: "https://your-api.com")!
+	// Production URL - comment out when locally testing
+	//	private let baseURL = URL(string: "https://your-api.com/api")!
+	// Local testing url - uncomment when locally testing
+	private let baseURL = URL(string: "https://9de5-64-239-42-24.ngrok-free.app/api")!
 	private var cancellables = Set<AnyCancellable>()
+	
+	// System logger
+	let logger = Logger(subsystem: "com.bbcbwk.BBCconnect", category: "APIManager")
 	
 	private init() {}
 	
@@ -123,13 +133,18 @@ class APIManager {
 		body: Encodable? = nil
 	) async -> APIResult<T> {
 		
-		guard let url = URL(string: endpoint.path, relativeTo: self.baseURL) else {
+		guard let url = URL(string: "\(self.baseURL)\(endpoint.path)") else {
 			return .failure(.invalidURL)
 		}
 		
 		var request = URLRequest(url: url)
 		request.httpMethod = method.rawValue
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+		
+		// **Add Authorization Header if Token Exists**
+		if let token = UserCfg.sessionToken() {
+			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+		}
 		
 		if let body = body {
 			do {
@@ -139,15 +154,22 @@ class APIManager {
 			}
 		}
 		
+		// 🔹 Log Request Details
+		self.logRequest(request, body: body)
+		
 		do {
 			let (data, response) = try await URLSession.shared.data(for: request)
+			
+			// 🔹 Log Response Details
+			self.logResponse(response, data: data)
+			
 			guard let httpResponse = response as? HTTPURLResponse else {
 				return .failure(.invalidResponse)
 			}
 			
 			guard (200...299).contains(httpResponse.statusCode) else {
 				if let errorResponse = try? JSONDecoder().decode(APIErrorMessage.self, from: data) {
-					return .failure(.apiError(errorResponse.message))
+					return .failure(.apiError(errorResponse.error))
 				}
 				return .failure(.httpError(statusCode: httpResponse.statusCode))
 			}
@@ -167,9 +189,33 @@ class APIManager {
 			return .failure(.networkError(error.localizedDescription))
 		}
 	}
+	
+	// MARK: - Logging Functions
+	
+	private func logRequest(_ request: URLRequest, body: (any Encodable)?) {
+		self.logger.info("🔹 API Request: \(request.httpMethod ?? "UNKNOWN") \(request.url?.absoluteString ?? "No URL")")
+		
+		if let headers = request.allHTTPHeaderFields {
+			self.logger.info("🔹 Headers: \(headers)")
+		}
+		
+		if let body = body, let jsonData = try? JSONEncoder().encode(body), let json = String(data: jsonData, encoding: .utf8) {
+			self.logger.info("🔹 Body: \(json)")
+		}
+	}
+	
+	private func logResponse(_ response: URLResponse, data: Data) {
+		if let httpResponse = response as? HTTPURLResponse {
+			self.logger.info("🔹 Response Status Code: \(httpResponse.statusCode)")
+			
+			if let jsonString = String(data: data, encoding: .utf8) {
+				self.logger.info("🔹 Response Body: \(jsonString)")
+			}
+		}
+	}
 }
 
 // MARK: - API Error Response Struct
 struct APIErrorMessage: Decodable {
-	let message: String
+	let error: String
 }

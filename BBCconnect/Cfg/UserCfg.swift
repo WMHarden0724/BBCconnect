@@ -14,6 +14,14 @@ public struct UserCfg {
 		return false
 	}
 	
+	public static func avatar() -> String? {
+		if let avatar = CfgManager.shared.getValue(cfgType: .avatar) as? String {
+			return avatar
+		}
+		
+		return nil
+	}
+	
 	public static func email() -> String? {
 		return CfgManager.shared.getValue(cfgType: .email) as? String
 	}
@@ -26,15 +34,54 @@ public struct UserCfg {
 		return CfgManager.shared.getValue(cfgType: .lastName) as? String
 	}
 	
+	public static func sessionToken() -> String? {
+		if let token = CfgManager.shared.getValue(cfgType: .sessionToken) as? String {
+			return token
+		}
+		
+		return nil
+	}
+	
 	public static func userId() -> Int? {
 		return CfgManager.shared.getValue(cfgType: .userId) as? Int
 	}
 	
+	public static func setAvatar(avatar: String?) {
+		if let avatar = avatar {
+			CfgManager.shared.setValue(cfgType: .avatar, value: avatar)
+		}
+		else {
+			CfgManager.shared.removeValue(cfgType: .avatar)
+		}
+	}
+	
+	public static func setEmail(email: String) {
+		CfgManager.shared.setValue(cfgType: .email, value: email)
+	}
+	
+	public static func setFirstName(firstName: String) {
+		CfgManager.shared.setValue(cfgType: .firstName, value: firstName)
+	}
+	
+	public static func setLastName(lastName: String) {
+		CfgManager.shared.setValue(cfgType: .lastName, value: lastName)
+	}
+	
+	public static func setUserId(userId: Int) {
+		CfgManager.shared.setValue(cfgType: .userId, value: userId)
+	}
+	
+	public static func setSessionToken(sessionToken: String) {
+		CfgManager.shared.setValue(cfgType: .sessionToken, value: sessionToken)
+	}
+	
 	public static func logIn(result: UserAuthentication) {
-		CfgManager.shared.setValue(cfgType: .email, value: result.user.email)
-		CfgManager.shared.setValue(cfgType: .firstName, value: result.user.first_name)
-		CfgManager.shared.setValue(cfgType: .lastName, value: result.user.last_name)
-		CfgManager.shared.setValue(cfgType: .sessionToken, value: result.token)
+		Self.setUserId(userId: result.user.id)
+		Self.setEmail(email: result.user.email)
+		Self.setFirstName(firstName: result.user.first_name)
+		Self.setLastName(lastName: result.user.last_name)
+		Self.setAvatar(avatar: result.user.avatar)
+		Self.setSessionToken(sessionToken: result.token)
 	}
 	
 	public static func logOut() {

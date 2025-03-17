@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AuthenticationLogInView: View {
 	
+	@Environment(\.dismiss) var dismiss
 	@StateObject private var viewModel = AuthenticationViewModel()
 	
 	@State private var viewSize: CGSize = .zero
@@ -25,7 +26,7 @@ struct AuthenticationLogInView: View {
 			
 			if let error = self.viewModel.error {
 				Text(error)
-					.font(.caption)
+					.font(.callout)
 					.foregroundColor(.errorMain)
 			}
 			

@@ -10,22 +10,28 @@ import SwiftUI
 enum BButtonStyle {
 	case primary
 	case secondary
+	case destructive
 	
 	internal var background: Color {
 		switch self {
-		case .primary:
-			return .primaryMain
-		case .secondary:
-			return .secondaryMain
+		case .primary: return .primaryMain
+		case .secondary: return .secondaryMain
+		case .destructive: return .background
 		}
 	}
 	
 	internal var foreground: Color {
 		switch self {
-		case .primary:
-			return .primaryContrast
-		case .secondary:
-			return .secondaryContrast
+		case .primary: return .primaryContrast
+		case .secondary: return .secondaryContrast
+		case .destructive: return .errorMain
+		}
+	}
+	
+	internal var border: Color {
+		switch self {
+		case .destructive: return .divider
+		default: return .clear
 		}
 	}
 }
@@ -79,6 +85,10 @@ struct BButton : View {
 			}
 			.background(self.style.background)
 			.cornerRadius(12)
+			.overlay(
+				RoundedRectangle(cornerRadius: 12)
+					.stroke(self.style.border, lineWidth: 2)
+			)
 		}
 		.disabled(self.isLoading)
 	}

@@ -25,6 +25,7 @@ public enum CfgType: Int, CaseIterable {
 	case lastName     = 2
 	case sessionToken = 3
 	case userId       = 4
+	case avatar       = 5
 	
 	func key() -> String {
 		return "\(self.rawValue)"
@@ -75,7 +76,8 @@ public class CfgManager {
 		case .email,
 				.firstName,
 				.lastName,
-				.sessionToken:
+				.sessionToken,
+				.avatar:
 			return UserDefaults.standard.string(forKey: key)
 		case .userId:
 			return UserDefaults.standard.integer(forKey: key)

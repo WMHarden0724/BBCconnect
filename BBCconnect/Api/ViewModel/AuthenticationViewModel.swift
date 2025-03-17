@@ -11,8 +11,7 @@ import Combine
 @MainActor
 class AuthenticationViewModel: ObservableObject {
 	
-	@Published var user: User?
-	@Published var loadingState: APIResult<User> = .none
+	@Published var loadingState: APIResult<UserAuthentication> = .none
 	@Published var error: String?
 	
 	func createUser(email: String, firstName: String, lastName: String, password: String) async {
@@ -22,16 +21,20 @@ class AuthenticationViewModel: ObservableObject {
 		}
 		
 		self.loadingState = .loading
-		let result: APIResult<User> = await APIManager.shared.request(endpoint: .createUser)
+		let result: APIResult<UserAuthentication> = await APIManager.shared.request(endpoint: .createUser,
+																					body: UserSignUp(first_name: firstName,
+																									 last_name: lastName,
+																									 email: email,
+																									 password: password))
 		
 		DispatchQueue.main.async {
-			self.loadingState = result
-			if case .success(let userData) = result {
-				self.user = userData
+			if case .success(let data) = result {
+				UserCfg.logIn(result: data)
 			}
 			else if case .failure(let error) = result {
 				self.error = error.localizedDescription
 			}
+			self.loadingState = result
 		}
 	}
 	
@@ -42,18 +45,18 @@ class AuthenticationViewModel: ObservableObject {
 		}
 		
 		self.loadingState = .loading
-		let result: APIResult<User> = await APIManager.shared.request(endpoint: .login)
-		
-		try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
-		
+		let result: APIResult<UserAuthentication> = await APIManager.shared.request(endpoint: .login,
+																					body: UserLogIn(email: email,
+																									password: password))
+				
 		DispatchQueue.main.async {
-			self.loadingState = result
-			if case .success(let userData) = result {
-				self.user = userData
+			if case .success(let data) = result {
+				UserCfg.logIn(result: data)
 			}
 			else if case .failure(let error) = result {
 				self.error = error.localizedDescription
 			}
+			self.loadingState = result
 		}
 	}
 }

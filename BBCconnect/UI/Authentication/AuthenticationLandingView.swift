@@ -44,8 +44,8 @@ struct AuthenticationLanding: View {
 					}
 				}
 			}
+			.backgroundIgnoreSafeArea()
 		}
-		.backgroundIgnoreSafeArea(color: Color.backgroundDark)
 		.readSize { size in
 			self.viewSize = size
 		}

@@ -10,6 +10,8 @@ import SwiftUI
 
 struct CheckAuthentication: ViewModifier {
 	
+	@StateObject private var viewModel = UserViewModel()
+	
 	@State private var showAuth = false
 	
 	func body(content: Content) -> some View {
@@ -17,6 +19,12 @@ struct CheckAuthentication: ViewModifier {
 			.onAppear {
 				if !UserCfg.isLoggedIn() {
 					self.showAuth.toggle()
+				}
+				else {
+					Task {
+						// Always gets the latest user info
+						await self.viewModel.fetchUser()
+					}
 				}
 			}
 			.onCfgChanged(onChanged: { cfgType, _ in
@@ -27,7 +35,15 @@ struct CheckAuthentication: ViewModifier {
 				}
 			})
 			.fullScreenCover(isPresented: self.$showAuth) {
-				AuthenticationLanding().interactiveDismissDisabled()
+				AuthenticationLanding()
+					.interactiveDismissDisabled()
+					.onCfgChanged(onChanged: { cfgType, _ in
+						if cfgType == .sessionToken {
+							if UserCfg.isLoggedIn() {
+								self.showAuth.toggle()
+							}
+						}
+					})
 			}
 	}
 }

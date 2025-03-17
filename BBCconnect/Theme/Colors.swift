@@ -11,8 +11,15 @@ import SwiftUI
 
 public struct LightColors {
 	
+	static let actionActive = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5607843137254902)
+	static let actionDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
 	static let backgroundDark = UIColor(red: 0.941, green: 0.945, blue: 0.953, alpha: 1)
 	static let background = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
+	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
+	static let errorMain = UIColor(red: 0.827, green: 0.184, blue: 0.184, alpha: 1)
+	static let errorLight = UIColor(red: 0.898, green: 0.451, blue: 0.451, alpha: 1)
+	static let errorDark = UIColor(red: 0.718, green: 0.110, blue: 0.110, alpha: 1)
+	static let divider = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.12156862745098039)
 	static let paper = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryMain = UIColor(red: 0.098, green: 0.110, blue: 0.118, alpha: 1)
@@ -25,18 +32,18 @@ public struct LightColors {
 	static let textDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
 	static let textPrimary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
 	static let textSecondary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.7019607843137254)
-	static let actionActive = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5607843137254902)
-	static let actionDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
-	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let errorMain = UIColor(red: 0.827, green: 0.184, blue: 0.184, alpha: 1)
-	static let errorLight = UIColor(red: 0.898, green: 0.451, blue: 0.451, alpha: 1)
-	static let errorDark = UIColor(red: 0.718, green: 0.110, blue: 0.110, alpha: 1)
 }
 
 public struct DarkColors {
 	
+	static let actionDisabled = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.2)
 	static let backgroundDark = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
 	static let background = UIColor(red: 0.098, green: 0.110, blue: 0.118, alpha: 1)
+	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
+	static let errorMain = UIColor(red: 0.937, green: 0.325, blue: 0.314, alpha: 1)
+	static let errorLight = UIColor(red: 0.937, green: 0.604, blue: 0.604, alpha: 1)
+	static let errorDark = UIColor(red: 0.776, green: 0.157, blue: 0.157, alpha: 1)
+	static let divider = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.12156862745098039)
 	static let paper = UIColor(red: 0.141, green: 0.153, blue: 0.161, alpha: 1)
 	static let primaryContrast = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
 	static let primaryMain = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
@@ -50,17 +57,19 @@ public struct DarkColors {
 	static let textPrimary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let textSecondary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.7019607843137254)
 	static let actionActive = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.5607843137254902)
-	static let actionDisabled = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.2)
-	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let errorMain = UIColor(red: 0.937, green: 0.325, blue: 0.314, alpha: 1)
-	static let errorLight = UIColor(red: 0.937, green: 0.604, blue: 0.604, alpha: 1)
-	static let errorDark = UIColor(red: 0.776, green: 0.157, blue: 0.157, alpha: 1)
 }
 
 
 public enum ColorType {
+	case actionDisabled
+	case actionActive
 	case backgroundDark
 	case background
+	case divider
+	case errorContrast
+	case errorMain
+	case errorLight
+	case errorDark
 	case paper
 	case primaryContrast
 	case primaryMain
@@ -73,12 +82,6 @@ public enum ColorType {
 	case textDisabled
 	case textPrimary
 	case textSecondary
-	case actionDisabled
-	case actionActive
-	case errorContrast
-	case errorMain
-	case errorLight
-	case errorDark
 	
 	public static func color(type: ColorType) -> UIColor {
 		let color = UIColor { (traitCollection: UITraitCollection) -> UIColor in
@@ -130,6 +133,8 @@ public enum ColorType {
 			return isDarkMode ? DarkColors.errorLight : LightColors.errorLight
 		case .errorDark:
 			return isDarkMode ? DarkColors.errorDark : LightColors.errorDark
+		case .divider:
+			return isDarkMode ? DarkColors.divider : LightColors.divider
 		}
 	}
 }
@@ -234,6 +239,11 @@ public extension Color {
 	static var errorDark: Color {
 		get {
 			return Color(ColorType.color(type: .errorDark))
+		}
+	}
+	static var divider: Color {
+		get {
+			return Color(ColorType.color(type: .divider))
 		}
 	}
 }
