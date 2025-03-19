@@ -20,6 +20,11 @@ struct ContentView: View {
 				.tabItem {
 					Label("Stream", systemImage: "video")
 				}
+			
+			ConversationsTabView()
+				.tabItem {
+					Label("Conversations", systemImage: "message.fill")
+				}
 		}
 		.tint(.primaryMain)
 		.checkAuthentication()

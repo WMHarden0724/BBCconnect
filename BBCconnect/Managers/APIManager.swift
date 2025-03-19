@@ -9,6 +9,20 @@ import Foundation
 import Combine
 import os
 
+// MARK: Cfg
+public struct APICfg {
+	
+	// Production URL - comment out when locally testing
+	//	public static let baseURL = URL(string: "https://your-api.com/api")!
+	// Local testing url - uncomment when locally testing
+	public static let baseURL = URL(string: "https://f435-64-239-42-24.ngrok-free.app")!
+	public static var wsUrl: URL {
+		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "http", with: "ws"))/ws")!
+	}
+	
+	public static let wsApiKey = "ed287191bcfc7318e4dfb34431c1fff51a03d704f415d886f9fd1cb694a016f0"
+}
+
 // MARK: - API Error Enum with detailed descriptions
 public enum APIError: Error, LocalizedError, Equatable {
 	case invalidURL
@@ -78,18 +92,46 @@ enum HTTPMethod: String {
 	case delete = "DELETE"
 }
 
-enum APIEndpoint {
+enum APIEndpoint: Equatable {
 	case createUser
 	case login
 	case userProfile
 	case userAvatar
+	case createConversation
+	case getConversations
+	case getConversation(Int)
+	case deleteConversation(Int)
+	case leaveConversation(Int)
+	case markConversationRead(Int)
+	case typingConversation(Int)
+	case getMessages(Int)
+	case getMessage(Int, Int)
+	case createMessage(Int)
+	case deleteMessage(Int, Int)
+	case likeMessage(Int, Int)
+	case unlikeMessage(Int, Int)
+	case searchUsers
 	
 	var path: String {
 		switch self {
-		case .createUser: return "/user/create"
-		case .login: return "/user/login"
-		case .userProfile: return "/user/profile"
-		case .userAvatar: return "/user/avatar"
+		case .createUser: return "/api/users/create"
+		case .login: return "/api/users/login"
+		case .userProfile: return "/api/users/profile"
+		case .userAvatar: return "/api/users/avatar"
+		case .searchUsers: return "/api/users/search"
+		case .createConversation: return "/api/conversations"
+		case .getConversations: return "/api/conversations"
+		case .getConversation(let id): return "/api/conversations/\(id)"
+		case .deleteConversation(let id): return "/api/conversations/\(id)"
+		case .leaveConversation(let id): return "/api/conversations/\(id)/leave"
+		case .markConversationRead(let id): return "/api/conversations/\(id)/read"
+		case .typingConversation(let id): return "/api/conversations/\(id)/typing"
+		case .createMessage(let id): return "/api/conversations/\(id)/messages"
+		case .getMessages(let id): return "/api/conversations/\(id)/messages"
+		case .getMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)"
+		case .deleteMessage(let cid, let id): return "/api/conversations/\(cid)messages/\(id)"
+		case .likeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
+		case .unlikeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		}
 	}
 	
@@ -99,6 +141,20 @@ enum APIEndpoint {
 		case .login: return .post
 		case .userProfile: return .get
 		case .userAvatar: return .put
+		case .searchUsers: return .get
+		case .createConversation: return .post
+		case .getConversations: return .get
+		case .getConversation(_): return .get
+		case .deleteConversation(_): return .delete
+		case .leaveConversation(_): return .delete
+		case .markConversationRead(_): return .post
+		case .typingConversation(_): return .post
+		case .getMessages(_): return .get
+		case .getMessage(_, _): return .get
+		case .createMessage(_): return .post
+		case .deleteMessage(_, _): return .delete
+		case .likeMessage(_, _): return .post
+		case .unlikeMessage(_, _): return .delete
 		}
 	}
 }
@@ -107,10 +163,6 @@ enum APIEndpoint {
 class APIManager {
 	static let shared = APIManager()
 	
-	// Production URL - comment out when locally testing
-	//	private let baseURL = URL(string: "https://your-api.com/api")!
-	// Local testing url - uncomment when locally testing
-	private let baseURL = URL(string: "https://9de5-64-239-42-24.ngrok-free.app/api")!
 	private var cancellables = Set<AnyCancellable>()
 	
 	// System logger
@@ -121,20 +173,30 @@ class APIManager {
 	/// Generic function to make API requests
 	func request<T: Decodable>(
 		endpoint: APIEndpoint,
-		body: Encodable? = nil
+		body: Encodable? = nil,
+		queryParams: [String: Any]? = nil
 	) async -> APIResult<T> {
-		return await request(endpoint: endpoint, method: endpoint.method, body: body)
+		return await request(endpoint: endpoint, method: endpoint.method, body: body, queryParams: queryParams)
 	}
 	
 	/// Generic function to make API requests
 	func request<T: Decodable>(
 		endpoint: APIEndpoint,
 		method: HTTPMethod = .get,
-		body: Encodable? = nil
+		body: Encodable? = nil,
+		queryParams: [String: Any]? = nil
 	) async -> APIResult<T> {
 		
-		guard let url = URL(string: "\(self.baseURL)\(endpoint.path)") else {
-			return .failure(.invalidURL)
+		guard var urlComponents = URLComponents(string: "\(APICfg.baseURL)\(endpoint.path)") else {
+			return .failure(APIError.invalidURL)
+		}
+		
+		if let queryParams = queryParams {
+			urlComponents.queryItems = queryParams.map { URLQueryItem(name: $0.key, value: "\($0.value)") }
+		}
+		
+		guard let url = urlComponents.url else {
+			return .failure(APIError.invalidURL)
 		}
 		
 		var request = URLRequest(url: url)
@@ -154,14 +216,11 @@ class APIManager {
 			}
 		}
 		
-		// 🔹 Log Request Details
-		self.logRequest(request, body: body)
-		
 		do {
 			let (data, response) = try await URLSession.shared.data(for: request)
 			
-			// 🔹 Log Response Details
-			self.logResponse(response, data: data)
+			// 🔹 Log Info
+			self.logInfo(request, response, body: body, data: data)
 			
 			guard let httpResponse = response as? HTTPURLResponse else {
 				return .failure(.invalidResponse)
@@ -192,26 +251,26 @@ class APIManager {
 	
 	// MARK: - Logging Functions
 	
-	private func logRequest(_ request: URLRequest, body: (any Encodable)?) {
-		self.logger.info("🔹 API Request: \(request.httpMethod ?? "UNKNOWN") \(request.url?.absoluteString ?? "No URL")")
+	private func logInfo(_ request: URLRequest, _ response: URLResponse, body: (any Encodable)?, data: Data) {
+		var info = "🔹 API Request: \(request.httpMethod ?? "UNKNOWN") \(request.url?.absoluteString ?? "No URL")"
 		
 		if let headers = request.allHTTPHeaderFields {
-			self.logger.info("🔹 Headers: \(headers)")
+			info += "\n🔹 Headers: \(headers)"
 		}
 		
 		if let body = body, let jsonData = try? JSONEncoder().encode(body), let json = String(data: jsonData, encoding: .utf8) {
-			self.logger.info("🔹 Body: \(json)")
+			info += "\n🔹 Body: \(json)"
 		}
-	}
-	
-	private func logResponse(_ response: URLResponse, data: Data) {
+		
 		if let httpResponse = response as? HTTPURLResponse {
-			self.logger.info("🔹 Response Status Code: \(httpResponse.statusCode)")
+			info += "\n🔹 Response Status Code: \(httpResponse.statusCode)"
 			
 			if let jsonString = String(data: data, encoding: .utf8) {
-				self.logger.info("🔹 Response Body: \(jsonString)")
+				info += "\n🔹 Response Body: \(jsonString)"
 			}
 		}
+		
+		self.logger.info("\(info)")
 	}
 }
 

@@ -24,15 +24,15 @@ struct AuthenticationLogInView: View {
 				.font(.body)
 				.padding(.top, Dimens.verticalPadding)
 			
-			if let error = self.viewModel.error {
-				Text(error)
+			if case .failure(let error) = self.viewModel.loadingState {
+				Text(error.localizedDescription)
 					.font(.callout)
 					.foregroundColor(.errorMain)
 			}
 			
 			TextField("Email", text: self.$email)
+				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
-				.autocapitalization(.none)
 				.keyboardType(.emailAddress)
 			
 			SecureField("Password", text: self.$password)
@@ -54,7 +54,6 @@ struct AuthenticationLogInView: View {
 			
 			Spacer()
 		}
-		.animation(.easeInOut, value: self.viewModel.error)
 		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in
 			self.viewSize = size
@@ -64,6 +63,7 @@ struct AuthenticationLogInView: View {
 	}
 	
 	private func logIn() {
+		self.hideKeyboard()
 		Task {
 			await self.viewModel.loginUser(email: self.email, password: self.password)
 		}

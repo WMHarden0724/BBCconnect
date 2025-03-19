@@ -81,8 +81,8 @@ fileprivate extension UIImage {
 	func scaleAndRotate(maxHeight: CGFloat, maxWidth: CGFloat) -> UIImage? {
 		guard let imgRef = self.cgImage else { return nil }
 		
-		var width = CGFloat(imgRef.width)
-		var height = CGFloat(imgRef.height)
+		let width = CGFloat(imgRef.width)
+		let height = CGFloat(imgRef.height)
 		
 		var bounds = CGRect(x: 0, y: 0, width: width, height: height)
 		

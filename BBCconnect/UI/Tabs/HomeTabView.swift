@@ -9,6 +9,8 @@ import SwiftUI
 
 struct HomeTabView : View {
 	
+	@State private var avatarId = Date()
+	
 	var body: some View {
 		NavigationStack {
 			VStack(spacing: Dimens.verticalPadding) {
@@ -22,12 +24,17 @@ struct HomeTabView : View {
 			}
 			.padding()
 			.backgroundIgnoreSafeArea()
+			.onCfgChanged(onChanged: { cfgType, _ in
+				if cfgType == .avatar {
+					self.avatarId = Date()
+				}
+			})
 			.navigationBarTitleDisplayMode(.inline)
 			.navigationTitle(Date.now.formatted(.dateTime.month().day().year()))
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {
 					NavigationLink(destination: UserProfileView()) {
-						AvatarImageView(style: .small)
+						Avatar(type: .userCfg, size: .xxs, state: .normal)
 					}
 				}
 			}

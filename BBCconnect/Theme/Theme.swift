@@ -52,5 +52,7 @@ public class Theme {
 		/// Segmented Control
 		/// Uses the regular font size
 		UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(Color.primaryMain)
+		
+		UITableView.appearance().backgroundColor = UIColor.clear
 	}
 }

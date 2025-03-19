@@ -34,6 +34,14 @@ public struct UserCfg {
 		return CfgManager.shared.getValue(cfgType: .lastName) as? String
 	}
 	
+	public static func initials() -> String {
+		if let firstName = self.firstName(), let lastName = self.lastName() {
+			return "\(firstName.first!)\(lastName.first!)"
+		}
+		
+		return "BBC"
+	}
+	
 	public static func sessionToken() -> String? {
 		if let token = CfgManager.shared.getValue(cfgType: .sessionToken) as? String {
 			return token

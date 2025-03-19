@@ -12,6 +12,9 @@ struct BBCconnectApp: App {
 	
 	init() {
 		Theme.apply()
+		
+		// Ensure we init the pub sub manager
+		_ = PubSubManager.shared
 	}
 	
 	var body: some Scene {

@@ -142,9 +142,35 @@ public extension Date {
 		return dateFormatter.date(from: dateString)
 	}
 	
+	static func formatConversationMessageDate(dateString: String) -> String? {
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+		dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+		
+		guard let date = dateFormatter.date(from: dateString) else { return nil }
+		
+		let calendar = Calendar.current
+		let now = Date()
+		
+		if calendar.isDateInToday(date) {
+			// Return time if today
+			dateFormatter.dateFormat = "h:mm a"
+			return dateFormatter.string(from: date)
+		} else if let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: now),
+				  date >= sevenDaysAgo {
+			// Return weekday if within last 7 days
+			dateFormatter.dateFormat = "EEEE"
+			return dateFormatter.string(from: date)
+		} else {
+			// Return full date if older than 7 days
+			dateFormatter.dateFormat = "MMM d, yyyy"
+			return dateFormatter.string(from: date)
+		}
+	}
+	
 	private static func cloudUpdatedAtDateFormatter() -> DateFormatter {
 		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+		dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
 		dateFormatter.locale = Locale(identifier: TimeZone.current.identifier)
 		dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
 		return dateFormatter

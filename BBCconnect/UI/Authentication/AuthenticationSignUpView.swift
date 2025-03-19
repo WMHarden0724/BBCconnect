@@ -26,28 +26,29 @@ struct AuthenticationSignUpView: View {
 				.font(.body)
 				.padding(.top, Dimens.verticalPadding)
 			
-			if let error = self.viewModel.error {
-				Text(error)
+			if case .failure(let error) = self.viewModel.loadingState {
+				Text(error.localizedDescription)
 					.font(.callout)
 					.foregroundColor(.errorMain)
 			}
 			
 			TextField("Email", text: self.$email)
+				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
-				.autocapitalization(.none)
 				.keyboardType(.emailAddress)
 			
 			TextField("First Name", text: self.$firstName)
+				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
-				.autocapitalization(.none)
-				.keyboardType(.emailAddress)
+				.textInputAutocapitalization(.words)
 			
 			TextField("Last Name", text: self.$lastName)
+				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
-				.autocapitalization(.none)
-				.keyboardType(.emailAddress)
+				.textInputAutocapitalization(.words)
 			
 			SecureField("Password", text: self.$password)
+				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
 			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
@@ -56,7 +57,6 @@ struct AuthenticationSignUpView: View {
 			
 			Spacer()
 		}
-		.animation(.easeInOut, value: self.viewModel.error)
 		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in
 			self.viewSize = size
@@ -66,6 +66,7 @@ struct AuthenticationSignUpView: View {
 	}
 	
 	private func signUp() {
+		self.hideKeyboard()
 		Task {
 			await self.viewModel.createUser(email: self.email,
 											firstName: self.firstName,

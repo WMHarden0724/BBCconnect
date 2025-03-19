@@ -12,11 +12,10 @@ import Combine
 class AuthenticationViewModel: ObservableObject {
 	
 	@Published var loadingState: APIResult<UserAuthentication> = .none
-	@Published var error: String?
 	
 	func createUser(email: String, firstName: String, lastName: String, password: String) async {
 		guard !email.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !password.isEmpty else {
-			self.error = "Please check all required fields."
+			self.loadingState = .failure(.apiError("Please check all required fields."))
 			return
 		}
 		
@@ -31,16 +30,14 @@ class AuthenticationViewModel: ObservableObject {
 			if case .success(let data) = result {
 				UserCfg.logIn(result: data)
 			}
-			else if case .failure(let error) = result {
-				self.error = error.localizedDescription
-			}
+			
 			self.loadingState = result
 		}
 	}
 	
 	func loginUser(email: String, password: String) async {
 		guard !email.isEmpty, !password.isEmpty else {
-			self.error = "Invalid email or password."
+			self.loadingState = .failure(.apiError("Invalid email or password."))
 			return
 		}
 		
@@ -53,9 +50,7 @@ class AuthenticationViewModel: ObservableObject {
 			if case .success(let data) = result {
 				UserCfg.logIn(result: data)
 			}
-			else if case .failure(let error) = result {
-				self.error = error.localizedDescription
-			}
+			
 			self.loadingState = result
 		}
 	}

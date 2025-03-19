@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct User: Codable, Equatable {
+public struct User: Codable, Equatable, Hashable {
 	public let id: Int
 	public let first_name: String
 	public let last_name: String
@@ -34,4 +34,35 @@ public struct UserAuthentication: Codable, Equatable {
 
 public struct UserUpdateAvatar: Codable, Equatable {
 	public let avatar: String
+}
+
+extension User {
+	func fullName() -> String {
+		return "\(self.first_name) \(self.last_name)"
+	}
+	
+	func initials() -> String {
+		return "\(self.first_name.first!)\(self.last_name.first!)"
+	}
+}
+
+extension User {
+
+	static let sampleUser1 = User(id: 1,
+								  first_name: "Garrett",
+								  last_name: "Franks",
+								  email: "lgfz71@gmail.com",
+								  avatar: nil)
+	
+	static let sampleUser2 = User(id: 2,
+								  first_name: "Wesley",
+								  last_name: "Harden",
+								  email: "test@gmail.com",
+								  avatar: nil)
+	
+	static let sampleUser3 = User(id: 3,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
 }
