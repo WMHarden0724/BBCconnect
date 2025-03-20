@@ -54,7 +54,9 @@ class ConversationsViewModel: ObservableObject {
 		
 		DispatchQueue.main.async {
 			if case .success(let data) = result {
-				self.conversations = data
+				self.conversations = data.sorted {
+					($0.last_message.createdAtDate ?? Date()) > ($1.last_message.createdAtDate ?? Date())
+				}
 			}
 			
 			self.loadingState = result
@@ -136,6 +138,9 @@ class ConversationsViewModel: ObservableObject {
 					case .update:
 						if let index = self.conversations.firstIndex(where: { $0.id == conversationId }) {
 							self.conversations[index] = data
+							self.conversations.sort {
+								($0.last_message.createdAtDate ?? Date()) > ($1.last_message.createdAtDate ?? Date())
+							}
 							self.objectWillChange.send()
 						}
 					default:
@@ -154,7 +159,8 @@ class ConversationViewModel: ObservableObject {
 	
 	@Published var messages = [ConversationMessage]()
 	@Published var loadingState: APIResult<[ConversationMessage]> = .none
-	@Published var isTypingIndicated = false
+	@Published var isTyping = false
+	@Published var userTyping: User?
 	
 	private let subManager = SubscriptionManager()
 	private let includeDeleted: Bool
@@ -267,7 +273,7 @@ class ConversationViewModel: ObservableObject {
 				.sink(receiveValue: { payload in
 					guard payload.channel == .conversations || payload.channel == .messages else { return }
 					if payload.status == .typing {
-						self.isTypingIndicated = payload.typing ?? false
+						self.checkTyping(payload)
 					}
 					else if let conversationId = payload.conversation_id, conversationId == self.conversation.id {
 						if payload.channel == .messages, let messageId = payload.message_id {
@@ -281,6 +287,21 @@ class ConversationViewModel: ObservableObject {
 					}
 				})
 				.storeIn(self.subManager)
+		}
+	}
+	
+	private func checkTyping(_ payload: PubSubMessage) {
+		if payload.typing == true {
+			if self.conversation.users.count > 2 {
+				self.userTyping = self.conversation.users.first(where: { $0.id == payload.user_id })
+			}
+			else {
+				self.isTyping = true
+			}
+		}
+		else {
+			self.isTyping = false
+			self.userTyping = nil
 		}
 	}
 	
@@ -348,19 +369,32 @@ class NewConversationViewModel: ObservableObject {
 		}
 	}
 	
-	func createConversation(title: String = "Conversation", users: [User], message: String) {
-		self.loadingState = .loading
-		
-		Task {
-			let result: APIResult<Conversation> = await APIManager.shared.request(endpoint: .createConversation,
-																				  body: ConversationCreate(name: title,
-																										   message: message,
-																										   user_ids: users.map { $0.id }))
-		
-			DispatchQueue.main.async {
-				self.loadingState = result
-			}
+	func createConversation(title: String = "Conversation", users: [User], message: String) async -> (Conversation?, String?) {
+		guard !message.isEmpty else {
+			return (nil, "You must enter a message")
 		}
+		
+		DispatchQueue.main.async {
+			self.loadingState = .loading
+		}
+		
+		let result: APIResult<Conversation> = await APIManager.shared.request(endpoint: .createConversation,
+																			  body: ConversationCreate(name: title,
+																									   message: message,
+																									   user_ids: users.map { $0.id }))
+		
+		if case .success(let data) = result {
+			return (data, nil)
+		}
+		else if case .failure(let error) = result {
+			return (nil, error.localizedDescription)
+		}
+		
+		DispatchQueue.main.async {
+			self.loadingState = result
+		}
+		
+		return (nil, nil)
 	}
 }
 

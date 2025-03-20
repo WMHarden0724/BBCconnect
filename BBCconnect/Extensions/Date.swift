@@ -142,7 +142,7 @@ public extension Date {
 		return dateFormatter.date(from: dateString)
 	}
 	
-	static func formatConversationMessageDate(dateString: String) -> String? {
+	static func formatConversationLastMessageDate(dateString: String) -> String? {
 		let dateFormatter = DateFormatter()
 		dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
 		dateFormatter.locale = Locale(identifier: "en_US_POSIX")
@@ -156,7 +156,11 @@ public extension Date {
 			// Return time if today
 			dateFormatter.dateFormat = "h:mm a"
 			return dateFormatter.string(from: date)
-		} else if let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: now),
+		}
+		else if calendar.isDateInYesterday(date) {
+			return "Yesterday"
+		}
+		else if let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: now),
 				  date >= sevenDaysAgo {
 			// Return weekday if within last 7 days
 			dateFormatter.dateFormat = "EEEE"

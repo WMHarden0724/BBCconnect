@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		25B4E3502D88B66500EADD52 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 25B4E34F2D88B66500EADD52 /* AlertToast */; };
+		25F8A6442D8C7C1400F49B12 /* SwipeActions in Frameworks */ = {isa = PBXBuildFile; productRef = 25F8A6432D8C7C1400F49B12 /* SwipeActions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				25B4E3502D88B66500EADD52 /* AlertToast in Frameworks */,
+				25F8A6442D8C7C1400F49B12 /* SwipeActions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +133,7 @@
 			name = BBCconnect;
 			packageProductDependencies = (
 				25B4E34F2D88B66500EADD52 /* AlertToast */,
+				25F8A6432D8C7C1400F49B12 /* SwipeActions */,
 			);
 			productName = BBCconnect;
 			productReference = 251DFA6A2D8859AE0008B603 /* BBCconnect.app */;
@@ -216,6 +219,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				25B4E34E2D88B66500EADD52 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				25F8A6422D8C7C1400F49B12 /* XCRemoteSwiftPackageReference "SwipeActions" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 251DFA6B2D8859AE0008B603 /* Products */;
@@ -590,6 +594,14 @@
 				minimumVersion = 1.3.9;
 			};
 		};
+		25F8A6422D8C7C1400F49B12 /* XCRemoteSwiftPackageReference "SwipeActions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aheze/SwipeActions";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -597,6 +609,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 25B4E34E2D88B66500EADD52 /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
+		};
+		25F8A6432D8C7C1400F49B12 /* SwipeActions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 25F8A6422D8C7C1400F49B12 /* XCRemoteSwiftPackageReference "SwipeActions" */;
+			productName = SwipeActions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

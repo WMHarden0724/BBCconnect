@@ -179,8 +179,25 @@ struct PubSubMessage : Codable {
 	let conversation_id: Int?
 	let message_id: Int?
 	let typing: Bool?
+	let reason: String?
 	
 	var description: String {
-		return "[\(self.channel)] [\(self.status)]"
+		var messageBuilder = "[\(self.channel)] [\(self.status)] -"
+		if let reason = self.reason {
+			messageBuilder += " reason=\(reason),"
+		}
+		if let userId = self.user_id {
+			messageBuilder += " userId=\(userId),"
+		}
+		if let conversationId = self.conversation_id {
+			messageBuilder += " conversationId=\(conversationId),"
+		}
+		if let messageId = self.message_id {
+			messageBuilder += " messageId=\(messageId),"
+		}
+		if let typing = self.typing {
+			messageBuilder += " typing=\(typing),"
+		}
+		return messageBuilder
 	}
 }

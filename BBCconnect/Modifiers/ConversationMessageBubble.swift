@@ -11,7 +11,7 @@ import SwiftUI
 struct ConversationMessageBubble: Shape {
 	func path(in rect: CGRect) -> Path {
 		let path = Path { path in
-			let cornerRadius: Double = 10
+			let cornerRadius: Double = 16
 			let tailWidth: Double = 8
 			let tailHeight = cornerRadius
 			let bubbleWidth = rect.width - tailWidth
@@ -81,28 +81,28 @@ struct ConversationMessageBubble: Shape {
 struct ConversationMessageBubbleStyle: ViewModifier {
 	let isFromYou: Bool
 	let shouldSendInTheFuture: Bool
-	var messageFillColor: Color {
+	var messageFillColor: AnyGradient {
 		if shouldSendInTheFuture {
-			return Color.clear
+			return Color.clear.gradient
 		} else if isFromYou {
-			return Color.blue
+			return Color.blue.gradient
 		} else {
-			return Color.secondary.opacity(0.2)
+			return Color.secondary.gradient
 		}
 	}
-	var forgroundColor: Color {
+	var foregroundColor: Color {
 		if shouldSendInTheFuture {
 			return Color.blue
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.primary
+			return Color.textPrimary
 		}
 	}
 	
 	func body(content: Content) -> some View {
 			content
-				.foregroundStyle(forgroundColor)
+				.foregroundStyle(foregroundColor)
 				.padding(.vertical, 8)
 				.padding(.horizontal, 20)
 				.padding(isFromYou ? .trailing : .leading, 8) // 8 is the tail width
@@ -123,13 +123,13 @@ extension View {
 
 @ViewBuilder
 func ImageAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
-	var forgroundColor: Color {
+	var foregroundColor: Color {
 		if shouldSendInTheFuture {
 			return Color.blue
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.primary
+			return Color.textPrimary
 		}
 	}
 	
@@ -146,13 +146,13 @@ func ImageAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 
 @ViewBuilder
 func VideoAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
-	var forgroundColor: Color {
+	var foregroundColor: Color {
 		if shouldSendInTheFuture {
 			return Color.blue
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.primary
+			return Color.textPrimary
 		}
 	}
 	
@@ -180,22 +180,22 @@ func VideoAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 
 @ViewBuilder
 func OtherAttachmentView(_ thumbnail: Image, fileName: String, docType: String, fileSize: String, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
-	var messageFillColor: Color {
+	var messageFillColor: AnyGradient {
 		if shouldSendInTheFuture {
-			return Color.clear
+			return Color.clear.gradient
 		} else if isFromYou {
-			return Color.blue
+			return Color.blue.gradient
 		} else {
-			return Color.secondary.opacity(0.2)
+			return Color.secondary.gradient
 		}
 	}
-	var forgroundColor: Color {
+	var foregroundColor: Color {
 		if shouldSendInTheFuture {
 			return Color.blue
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.primary
+			return Color.textPrimary
 		}
 	}
 	

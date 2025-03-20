@@ -26,6 +26,10 @@ public struct Conversation: Codable, Equatable, Hashable, Identifiable {
 	public let unread_count: Int
 	public let created_at: String
 	public let updated_at: String
+	
+	var sortedUsers: [User] {
+		return self.users.sorted { $0.id == self.owner_id && $1.id != self.owner_id }
+	}
 }
 
 /// RESPONSE  /api/conversations/:id/messages
@@ -39,6 +43,32 @@ public struct ConversationMessage: Codable, Equatable, Hashable {
 	public let deleted: Bool
 	public let created_at: String
 	public let updated_at: String
+	
+	var createdAtDate: Date? {
+		return Date.fromCloudUpdatedAt(dateString: self.created_at)
+	}
+	
+	func createdAtTimestamp(includeDow: Bool = true) -> String? {
+		guard let date = self.createdAtDate else { return nil }
+		
+		let calendar = Calendar.current
+		let formatter = DateFormatter()
+		formatter.timeStyle = .short
+		formatter.timeZone = TimeZone.current
+		
+		if includeDow {
+			if calendar.isDateInToday(date) {
+				return "Today \(formatter.string(from: date))"
+			} else if calendar.isDateInYesterday(date) {
+				return "Yesterday \(formatter.string(from: date))"
+			} else {
+				formatter.dateFormat = "EEEE h:mm a" // "Saturday 3:30 PM"
+				return formatter.string(from: date)
+			}
+		}
+		
+		return formatter.string(from: date)
+	}
 }
 
 /// POST /api/conversations/:id/messages

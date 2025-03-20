@@ -111,7 +111,7 @@ public class CfgManager {
 				UserDefaults.standard.set(updateTimeMs, forKey: cfgType.updateTimeKey())
 			}
 			else {
-				UserDefaults.standard.set(Date.toCloudUpdatedAt().timeIntervalSince1970Ms, forKey: cfgType.updateTimeKey())
+				UserDefaults.standard.set(Date().timeIntervalSince1970Ms, forKey: cfgType.updateTimeKey())
 			}
 		
 			self.postNotification(cfgType: cfgType)

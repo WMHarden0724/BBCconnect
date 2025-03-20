@@ -28,8 +28,8 @@ struct ConversationTextField : View {
 						Image(systemName: "arrow.up")
 							.font(.system(size: 18, weight: .bold))
 							.foregroundColor(.white)
-							.padding(8)
-							.background(Color.green)
+							.padding(6)
+							.background(Color.actionActive)
 							.clipShape(Circle())
 							.padding(.trailing, 4)
 					}

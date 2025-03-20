@@ -1,5 +1,5 @@
 //
-//  ConversationView.swift
+//  ConversationDetailView.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/18/25.
@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 import AlertToast
 
-struct ConversationView: View {
+struct ConversationDetailView: View {
 	
 	@Environment(\.dismiss) var dismiss
 	@StateObject private var viewModel: ConversationViewModel
@@ -37,34 +37,47 @@ struct ConversationView: View {
 				ScrollView {
 					ScrollViewReader { proxy in
 						LazyVStack(spacing: 0) {
-							ForEach(self.viewModel.messages, id: \.id) { message in
-								VStack {
-									if let dateString = Date.formatConversationMessageDate(dateString: message.updated_at) {
-										Text(dateString)
-											.font(.caption)
-											.foregroundColor(.textSecondary)
-									}
-									
-									ConversationMessageView(message: message)
+							Spacer(minLength: Dimens.verticalPadding)
+							
+							ForEach(self.viewModel.messages.indices, id: \.self) { index in
+								let message = self.viewModel.messages[index]
+								
+								if let timestamp = self.getPreviousMessageTimestamp(index: index) {
+									Text(timestamp)
+										.font(.footnote)
+										.foregroundColor(.textSecondary)
+										.padding(.top, index == 0 ? 0 : Dimens.verticalPaddingMd)
+										.padding(.bottom, Dimens.verticalPaddingSm)
 								}
+								
+								ConversationMessageView(message: message,
+														isFromYou: message.user.id == UserCfg.userId(),
+														shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
+								.padding(.horizontal, Dimens.horizontalPadding)
 								.padding(.bottom, Dimens.verticalPaddingSm)
-								.applyHorizontalPadding(viewWidth: self.viewSize.width)
+								.padding(.leading, message.user.id == UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
+								.padding(.trailing, message.user.id != UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
 							}
 							
-							if self.viewModel.isTypingIndicated {
-								HStack {
-									Text("...")
-										.conversationMessageBubbleStyle(isFromYou: false)
-									
-									Spacer()
-								}
+							if let userTyping = self.viewModel.userTyping {
+								TypingBubbleView(user: userTyping)
+									.padding(.horizontal, Dimens.horizontalPadding)
+							}
+							else if self.viewModel.isTyping {
+								TypingBubbleView()
+									.padding(.horizontal, Dimens.horizontalPadding)
 							}
 							
 							Spacer(minLength: Dimens.verticalPaddingSm)
 								.id(self.bottomSpacerId)
 						}
-						.onChange(of: self.viewModel.isTypingIndicated, initial: false) {
-							if self.viewModel.isTypingIndicated {
+						.onChange(of: self.viewModel.isTyping, initial: false) {
+							if self.viewModel.isTyping {
+								proxy.scrollTo(self.bottomSpacerId, anchor: .bottom)
+							}
+						}
+						.onChange(of: self.viewModel.userTyping, initial: false) {
+							if self.viewModel.userTyping != nil {
 								proxy.scrollTo(self.bottomSpacerId, anchor: .bottom)
 							}
 						}
@@ -83,7 +96,7 @@ struct ConversationView: View {
 					ConversationTextField(message: self.$message) {
 						self.addMessage()
 					}
-					.applyHorizontalPadding(viewWidth: self.viewSize.width)
+					.padding(.horizontal, Dimens.horizontalPadding)
 					.onChange(of: self.message, initial: false) {
 						self.viewModel.setTyping(typing: true)
 						self.debounceMessageChange()
@@ -94,13 +107,14 @@ struct ConversationView: View {
 			.readSize { size in
 				self.viewSize = size
 			}
-			.animation(.easeInOut, value: self.viewModel.isTypingIndicated)
+			.animation(.easeInOut, value: self.viewModel.isTyping)
+			.animation(.easeInOut, value: self.viewModel.userTyping)
 			.animation(.easeInOut, value: self.viewModel.messages)
 			.animation(.easeInOut, value: self.viewModel.conversation)
 			.navigationTitle(self.viewModel.conversation.name)
 			.navigationBarTitleDisplayMode(.inline)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
-			.onChange(of: self.viewModel.messages, initial: true) {
+			.onChange(of: self.viewModel.messages, initial: false) {
 				self.markMessagesAsRead()
 			}
 			.toast(isPresenting: Binding(
@@ -137,7 +151,7 @@ struct ConversationView: View {
 				
 				ToolbarItem(placement: .navigationBarTrailing) {
 					Menu {
-						ForEach(self.viewModel.conversation.users, id: \.id) {
+						ForEach(self.viewModel.conversation.sortedUsers, id: \.id) {
 							user in
 							Button(action: {
 								self.showLeaveConversationAlert.toggle()
@@ -153,13 +167,31 @@ struct ConversationView: View {
 							.disabled(user.id != UserCfg.userId())
 						}
 					} label: {
-						AvatarGroup(items: self.viewModel.conversation.users.map { AvatarType.image($0) },
-									size: .sm,
-									state: .normal)
+						AvatarGroup(items: self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }.map { AvatarType.image($0) },
+									size: 24)
 					}
 				}
 			}
 		}
+	}
+	
+	private func getPreviousMessageTimestamp(index: Int) -> String? {
+		var shouldShowHeader = index == 0
+		var previousDate: Date?
+		
+		if index > 0 {
+			previousDate = self.viewModel.messages[index - 1].createdAtDate
+		}
+		
+		if let previousDate = previousDate, let date = self.viewModel.messages[index].createdAtDate {
+			shouldShowHeader = date.timeIntervalSince(previousDate) > 7200 // 2 hours
+		}
+		
+		if shouldShowHeader, let createdAtTimestamp = self.viewModel.messages[index].createdAtTimestamp() {
+			return createdAtTimestamp
+		}
+		
+		return nil
 	}
 	
 	private func markMessagesAsRead() {
@@ -174,6 +206,8 @@ struct ConversationView: View {
 				DispatchQueue.main.async {
 					self.alertToastError = error
 					self.hideKeyboard()
+					self.typingCancellable?.cancel()
+					self.viewModel.setTyping(typing: false)
 				}
 			}
 			else {
@@ -202,7 +236,7 @@ struct ConversationView: View {
 	private func debounceMessageChange() {
 		self.typingCancellable?.cancel()
 		self.typingCancellable = Just(self.message)
-			.delay(for: .seconds(0.5), scheduler: RunLoop.main)
+			.delay(for: .seconds(3), scheduler: RunLoop.main)
 			.sink { _ in
 				self.viewModel.setTyping(typing: false)
 			}
@@ -211,6 +245,6 @@ struct ConversationView: View {
 
 struct ConversationView_Previews: PreviewProvider {
 	static var previews: some View {
-		ConversationView(viewModel: MockConversationViewModel())
+		ConversationDetailView(viewModel: MockConversationViewModel())
 	}
 }

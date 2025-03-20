@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertToast
 
 struct NewConversationView : View {
 	
@@ -20,64 +21,54 @@ struct NewConversationView : View {
 	@State private var searchQuery: String = ""
 	@State private var message = ""
 	
+	@State private var alertToastError: String?
+	
+	var onConversationCreated: (Conversation) -> Void
+	
 	var body: some View {
 		NavigationStack {
 			VStack(spacing: 0) {
-				VStack(spacing: 0) {
-					HStack(spacing: 2) {
-						Text("To:")
-							.foregroundColor(.textSecondary)
-							.font(.body)
-						
-						TextField("", text: self.$inputText)
-							.textInputAutocapitalization(.sentences)
-							.textFieldStyle(PlainTextFieldStyle())
-							.padding(.horizontal, 12)
-							.padding(.vertical, 10)
-							.foregroundColor(.textPrimary)
-							.onChange(of: self.inputText, initial: false) { _, _ in
-								self.search()
-							}
-					}
-					.applyHorizontalPadding(viewWidth: self.viewSize.width)
-					
-					Divider().foregroundColor(.divider)
-				}
-				.background(Color.background)
-				
 				ScrollView {
 					VStack {
-						if !self.viewModel.users.isEmpty {
-							ForEach(self.viewModel.users, id: \.id) { user in
-								VStack {
-									Button(action: {
-										self.addUserToTextField(user)
-									}) {
-										HStack(spacing: Dimens.horizontalPadding) {
-											Avatar(type: .image(user), size: .sm, state: .normal)
-											
-											VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
-												Text(user.fullName())
-													.font(.body)
-													.foregroundColor(.textPrimary)
-												
-												Text(user.email)
-													.font(.caption)
-													.foregroundColor(.textSecondary)
-											}
-											
-											Spacer()
-										}
-									}
-									
-									Divider().foregroundColor(.divider)
-								}
-								.transition(.opacity)
-							}
-						}
+						Spacer()
+						
+						Text("")
+							.frame(maxWidth: .infinity)
 					}
 					.applyHorizontalPadding(viewWidth: self.viewSize.width)
 					.padding(.vertical, Dimens.verticalPadding)
+				}
+				.searchable(text: self.$inputText,
+							tokens: self.$selectedUsers,
+							token: { user in
+					Text(user.fullName())
+				})
+				.searchSuggestions({
+					ForEach(self.viewModel.users) { user in
+						Button {
+							self.selectedUsers.append(user)
+							self.inputText.removeAll()
+						} label: {
+							HStack(spacing: Dimens.horizontalPadding) {
+								Avatar(type: .image(user), size: .sm, state: .normal)
+								
+								VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
+									Text(user.fullName())
+										.font(.body)
+										.foregroundColor(.textPrimary)
+									
+									Text(user.email)
+										.font(.caption)
+										.foregroundColor(.textSecondary)
+								}
+								
+								Spacer()
+							}
+						}
+					}
+				})
+				.onChange(of: self.inputText, initial: false) {
+					self.search()
 				}
 				
 				Spacer()
@@ -93,21 +84,20 @@ struct NewConversationView : View {
 				.backgroundIgnoreSafeArea()
 			}
 			.animation(.easeInOut(duration: 0.25), value: self.message)
-			.animation(.easeInOut, value: self.viewModel.users)
 			.readSize { size in
 				self.viewSize = size
 			}
+			.toast(isPresenting: Binding(
+				get: { self.alertToastError != nil },
+				set: { if !$0 { self.alertToastError = nil } }
+			), alert: {
+				AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
+			}, completion: {
+				self.alertToastError = nil
+			})
 			.navigationTitle("New conversation")
 			.navigationBarTitleDisplayMode(.inline)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
-			.onChange(of: self.viewModel.loadingState, initial: false) { _, _ in
-				if case .success(_) = self.viewModel.loadingState {
-					self.dismiss()
-				}
-				else if case .failure(let error) = self.viewModel.loadingState {
-					// TODO: show error
-				}
-			}
 			.toolbar {
 				ToolbarItem(placement: .navigationBarLeading) {
 					Button(action: {
@@ -136,27 +126,24 @@ struct NewConversationView : View {
 		}
 	}
 	
-	private func addUserToTextField(_ user: User) {
-		self.selectedUsers.append(user)
-		
-		var components = inputText.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-		if !components.isEmpty {
-			components[components.count - 1] = user.fullName()
-		} else {
-			components.append(user.fullName())
-		}
-		
-		self.inputText = components.joined(separator: ", ") + ", "
-		self.viewModel.users.removeAll()
-	}
-	
 	private func createConversation() {
-		self.viewModel.createConversation(users: self.selectedUsers, message: self.message)
+		Task {
+			let result = await self.viewModel.createConversation(users: self.selectedUsers, message: self.message)
+			DispatchQueue.main.async {
+				if let conversation = result.0 {
+					self.onConversationCreated(conversation)
+					self.dismiss()
+				}
+				else if let error = result.1 {
+					self.alertToastError = error
+				}
+			}
+		}
 	}
 }
 
 struct NewConversationView_Previews: PreviewProvider {
 	static var previews: some View {
-		NewConversationView()
+		NewConversationView { _ in }
 	}
 }

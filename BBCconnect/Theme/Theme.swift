@@ -17,7 +17,7 @@ public class Theme {
 		appearance.backgroundColor = UIColor(Color.background)
 		
 		// 🛑 Remove bottom line (shadow)
-		appearance.shadowColor = .clear
+//		appearance.shadowColor = .clear
 
 		// 🎨 Change title font
 		appearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .headline)]
