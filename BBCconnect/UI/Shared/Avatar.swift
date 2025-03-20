@@ -232,53 +232,62 @@ struct Avatar: View {
 
 struct AvatarGroup: View {
 	
-	let items: [AvatarType]
-	var size: CGFloat
+	private let users: [User]
+	private let size: CGFloat
+	private let includeBackground: Bool
+	private let isInNav: Bool
 	
-	/// **Dynamically generate size ratios that sum to 1.0**
-	var sizeRatios: [CGFloat] {
-		switch items.count {
-		case 2: return [0.6, 0.4]
-		case 3: return [0.6, 0.3, 0.3]
-		default: return [size]
+	var sizeMultipliers: [CGFloat] {
+		let count = users.count
+		switch count {
+		case 2: return isInNav ? [0.6, 0.4] : [0.5, 0.3]
+		case 3: return [0.5, 0.3, 0.25]
+		case 4: return [0.5, 0.3, 0.3, 0.2]
+		case 5: return [0.5, 0.3, 0.3, 0.2, 0.15]
+		case 6: return [0.5, 0.3, 0.25, 0.2, 0.15, 0.12]
+		case 7: return [0.5, 0.3, 0.25, 0.2, 0.15, 0.12, 0.12]
+		default: return [1.0]
 		}
 	}
 	
-	/// **Calculate individual element sizes**
-	var itemSizes: [CGFloat] {
-		let totalAvailableSize = size * 0.8 // Total space for avatars
-		return sizeRatios.map { $0 * totalAvailableSize }
+	init(users: [User], size: CGFloat, includeBackground: Bool = true, isInNav: Bool = false) {
+		self.users = users
+		self.size = size
+		self.includeBackground = includeBackground
+		self.isInNav = isInNav
 	}
 	
-	public var body: some View {
+	var body: some View {
 		Group {
-			if items.isEmpty {
+			if users.isEmpty {
 				EmptyView()
 			}
-			else if items.count == 1 || items.count > 3 {
-				Avatar(type: items[0], size: .custom(self.size), state: .normal)
+			else if users.count == 1 || users.count > 7 {
+				Avatar(type: .image(users[0]), size: .custom(size), state: .normal)
 			}
 			else {
 				ZStack {
-					ForEach(items.indices, id: \.self) { index in
-						Avatar(type: items[index], size: .custom(itemSizes[index]), state: .normal)
-							.position(self.position(for: index))
+					ForEach(Array(users.enumerated()), id: \.element) { index, imageName in
+						Avatar(type: .image(users[index]), size: .custom(size * sizeMultipliers[index]), state: .normal)
+							.offset(x: self.position(for: index).x, y: self.position(for: index).y)
 					}
 				}
 				.frame(width: size, height: size)
-				.background(Color.background.gradient)
-				.clipShape(.circle)
+				.background(self.includeBackground ? Color.background.gradient : Color.clear.gradient)
+				.if(!self.isInNav) { view in
+					view.clipShape(.circle)
+				}
 			}
 		}
 		.overlay(alignment: .bottomTrailing) {
-			if items.count > 3 {
+			if users.count > 7 {
 				Circle()
 					.fill(Color.background.gradient)
 					.frame(width: size * 0.4, height: size * 0.4)
 					.overlay {
-						Text("\(items.count - 1)")
+						Text("+\(users.count - 1)")
 							.foregroundColor(.textPrimary)
-							.font(.system(size: size * 0.3, weight: .semibold))
+							.font(.system(size: size * 0.2, weight: .semibold))
 							.lineLimit(1)
 							.padding(2)
 					}
@@ -288,33 +297,113 @@ struct AvatarGroup: View {
 		}
 	}
 	
-	/// Compute position for each avatar
-	func position(for index: Int) -> CGPoint {
-		let center = CGPoint(x: size / 2, y: size / 2)
-		
-		switch items.count {
+	private func position(for index: Int) -> CGPoint {
+		let count = users.count
+		switch index {
 		case 1:
-			return center
+			switch count {
+			case 2:
+				if self.isInNav {
+					return CGPoint(x: size * 0.25, y: size * 0.3)
+				}
+				else {
+					return CGPoint(x: size * 0.2, y: size * 0.2)
+				}
+			case 3, 4, 5:
+				return CGPoint(x: size * 0.275, y: size * 0.1)
+			case 6, 7:
+				return CGPoint(x: size * 0.25, y: size * 0.07)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
 		case 2:
-			let offset1 = (size - itemSizes[0]) / 2 - 4
-			let offset2 = (size - itemSizes[1]) / 2 - 4
-			let positions = [
-				CGPoint(x: center.x - offset1 + 1, y: center.y - offset1 + 1), // Top-left
-				CGPoint(x: center.x + offset2 - 1, y: center.y + offset2 - 1)  // Bottom-right
-			]
-			return positions[index]
+			switch count {
+			case 2:
+				return CGPoint(x: size * 0.1, y: size * 0.4)
+			case 3, 4, 5:
+				return CGPoint(x: size * 0.0, y: size * 0.275)
+			case 6, 7:
+				return CGPoint(x: size * 0.01, y: size * 0.255)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
 		case 3:
-			let r1 = (size - itemSizes[0]) / 2 - 3
-			let r2 = (size - itemSizes[1]) / 2 - 3
-			let r3 = (size - itemSizes[2]) / 2 - 3
-			let positions = [
-				CGPoint(x: center.x - r1 + 1.5, y: center.y - r1 + 1.5), // Top-left
-				CGPoint(x: center.x + r2, y: center.y - 2),              // Far right, slightly above center
-				CGPoint(x: center.x, y: center.y + r3)                   // Bottom-center
-			]
-			return positions[index]
+			switch count {
+			case 2:
+				return CGPoint(x: size * 0.1, y: size * 0.4)
+			case 3:
+				return CGPoint(x: size * 0.0, y: size * 0.275)
+			case 4, 5, 6, 7:
+				return CGPoint(x: size * 0.25, y: size * -0.2)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
+		case 4:
+			switch count {
+			case 2:
+				return CGPoint(x: size * 0.1, y: size * 0.4)
+			case 3, 4:
+				return CGPoint(x: size * 0.0, y: size * 0.275)
+			case 5:
+				return CGPoint(x: size * -0.25, y: size * 0.215)
+			case 6, 7:
+				return CGPoint(x: size * -0.2, y: size * 0.21)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
+		case 5:
+			switch count {
+			case 2:
+				return CGPoint(x: size * 0.1, y: size * 0.4)
+			case 3, 4, 5:
+				return CGPoint(x: size * 0.0, y: size * 0.275)
+			case 6, 7:
+				return CGPoint(x: size * 0.215, y: size * 0.3)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
+		case 6:
+			switch count {
+			case 2:
+				return CGPoint(x: size * 0.1, y: size * 0.4)
+			case 3, 4, 5, 6:
+				return CGPoint(x: size * 0.0, y: size * 0.275)
+			case 7:
+				return CGPoint(x: size * 0.125, y: size * -0.35)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
 		default:
-			return center
+			switch count {
+			case 2, 3, 4, 5, 6, 7:
+				return CGPoint(x: size * -0.125, y: size * -0.125)
+			default:
+				return CGPoint(x: 0, y: 0)
+			}
 		}
+	}
+}
+
+fileprivate extension View {
+	@ViewBuilder
+	func `if`<Content: View>(_ condition: Bool, apply: (Self) -> Content) -> some View {
+		if condition {
+			apply(self)
+		} else {
+			self
+		}
+	}
+}
+
+#Preview {
+	VStack {
+//		AvatarGroup(users: [User.sampleUser1], size: 200)
+//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2], size: 200, isInNav: true)
+//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3], size: 200, isInNav: true)
+//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4], size: 200, isInNav: true)
+//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5], size: 200, isInNav: true)
+		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6], size: 200, isInNav: true)
+		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7], size: 200, isInNav: true)
+		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7, User.sampleUser8], size: 200, isInNav: true)
 	}
 }

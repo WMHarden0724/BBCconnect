@@ -104,7 +104,7 @@ struct NewConversationView : View {
 						self.dismiss()
 					}) {
 						Image(systemName: "xmark")
-							.tint(.actionActive)
+							.tint(.blue)
 							.imageScale(.medium)
 					}
 				}

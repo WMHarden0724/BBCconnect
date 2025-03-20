@@ -26,10 +26,18 @@ struct ConversationItemView : View {
 				VStack {
 					HStack(spacing: Dimens.horizontalPadding) {
 						
-						AvatarGroup(items: self.conversation.users.filter { $0.id != UserCfg.userId() }.map { AvatarType.image($0) },
-									size: 40)
-						.readSize { size in
-							self.avatarSize = size
+						if self.conversation.users.count == 1 {
+							Avatar(type: .image(self.conversation.users[0]), size: .custom(40), state: .normal)
+								.readSize { size in
+									self.avatarSize = size
+								}
+						}
+						else {
+							AvatarGroup(users: self.conversation.users.filter { $0.id != UserCfg.userId() },
+										size: 40)
+							.readSize { size in
+								self.avatarSize = size
+							}
 						}
 						
 						VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {

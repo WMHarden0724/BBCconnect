@@ -39,8 +39,9 @@ public struct ConversationMessage: Codable, Equatable, Hashable {
 	public let conversation_id: Int
 	public let user: User
 	public let content: String
-	public let likes: [User]?
+	public let likes: [ConversationMessageLike]?
 	public let deleted: Bool
+	public let edited: Bool
 	public let created_at: String
 	public let updated_at: String
 	
@@ -71,6 +72,13 @@ public struct ConversationMessage: Codable, Equatable, Hashable {
 	}
 }
 
+public struct ConversationMessageLike: Codable, Equatable, Hashable {
+	public let id: Int
+	public let message_id: Int
+	public let user_id: Int
+	public let emoji: String
+}
+
 /// POST /api/conversations/:id/messages
 public struct ConversationMessageCreate: Codable, Equatable {
 	public let content: String
@@ -93,6 +101,7 @@ extension Conversation {
 													   content: "Hey, how are you?",
 													   likes: nil,
 													   deleted: false,
+													   edited: false,
 													   created_at: "2025-03-18T10:30:00Z",
 													   updated_at: "2025-03-18T10:30:00Z"),
 					 deleted: false,
@@ -110,6 +119,7 @@ extension Conversation {
 													   content: "See you at the meeting!",
 													   likes: nil,
 													   deleted: false,
+													   edited: false,
 													   created_at: "2025-03-17T14:00:00Z",
 													   updated_at: "2025-03-17T14:00:00Z"),
 					 deleted: false,
@@ -126,6 +136,7 @@ extension Conversation {
 													   content: "See you at the meeting!",
 													   likes: nil,
 													   deleted: false,
+													   edited: false,
 													   created_at: "2025-03-17T14:00:00Z",
 													   updated_at: "2025-03-17T14:00:00Z"),
 					 deleted: false,
@@ -143,6 +154,7 @@ extension ConversationMessage {
 							content: "Hello there!",
 							likes: [],
 							deleted: false,
+							edited: false,
 							created_at: "2025-03-18T10:30:00Z",
 							updated_at: "2025-03-18T10:30:00Z"),
 		ConversationMessage(id: 2,
@@ -151,6 +163,7 @@ extension ConversationMessage {
 							content: "Hy how are you!",
 							likes: [],
 							deleted: false,
+							edited: false,
 							created_at: "2025-03-18T10:30:00Z",
 							updated_at: "2025-03-18T10:30:00Z")
 	]

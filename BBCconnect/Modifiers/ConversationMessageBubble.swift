@@ -87,7 +87,7 @@ struct ConversationMessageBubbleStyle: ViewModifier {
 		} else if isFromYou {
 			return Color.blue.gradient
 		} else {
-			return Color.secondary.gradient
+			return Color.secondary.opacity(0.6).gradient
 		}
 	}
 	var foregroundColor: Color {
@@ -186,7 +186,7 @@ func OtherAttachmentView(_ thumbnail: Image, fileName: String, docType: String, 
 		} else if isFromYou {
 			return Color.blue.gradient
 		} else {
-			return Color.secondary.gradient
+			return Color.secondary.opacity(0.6).gradient
 		}
 	}
 	var foregroundColor: Color {

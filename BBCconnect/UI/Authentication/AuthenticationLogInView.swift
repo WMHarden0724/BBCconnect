@@ -34,6 +34,7 @@ struct AuthenticationLogInView: View {
 				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.keyboardType(.emailAddress)
+				.textInputAutocapitalization(.never)
 			
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(RoundedBorderTextFieldStyle())

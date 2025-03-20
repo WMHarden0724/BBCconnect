@@ -28,10 +28,6 @@ public class Theme {
 		backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
 		appearance.backButtonAppearance = backButtonAppearance
 
-		// 🖼️ Set custom back button image
-		let backImage = UIImage(named: "Icon-Back")?.withRenderingMode(.alwaysOriginal)
-		appearance.setBackIndicatorImage(backImage, transitionMaskImage: backImage)
-
 		let navigationBar = UINavigationBar.appearance()
 		navigationBar.standardAppearance = appearance
 		navigationBar.scrollEdgeAppearance = appearance

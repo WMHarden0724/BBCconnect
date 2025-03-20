@@ -65,4 +65,34 @@ extension User {
 								  last_name: "User",
 								  email: "test@test.com",
 								  avatar: nil)
+	
+	static let sampleUser4 = User(id: 4,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
+	
+	static let sampleUser5 = User(id: 5,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
+	
+	static let sampleUser6 = User(id: 6,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
+	
+	static let sampleUser7 = User(id: 7,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
+	
+	static let sampleUser8 = User(id: 8,
+								  first_name: "Test",
+								  last_name: "User",
+								  email: "test@test.com",
+								  avatar: nil)
 }

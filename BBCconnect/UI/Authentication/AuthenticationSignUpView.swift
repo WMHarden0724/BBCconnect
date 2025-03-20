@@ -36,6 +36,7 @@ struct AuthenticationSignUpView: View {
 				.foregroundColor(.textPrimary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.keyboardType(.emailAddress)
+				.textInputAutocapitalization(.never)
 			
 			TextField("First Name", text: self.$firstName)
 				.foregroundColor(.textPrimary)

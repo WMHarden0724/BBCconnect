@@ -84,7 +84,7 @@ struct ConversationListView : View {
 					self.creatingConversation.toggle()
 				}) {
 					Image(systemName: "square.and.pencil")
-						.tint(.actionActive)
+						.tint(.blue)
 						.imageScale(.medium)
 				}
 			}

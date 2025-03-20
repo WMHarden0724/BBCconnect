@@ -17,7 +17,7 @@ struct ConversationsTabView : View {
 	
 	var body: some View {
 		Group {
-			if self.sizeClass == .compact {
+//			if self.sizeClass == .compact {
 				NavigationStack {
 					ConversationListView(selectedConversation: self.$selectedConversation,
 										 creatingConversation: self.$creatingConversation)
@@ -26,22 +26,22 @@ struct ConversationsTabView : View {
 					ConversationDetailView(conversation: conversation)
 						.interactiveDismissDisabled()
 				})
-			}
-			else {
-				NavigationSplitView {
-					ConversationListView(selectedConversation: self.$selectedConversation,
-										 creatingConversation: self.$creatingConversation)
-				} detail: {
-					if let conversation = self.selectedConversation {
-						ConversationDetailView(conversation: conversation)
-					}
-					else {
-						Text("Select a conversation")
-							.foregroundColor(.textSecondary)
-							.frame(maxWidth: .infinity, maxHeight: .infinity)
-					}
-				}
-			}
+//			}
+//			else {
+//				NavigationSplitView {
+//					ConversationListView(selectedConversation: self.$selectedConversation,
+//										 creatingConversation: self.$creatingConversation)
+//				} detail: {
+//					if let conversation = self.selectedConversation {
+//						ConversationDetailView(conversation: conversation)
+//					}
+//					else {
+//						Text("Select a conversation")
+//							.foregroundColor(.textSecondary)
+//							.frame(maxWidth: .infinity, maxHeight: .infinity)
+//					}
+//				}
+//			}
 		}
 		.sheet(isPresented: self.$creatingConversation) {
 			NewConversationView { conversation in

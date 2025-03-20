@@ -35,6 +35,7 @@ struct HomeTabView : View {
 				ToolbarItem(placement: .navigationBarTrailing) {
 					NavigationLink(destination: UserProfileView()) {
 						Avatar(type: .userCfg, size: .xxs, state: .normal)
+							.id(self.avatarId)
 					}
 				}
 			}

@@ -111,7 +111,7 @@ class ConversationsViewModel: ObservableObject {
 				.compactMap { $0.object as? PubSubMessage }
 				.sink(receiveValue: { payload in
 					guard payload.channel == .conversations || payload.channel == .messages else { return }
-					if let conversationId = payload.conversation_id {
+					if let conversationId = payload.conversation_id, payload.status != .typing {
 						self.onConversationUpdated(status: payload.channel == .messages ? .update : payload.status,
 												   conversationId: conversationId)
 					}
@@ -159,7 +159,6 @@ class ConversationViewModel: ObservableObject {
 	
 	@Published var messages = [ConversationMessage]()
 	@Published var loadingState: APIResult<[ConversationMessage]> = .none
-	@Published var isTyping = false
 	@Published var userTyping: User?
 	
 	private let subManager = SubscriptionManager()
@@ -277,6 +276,10 @@ class ConversationViewModel: ObservableObject {
 					}
 					else if let conversationId = payload.conversation_id, conversationId == self.conversation.id {
 						if payload.channel == .messages, let messageId = payload.message_id {
+							
+							// Set false someone typing so we get clean animation
+							self.userTyping = nil
+							
 							self.onMessageCreatedOrUpdated(status: payload.status,
 														   conversationId: conversationId,
 														   messageId: messageId)
@@ -291,18 +294,14 @@ class ConversationViewModel: ObservableObject {
 	}
 	
 	private func checkTyping(_ payload: PubSubMessage) {
+		var userTyping: User? = nil
 		if payload.typing == true {
-			if self.conversation.users.count > 2 {
-				self.userTyping = self.conversation.users.first(where: { $0.id == payload.user_id })
-			}
-			else {
-				self.isTyping = true
+			if payload.user_id != UserCfg.userId() {
+				userTyping = self.conversation.users.first(where: { $0.id == payload.user_id })
 			}
 		}
-		else {
-			self.isTyping = false
-			self.userTyping = nil
-		}
+		
+		self.userTyping = userTyping
 	}
 	
 	private func onConversationUpdated(status: PubSubMessageStatus, conversationId: Int) {

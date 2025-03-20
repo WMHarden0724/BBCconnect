@@ -17,10 +17,20 @@ struct ConversationDetailView: View {
 	@State private var message = ""
 	@State private var viewSize: CGSize = .zero
 	
-	@State private var bottomSpacerId = Date()
+	@State private var bottomAnchorId = Date()
 	@State private var alertToastError: String?
-	@State private var showLeaveConversationAlert = false
+	@State private var isShowingInfoView = false
 	@State private var typingCancellable: AnyCancellable?
+	
+	private var navTitle: String {
+		let users = self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }
+		if users.count > 1 {
+			return "\(users.count) People"
+		}
+		else {
+			return users[0].first_name
+		}
+	}
 	
 	init(viewModel: ConversationViewModel) {
 		_viewModel = StateObject(wrappedValue: viewModel)
@@ -37,16 +47,12 @@ struct ConversationDetailView: View {
 				ScrollView {
 					ScrollViewReader { proxy in
 						LazyVStack(spacing: 0) {
-							Spacer(minLength: Dimens.verticalPadding)
-							
-							ForEach(self.viewModel.messages.indices, id: \.self) { index in
-								let message = self.viewModel.messages[index]
-								
-								if let timestamp = self.getPreviousMessageTimestamp(index: index) {
+							ForEach(self.viewModel.messages, id: \.id) { message in
+								if let timestamp = self.getPreviousMessageTimestamp(message: message) {
 									Text(timestamp)
 										.font(.footnote)
 										.foregroundColor(.textSecondary)
-										.padding(.top, index == 0 ? 0 : Dimens.verticalPaddingMd)
+										.padding(.top, Dimens.verticalPaddingMd)
 										.padding(.bottom, Dimens.verticalPaddingSm)
 								}
 								
@@ -60,35 +66,30 @@ struct ConversationDetailView: View {
 							}
 							
 							if let userTyping = self.viewModel.userTyping {
-								TypingBubbleView(user: userTyping)
+								TypingBubbleView(user: userTyping,
+												 shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
 									.padding(.horizontal, Dimens.horizontalPadding)
-							}
-							else if self.viewModel.isTyping {
-								TypingBubbleView()
-									.padding(.horizontal, Dimens.horizontalPadding)
-							}
-							
-							Spacer(minLength: Dimens.verticalPaddingSm)
-								.id(self.bottomSpacerId)
-						}
-						.onChange(of: self.viewModel.isTyping, initial: false) {
-							if self.viewModel.isTyping {
-								proxy.scrollTo(self.bottomSpacerId, anchor: .bottom)
+									.padding(.bottom, Dimens.verticalPaddingSm)
+									.transition(.move(edge: .bottom).combined(with: .opacity))
 							}
 						}
+						.id(self.bottomAnchorId)
+						.padding(.top, Dimens.verticalPadding)
 						.onChange(of: self.viewModel.userTyping, initial: false) {
 							if self.viewModel.userTyping != nil {
-								proxy.scrollTo(self.bottomSpacerId, anchor: .bottom)
+								proxy.scrollTo(self.bottomAnchorId, anchor: .bottom)
 							}
 						}
 						.onChange(of: self.viewModel.messages, initial: true) {
 							if self.viewModel.messages.last != nil {
-								proxy.scrollTo(self.bottomSpacerId, anchor: .bottom)
+								proxy.scrollTo(self.bottomAnchorId, anchor: .bottom)
 							}
 						}
 					}
 				}
 				.defaultScrollAnchor(.bottom)
+				.animation(.easeInOut, value: self.viewModel.userTyping)
+				.animation(.easeInOut, value: self.viewModel.messages)
 				
 				VStack {
 					Divider().foregroundColor(.divider)
@@ -107,13 +108,13 @@ struct ConversationDetailView: View {
 			.readSize { size in
 				self.viewSize = size
 			}
-			.animation(.easeInOut, value: self.viewModel.isTyping)
-			.animation(.easeInOut, value: self.viewModel.userTyping)
-			.animation(.easeInOut, value: self.viewModel.messages)
 			.animation(.easeInOut, value: self.viewModel.conversation)
-			.navigationTitle(self.viewModel.conversation.name)
-			.navigationBarTitleDisplayMode(.inline)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
+			.sheet(isPresented: self.$isShowingInfoView) {
+				ConversationInfoView(viewModel: self.viewModel) {
+					self.dismiss()
+				}
+			}
 			.onChange(of: self.viewModel.messages, initial: false) {
 				self.markMessagesAsRead()
 			}
@@ -125,69 +126,63 @@ struct ConversationDetailView: View {
 			}, completion: {
 				self.alertToastError = nil
 			})
-			.alert("Leave conversation?", isPresented: self.$showLeaveConversationAlert) {
-				Button("Leave", role: .destructive) {
-					self.leaveConversation()
-				}
-				Button("Cancel", role: .cancel) {}
-			} message: {
-				if self.viewModel.conversation.owner_id == UserCfg.userId() {
-					Text("Are you sure you want to proceed? Since you own this conversation, ownership will pass to the next available user. If no other users exist, this conversation will be removed")
-				}
-				else {
-					Text("Are you sure you want to proceed?")
-				}
-			}
+			.navigationBarTitleDisplayMode(.inline)
 			.toolbar {
 				ToolbarItem(placement: .navigationBarLeading) {
 					Button(action: {
 						self.dismiss()
 					}) {
 						Image(systemName: "xmark")
-							.tint(.actionActive)
+							.tint(.blue)
 							.imageScale(.medium)
 					}
 				}
 				
-				ToolbarItem(placement: .navigationBarTrailing) {
-					Menu {
-						ForEach(self.viewModel.conversation.sortedUsers, id: \.id) {
-							user in
-							Button(action: {
-								self.showLeaveConversationAlert.toggle()
-							}) {
-								if user.id == UserCfg.userId() {
-									Text("\(user.fullName()) (You)")
-										.foregroundColor(.textPrimary)
-								} else {
-									Text(user.fullName())
-										.foregroundColor(.textPrimary)
-								}
+				ToolbarItem(placement: .principal) {
+					Button(action: {
+						self.isShowingInfoView.toggle()
+					}) {
+						VStack {
+							if self.viewModel.conversation.users.count == 1 {
+								Avatar(type: .image(self.viewModel.conversation.users[0]), size: .xxs, state: .normal)
 							}
-							.disabled(user.id != UserCfg.userId())
+							else {
+								AvatarGroup(users: self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() },
+											size: 24,
+											includeBackground: false)
+							}
+							
+							HStack(spacing: 2) {
+								Text(self.navTitle)
+									.foregroundColor(.textPrimary)
+									.font(.caption)
+								
+								Image(systemName: "chevron.right")
+									.font(.system(size: 8))
+									.foregroundColor(.actionActive)
+							}
 						}
-					} label: {
-						AvatarGroup(items: self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }.map { AvatarType.image($0) },
-									size: 24)
 					}
 				}
 			}
 		}
 	}
 	
-	private func getPreviousMessageTimestamp(index: Int) -> String? {
+	private func getPreviousMessageTimestamp(message: ConversationMessage) -> String? {
+		let index = self.viewModel.messages.firstIndex(of: message) ?? 0
 		var shouldShowHeader = index == 0
 		var previousDate: Date?
+		
 		
 		if index > 0 {
 			previousDate = self.viewModel.messages[index - 1].createdAtDate
 		}
 		
-		if let previousDate = previousDate, let date = self.viewModel.messages[index].createdAtDate {
+		if let previousDate = previousDate, let date = message.createdAtDate {
 			shouldShowHeader = date.timeIntervalSince(previousDate) > 7200 // 2 hours
 		}
 		
-		if shouldShowHeader, let createdAtTimestamp = self.viewModel.messages[index].createdAtTimestamp() {
+		if shouldShowHeader, let createdAtTimestamp = message.createdAtTimestamp() {
 			return createdAtTimestamp
 		}
 		
@@ -202,18 +197,17 @@ struct ConversationDetailView: View {
 	
 	private func addMessage() {
 		Task {
+			self.hideKeyboard()
+			self.typingCancellable?.cancel()
+			self.viewModel.setTyping(typing: false)
 			if let error = await self.viewModel.createMessage(message: self.message) {
 				DispatchQueue.main.async {
 					self.alertToastError = error
-					self.hideKeyboard()
-					self.typingCancellable?.cancel()
-					self.viewModel.setTyping(typing: false)
 				}
 			}
 			else {
 				DispatchQueue.main.async {
 					self.message = ""
-					self.hideKeyboard()
 				}
 			}
 		}
@@ -236,7 +230,7 @@ struct ConversationDetailView: View {
 	private func debounceMessageChange() {
 		self.typingCancellable?.cancel()
 		self.typingCancellable = Just(self.message)
-			.delay(for: .seconds(3), scheduler: RunLoop.main)
+			.delay(for: .seconds(2), scheduler: RunLoop.main)
 			.sink { _ in
 				self.viewModel.setTyping(typing: false)
 			}
