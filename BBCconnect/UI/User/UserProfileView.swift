@@ -55,6 +55,7 @@ struct UserProfileView : View {
 					.opacity(self.isUpdatingAvatar ? 1 : 0)
 			}
 		}
+		.buttonStyle(.plain)
 		.animation(.easeInOut, value: self.isUpdatingAvatar)
 		.confirmationDialog(Text("New profile photo"), isPresented: self.$showChangeAvatarAlert) {
 			Button("Take photo", action: {

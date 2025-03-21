@@ -92,6 +92,7 @@ struct ConversationListView : View {
 						.tint(.blue)
 						.imageScale(.large)
 				}
+				.buttonStyle(.plain)
 			}
 		}
 		.onCfgChanged(onChanged: { cfgType, value in

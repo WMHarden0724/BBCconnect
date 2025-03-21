@@ -85,6 +85,7 @@ struct ConversationInfoView : View {
 				.padding(.horizontal, Dimens.horizontalPadding)
 				.padding(.vertical, Dimens.verticalPadding)
 			}
+			.buttonStyle(.plain)
 			
 			if self.isUserListExpanded {
 				ForEach(self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }, id: \.id) { user in
@@ -123,6 +124,7 @@ struct ConversationInfoView : View {
 					.padding(.horizontal, Dimens.horizontalPaddingMd)
 					.padding(.vertical, Dimens.verticalPaddingMd)
 				}
+				.buttonStyle(.plain)
 			}
 		}
 		.background(Color.background)
@@ -156,6 +158,7 @@ struct ConversationInfoView : View {
 					.padding(.vertical, Dimens.verticalPaddingMd)
 					.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
 			}
+			.buttonStyle(.plain)
 			.background(Color.background)
 			.cornerRadius(8)
 		}
@@ -234,6 +237,7 @@ struct ConversationInfoView : View {
 							.foregroundStyle(.blue)
 							.font(.system(size: 17, weight: .medium))
 					}
+					.buttonStyle(.plain)
 				}
 			}
 		}

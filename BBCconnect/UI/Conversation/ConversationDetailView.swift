@@ -141,6 +141,7 @@ struct ConversationDetailView: View {
 							.foregroundColor(.actionActive)
 					}
 				}
+				.buttonStyle(.plain)
 			}
 		}
 	}

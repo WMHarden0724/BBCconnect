@@ -91,8 +91,8 @@ struct BButton : View {
 					.stroke(self.style.border, lineWidth: 1)
 			)
 		}
-		.disabled(self.isLoading)
 		.buttonStyle(.plain)
+		.disabled(self.isLoading)
 	}
 }
 
