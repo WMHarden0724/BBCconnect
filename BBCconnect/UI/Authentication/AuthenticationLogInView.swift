@@ -21,6 +21,12 @@ struct AuthenticationLogInView: View {
 	@State private var showMailView = false
 	@State private var showMailError = false
 	
+	@FocusState private var focusedField: Field?
+	
+	enum Field {
+		case email, password
+	}
+	
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
             Image("ChurchLogo")
@@ -28,12 +34,12 @@ struct AuthenticationLogInView: View {
                 .frame(width:250, height:250)
                 .padding(.vertical, 30)
                 .clipShape(.circle)
-            
 			
 			Text("Log in to view stream")
 				.foregroundColor(.primary)
 				.font(.body)
 				.multilineTextAlignment(.center)
+			
 			if case .failure(let error) = self.viewModel.loadingState {
 				Text(error.localizedDescription)
 					.font(.callout)
@@ -43,6 +49,8 @@ struct AuthenticationLogInView: View {
 			TextField("Email", text: self.$email)
 				.foregroundColor(.primary)
 				.textFieldStyle(PlainTextFieldStyle())
+				.focused(self.$focusedField, equals: .email)
+				.submitLabel(.next)
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
 				.padding(.horizontal, 12)
@@ -52,9 +60,14 @@ struct AuthenticationLogInView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.focusedField = .password
+				}
 			
 			SecureField("Password", text: self.$password)
 				.textFieldStyle(PlainTextFieldStyle())
+				.focused(self.$focusedField, equals: .password)
+				.submitLabel(.done)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
 				.foregroundColor(.primary)
@@ -62,6 +75,9 @@ struct AuthenticationLogInView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.logIn()
+				}
 			
 			BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
 				self.logIn()

@@ -18,6 +18,12 @@ struct AuthenticationSignUpView: View {
 	@State private var lastName = ""
 	@State private var password = ""
 	
+	@FocusState private var focusedField: Field?
+	
+	enum Field {
+		case email, firstName, lastName, password
+	}
+	
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
 			
@@ -38,6 +44,8 @@ struct AuthenticationSignUpView: View {
 				.textFieldStyle(PlainTextFieldStyle())
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
+				.focused(self.$focusedField, equals: .email)
+				.submitLabel(.next)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
 				.foregroundColor(.primary)
@@ -45,11 +53,16 @@ struct AuthenticationSignUpView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.focusedField = .firstName
+				}
 			
 			TextField("First Name", text: self.$firstName)
 				.foregroundColor(.primary)
 				.textFieldStyle(PlainTextFieldStyle())
 				.textInputAutocapitalization(.words)
+				.focused(self.$focusedField, equals: .firstName)
+				.submitLabel(.next)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
 				.foregroundColor(.primary)
@@ -57,11 +70,16 @@ struct AuthenticationSignUpView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.focusedField = .lastName
+				}
 			
 			TextField("Last Name", text: self.$lastName)
 				.foregroundColor(.primary)
 				.textFieldStyle(PlainTextFieldStyle())
 				.textInputAutocapitalization(.words)
+				.focused(self.$focusedField, equals: .lastName)
+				.submitLabel(.next)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
 				.foregroundColor(.primary)
@@ -69,10 +87,15 @@ struct AuthenticationSignUpView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.focusedField = .password
+				}
 			
 			SecureField("Password", text: self.$password)
 				.foregroundColor(.primary)
 				.textFieldStyle(PlainTextFieldStyle())
+				.focused(self.$focusedField, equals: .password)
+				.submitLabel(.done)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
 				.foregroundColor(.primary)
@@ -80,6 +103,9 @@ struct AuthenticationSignUpView: View {
 					Capsule()
 						.stroke(Color.divider, lineWidth: 1)
 				)
+				.onSubmit {
+					self.signUp()
+				}
 			
 			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
 				self.signUp()
