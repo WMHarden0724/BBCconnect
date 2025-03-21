@@ -1,0 +1,3 @@
+# Ignore user-specific Xcode state files
+*.xcuserstate
+.DS_Store
