@@ -27,4 +27,6 @@ public struct Dimens {
 	public static let verticalPaddingXsm: CGFloat = 6
 	public static let verticalPaddingXxsm: CGFloat = 4
 	public static let verticalButtonPadding: CGFloat = 15
+	
+	public static let minListItemHeight: CGFloat = 30
 }

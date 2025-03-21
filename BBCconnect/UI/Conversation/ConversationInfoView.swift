@@ -124,30 +124,41 @@ struct ConversationInfoView : View {
 					.padding(.vertical, Dimens.verticalPaddingMd)
 				}
 			}
-			
-			Divider().foregroundColor(.divider)
+		}
+		.background(Color.background)
+		.cornerRadius(8)
+	}
+	
+	@ViewBuilder
+	private func actionsView() -> some View {
+		VStack(spacing: Dimens.verticalPadding) {
+			VStack(spacing: 0) {
+				HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+					Toggle("Hide Alerts", isOn: self.$viewModel.muted)
+						.font(.system(size: 17, weight: .regular))
+						.foregroundColor(.primary)
+				}
+				.padding(.horizontal, Dimens.horizontalPaddingMd)
+				.padding(.vertical, Dimens.verticalPaddingMd)
+				.frame(minHeight: Dimens.minListItemHeight)
+			}
+			.background(Color.background)
+			.cornerRadius(8)
 			
 			Button(action: {
 				self.showLeaveConversationAlert.toggle()
 			}) {
-				HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
-					Avatar(type: .systemImage("arrow.right.square", .errorMain, .avatar),
-						   size: .custom(40),
-						   state: .normal,
-						   bgAsGradient: false)
-					
-					Text("Leave Group")
-						.font(.system(size: 17, weight: .regular))
-						.foregroundColor(.primary)
-						.lineLimit(1)
-						.frame(maxWidth: .infinity, alignment: .leading)
-				}
-				.padding(.horizontal, Dimens.horizontalPaddingMd)
-				.padding(.vertical, Dimens.verticalPaddingMd)
+				Text("Leave Conversation")
+					.font(.system(size: 17, weight: .regular))
+					.foregroundColor(.primary)
+					.lineLimit(1)
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
+					.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
 			}
+			.background(Color.background)
+			.cornerRadius(8)
 		}
-		.background(Color.background)
-		.cornerRadius(8)
 	}
 	
 	var body: some View {
@@ -179,6 +190,8 @@ struct ConversationInfoView : View {
 					
 					self.usersList()
 						.padding(.top, Dimens.verticalPaddingSm)
+					
+					self.actionsView()
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
 				.padding(.vertical, Dimens.verticalPadding)

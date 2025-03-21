@@ -34,23 +34,51 @@ struct AuthenticationSignUpView: View {
 			
 			TextField("Email", text: self.$email)
 				.foregroundColor(.primary)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			TextField("First Name", text: self.$firstName)
 				.foregroundColor(.primary)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
 				.textInputAutocapitalization(.words)
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			TextField("Last Name", text: self.$lastName)
 				.foregroundColor(.primary)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
 				.textInputAutocapitalization(.words)
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			SecureField("Password", text: self.$password)
 				.foregroundColor(.primary)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
 				self.signUp()

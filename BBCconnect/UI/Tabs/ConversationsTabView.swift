@@ -21,11 +21,11 @@ struct ConversationsTabView : View {
 				NavigationStack {
 					ConversationListView(selectedConversation: self.$selectedConversation,
 										 creatingConversation: self.$creatingConversation)
+					.navigationDestination(item: self.$selectedConversation) { conversation in
+						ConversationDetailView(conversation: conversation)
+					}
 				}
 				.tint(.blue)
-				.navigationDestination(item: self.$selectedConversation) { conversation in
-					ConversationDetailView(conversation: conversation)
-				}
 //			}
 //			else {
 //				NavigationSplitView {

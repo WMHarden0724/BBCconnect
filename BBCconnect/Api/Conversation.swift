@@ -29,6 +29,7 @@ public struct Conversation: Codable, Equatable, Hashable, Identifiable {
 	public let last_message: ConversationMessage
 	public let deleted: Bool
 	public let unread_count: Int
+	public var muted: Bool
 	public let created_at: String
 	public let updated_at: String
 	
@@ -137,6 +138,7 @@ extension Conversation {
 													   updated_at: "2025-03-18T10:30:00Z"),
 					 deleted: false,
 					 unread_count: 0,
+					 muted: false,
 					 created_at: "2025-03-18T10:30:00Z",
 					 updated_at: "2025-03-18T10:30:00Z"
 					),
@@ -155,6 +157,7 @@ extension Conversation {
 													   updated_at: "2025-03-17T14:00:00Z"),
 					 deleted: false,
 					 unread_count: 1,
+					 muted: false,
 					 created_at: "2025-03-17T14:00:00Z",
 					 updated_at: "2025-03-17T14:00:00Z"),
 		Conversation(id: 3,
@@ -172,6 +175,7 @@ extension Conversation {
 													   updated_at: "2025-03-17T14:00:00Z"),
 					 deleted: false,
 					 unread_count: 2,
+					 muted: false,
 					 created_at: "2025-03-15T09:15:00Z",
 					 updated_at: "2025-03-15T09:15:00Z")
 	]

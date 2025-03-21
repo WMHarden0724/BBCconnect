@@ -112,5 +112,6 @@ struct BNavigationLink<P> : View where P : Hashable {
 				.background(self.style.background)
 				.cornerRadius(12)
 		}
+		.buttonStyle(.plain)
 	}
 }

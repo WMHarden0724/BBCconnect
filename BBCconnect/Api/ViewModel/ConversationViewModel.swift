@@ -164,6 +164,13 @@ class ConversationViewModel: ObservableObject {
 	
 	@Published var messages = [ConversationMessage]()
 	@Published var loadingState: APIResult<[ConversationMessage]> = .none
+	@Published var muted = false {
+		didSet {
+			if self.muted != self.conversation.muted {
+				self.muteConversation(self.muted)
+			}
+		}
+	}
 	@Published var userTyping: User?
 	
 	private let subManager = SubscriptionManager()
@@ -172,6 +179,7 @@ class ConversationViewModel: ObservableObject {
 	init(conversation: Conversation, includeDeleted: Bool = false) {
 		self.conversation = conversation
 		self.includeDeleted = includeDeleted
+		self.muted = conversation.muted
 		
 		Task {
 			await self.fetchMessages()
@@ -186,6 +194,7 @@ class ConversationViewModel: ObservableObject {
 			if case .success(let data) = result {
 				DispatchQueue.main.async {
 					self.conversation = data
+					self.muted = data.muted
 				}
 			}
 		}
@@ -277,9 +286,25 @@ class ConversationViewModel: ObservableObject {
 		return (false, "An unknown error occurred")
 	}
 	
+	func muteConversation(_ muted: Bool) {
+		Task {
+			let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .muteConversation(self.conversation.id), body: MutedPayload(muted: muted))
+		
+			DispatchQueue.main.async {
+				if case .success(_) = result {
+					self.conversation.muted = muted
+					self.muted = muted
+				}
+				else if case .failure(_) = result {
+					self.muted = !muted
+				}
+			}
+		}
+	}
+	
 	func setTyping(typing: Bool) {
 		Task {
-			let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .typingConversation(self.conversation.id), body: TypingIndicator(typing: typing))
+			let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .typingConversation(self.conversation.id), body: TypingPayload(typing: typing))
 			
 			if case .failure(_) = result {
 				// log error?
@@ -415,6 +440,10 @@ class NewConversationViewModel: UserSearchViewModel {
 	}
 }
 
-fileprivate struct TypingIndicator: Codable {
+fileprivate struct TypingPayload: Codable {
 	let typing: Bool
+}
+
+fileprivate struct MutedPayload: Codable {
+	let muted: Bool
 }

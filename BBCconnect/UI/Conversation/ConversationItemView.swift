@@ -82,7 +82,7 @@ struct ConversationItemView : View {
 					state: .unread
 				)
 				.padding(.leading, (Dimens.horizontalPaddingXl / 2) - 5)
-				.opacity(self.conversation.unread_count > 0 ? 1 : 0)
+				.opacity(self.conversation.unread_count > 0 && !self.conversation.muted ? 1 : 0)
 			}
 		} trailingActions: { context in
 			SwipeAction(systemImage: "trash.fill", backgroundColor: .errorMain) {

@@ -81,6 +81,7 @@ struct ConversationDetailView: View {
 				self.addMessage()
 			}
 			.padding(.horizontal, Dimens.horizontalPadding)
+			.padding(.bottom, Dimens.verticalPadding)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.onChange(of: self.message, initial: false) {
 				self.viewModel.setTyping(typing: true)

@@ -103,6 +103,7 @@ enum APIEndpoint: Equatable {
 	case updateConversation(Int)
 	case deleteConversation(Int)
 	case leaveConversation(Int)
+	case muteConversation(Int)
 	case markConversationRead(Int)
 	case typingConversation(Int)
 	case getMessages(Int)
@@ -126,6 +127,7 @@ enum APIEndpoint: Equatable {
 		case .updateConversation(let id): return "/api/conversations/\(id)"
 		case .deleteConversation(let id): return "/api/conversations/\(id)"
 		case .leaveConversation(let id): return "/api/conversations/\(id)/leave"
+		case .muteConversation(let id): return "/api/conversations/\(id)/mute"
 		case .markConversationRead(let id): return "/api/conversations/\(id)/read"
 		case .typingConversation(let id): return "/api/conversations/\(id)/typing"
 		case .createMessage(let id): return "/api/conversations/\(id)/messages"
@@ -150,6 +152,7 @@ enum APIEndpoint: Equatable {
 		case .updateConversation(_): return .delete
 		case .deleteConversation(_): return .delete
 		case .leaveConversation(_): return .delete
+		case .muteConversation(_): return .post
 		case .markConversationRead(_): return .post
 		case .typingConversation(_): return .post
 		case .getMessages(_): return .get

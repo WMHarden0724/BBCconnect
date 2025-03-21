@@ -77,6 +77,7 @@ struct NewConversationView : View {
 					self.createConversation()
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
+				.padding(.bottom, Dimens.verticalPadding)
 				.backgroundIgnoreSafeArea(color: .backgroundDark)
 			}
 			.animation(.easeInOut(duration: 0.25), value: self.message)

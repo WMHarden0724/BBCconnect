@@ -32,12 +32,26 @@ struct AuthenticationLogInView: View {
 			
 			TextField("Email", text: self.$email)
 				.foregroundColor(.primary)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			SecureField("Password", text: self.$password)
-				.textFieldStyle(RoundedBorderTextFieldStyle())
+				.textFieldStyle(PlainTextFieldStyle())
+				.padding(.horizontal, 12)
+				.padding(.vertical, 10)
+				.foregroundColor(.primary)
+				.overlay(
+					Capsule()
+						.stroke(Color.divider, lineWidth: 1)
+				)
 			
 			BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
 				self.logIn()
