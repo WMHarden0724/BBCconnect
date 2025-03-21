@@ -18,13 +18,17 @@ struct AuthenticationLogInView: View {
 	
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
+            Image("ChurchLogo")
+                .resizable()
+                .frame(width:250, height:250)
+                .padding(.vertical, 30)
+                .clipShape(.circle)
+            
 			
 			Text("Log in to view stream")
 				.foregroundColor(.primary)
 				.font(.body)
 				.multilineTextAlignment(.center)
-				.padding(.top, Dimens.verticalPadding)
-			
 			if case .failure(let error) = self.viewModel.loadingState {
 				Text(error.localizedDescription)
 					.font(.callout)
@@ -59,12 +63,14 @@ struct AuthenticationLogInView: View {
 			}
 			
 			VStack(spacing: 0) {
-				Text("Can't log in? Contact Video Booth at")
+				Text("Can't log in? Contact App Ministry")
 					.font(.body)
 					.multilineTextAlignment(.center)
 					.foregroundColor(.primaryMain)
 				
-				Text("biblebaptistchurchconnect@gmail.com")
+                Button(action: (
+                    
+                ))
 					.font(.body)
 					.foregroundColor(.blue)
 			}
