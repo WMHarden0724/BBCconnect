@@ -22,6 +22,7 @@ struct AuthenticationLogInView: View {
 			Text("Log into your BBC Connect account to store your data and keep them updated across all your devices.")
 				.foregroundColor(.primary)
 				.font(.body)
+				.multilineTextAlignment(.center)
 				.padding(.top, Dimens.verticalPadding)
 			
 			if case .failure(let error) = self.viewModel.loadingState {
@@ -60,6 +61,7 @@ struct AuthenticationLogInView: View {
 			VStack(spacing: 0) {
 				Text("Can't log in? Contact Video Booth at")
 					.font(.body)
+					.multilineTextAlignment(.center)
 					.foregroundColor(.primaryMain)
 				
 				Text("biblebaptistchurchconnect@gmail.com")

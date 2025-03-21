@@ -24,6 +24,7 @@ struct AuthenticationSignUpView: View {
 			Text("Sign up for a BBC Connect account to ensure your data is up to date across your devices.")
 				.foregroundColor(.primary)
 				.font(.body)
+				.multilineTextAlignment(.center)
 				.padding(.top, Dimens.verticalPadding)
 			
 			if case .failure(let error) = self.viewModel.loadingState {
