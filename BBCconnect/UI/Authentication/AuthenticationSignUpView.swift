@@ -21,7 +21,7 @@ struct AuthenticationSignUpView: View {
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
 			
-			Text("Sign up for a BBC Connect account to ensure your data is up to date across your devices.")
+			Text("Sign up for BBC stream")
 				.foregroundColor(.primary)
 				.font(.body)
 				.multilineTextAlignment(.center)
@@ -93,6 +93,8 @@ struct AuthenticationSignUpView: View {
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
 		.backgroundIgnoreSafeArea(color: .background)
+		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarRole(.editor)
 	}
 	
 	private func signUp() {

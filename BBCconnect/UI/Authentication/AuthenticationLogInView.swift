@@ -19,7 +19,7 @@ struct AuthenticationLogInView: View {
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
 			
-			Text("Log into your BBC Connect account to store your data and keep them updated across all your devices.")
+			Text("Log in to view stream")
 				.foregroundColor(.primary)
 				.font(.body)
 				.multilineTextAlignment(.center)
@@ -77,6 +77,8 @@ struct AuthenticationLogInView: View {
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
 		.backgroundIgnoreSafeArea(color: .background)
+		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarRole(.editor)
 	}
 	
 	private func logIn() {

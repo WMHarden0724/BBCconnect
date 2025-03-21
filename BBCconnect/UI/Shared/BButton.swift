@@ -92,6 +92,7 @@ struct BButton : View {
 			)
 		}
 		.disabled(self.isLoading)
+		.buttonStyle(.plain)
 	}
 }
 
