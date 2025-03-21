@@ -20,7 +20,7 @@ struct ConversationTextField : View {
 					.textFieldStyle(PlainTextFieldStyle())
 					.padding(.horizontal, 12)
 					.padding(.vertical, 10)
-					.foregroundColor(.textPrimary)
+					.foregroundColor(.primary)
 				
 				// Send button inside the text field
 				if !self.message.isEmpty {
@@ -29,7 +29,7 @@ struct ConversationTextField : View {
 							.font(.system(size: 18, weight: .bold))
 							.foregroundColor(.white)
 							.padding(6)
-							.background(Color.actionActive)
+							.background(Color.blue)
 							.clipShape(Circle())
 							.padding(.trailing, 4)
 					}
@@ -41,7 +41,5 @@ struct ConversationTextField : View {
 					.stroke(Color.divider, lineWidth: 1)
 			)
 		}
-		.padding(.top, Dimens.verticalPaddingSm)
-		.padding(.bottom, Dimens.verticalPadding)
 	}
 }

@@ -22,7 +22,7 @@ struct AuthenticationSignUpView: View {
 		VStack(spacing: Dimens.verticalPadding) {
 			
 			Text("Sign up for a BBC Connect account to ensure your data is up to date across your devices.")
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.font(.body)
 				.padding(.top, Dimens.verticalPadding)
 			
@@ -33,23 +33,23 @@ struct AuthenticationSignUpView: View {
 			}
 			
 			TextField("Email", text: self.$email)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
 			
 			TextField("First Name", text: self.$firstName)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.textInputAutocapitalization(.words)
 			
 			TextField("Last Name", text: self.$lastName)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.textInputAutocapitalization(.words)
 			
 			SecureField("Password", text: self.$password)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 			
 			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
@@ -63,7 +63,7 @@ struct AuthenticationSignUpView: View {
 			self.viewSize = size
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
-		.backgroundIgnoreSafeArea()
+		.backgroundIgnoreSafeArea(color: .background)
 	}
 	
 	private func signUp() {

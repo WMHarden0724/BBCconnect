@@ -22,10 +22,10 @@ struct ConversationsTabView : View {
 					ConversationListView(selectedConversation: self.$selectedConversation,
 										 creatingConversation: self.$creatingConversation)
 				}
-				.fullScreenCover(item: self.$selectedConversation, content: { conversation in
+				.tint(.blue)
+				.navigationDestination(item: self.$selectedConversation) { conversation in
 					ConversationDetailView(conversation: conversation)
-						.interactiveDismissDisabled()
-				})
+				}
 //			}
 //			else {
 //				NavigationSplitView {

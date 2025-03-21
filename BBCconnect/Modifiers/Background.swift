@@ -9,7 +9,7 @@ import SwiftUI
 
 public extension View {
 	
-	func backgroundIgnoreSafeArea(color: Color = Color.background) -> some View {
+	func backgroundIgnoreSafeArea(color: Color) -> some View {
 		background(
 			color.edgesIgnoringSafeArea(.all)
 		)

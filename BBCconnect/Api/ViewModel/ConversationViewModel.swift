@@ -112,8 +112,13 @@ class ConversationsViewModel: ObservableObject {
 				.sink(receiveValue: { payload in
 					guard payload.channel == .conversations || payload.channel == .messages else { return }
 					if let conversationId = payload.conversation_id, payload.status != .typing {
-						self.onConversationUpdated(status: payload.channel == .messages ? .update : payload.status,
-												   conversationId: conversationId)
+						if payload.channel == .conversations, let secondaryStatus = payload.secondary_status, secondaryStatus == .leave, payload.user_id == UserCfg.userId() {
+							self.conversations.removeAll(where: { $0.id == payload.conversation_id })
+						}
+						else {
+							self.onConversationUpdated(status: payload.channel == .messages ? .update : payload.status,
+													   conversationId: conversationId)
+						}
 					}
 				})
 				.storeIn(self.subManager)
@@ -173,6 +178,32 @@ class ConversationViewModel: ObservableObject {
 		}
 		
 		self.setupSubscribers()
+	}
+	
+	func fetchConversation() {
+		Task {
+			let result: APIResult<Conversation> = await APIManager.shared.request(endpoint: .getConversation(self.conversation.id))
+			if case .success(let data) = result {
+				DispatchQueue.main.async {
+					self.conversation = data
+				}
+			}
+		}
+	}
+	
+	func addUsersToConversation(newUsers: [User]) async -> (Bool, String?) {
+		var users = self.conversation.users
+		users.append(contentsOf: newUsers)
+		let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .updateConversation(self.conversation.id), body: ConversationUpdate(name: nil, user_ids: users.map { $0.id }))
+		
+		if case .success(_) = result {
+			return (true, nil)
+		}
+		else if case .failure(let error) = result {
+			return (false, error.localizedDescription)
+		}
+		
+		return (false, nil)
 	}
 	
 	func fetchMessages() async {
@@ -276,10 +307,6 @@ class ConversationViewModel: ObservableObject {
 					}
 					else if let conversationId = payload.conversation_id, conversationId == self.conversation.id {
 						if payload.channel == .messages, let messageId = payload.message_id {
-							
-							// Set false someone typing so we get clean animation
-							self.userTyping = nil
-							
 							self.onMessageCreatedOrUpdated(status: payload.status,
 														   conversationId: conversationId,
 														   messageId: messageId)
@@ -295,7 +322,7 @@ class ConversationViewModel: ObservableObject {
 	
 	private func checkTyping(_ payload: PubSubMessage) {
 		var userTyping: User? = nil
-		if payload.typing == true {
+		if payload.typing == true && payload.conversation_id == self.conversation.id {
 			if payload.user_id != UserCfg.userId() {
 				userTyping = self.conversation.users.first(where: { $0.id == payload.user_id })
 			}
@@ -328,6 +355,9 @@ class ConversationViewModel: ObservableObject {
 			return
 		}
 		
+		// Set false someone typing so we get clean animation
+		self.userTyping = nil
+		
 		Task {
 			let result: APIResult<ConversationMessage> = await APIManager.shared.request(endpoint: .getMessage(conversationId, messageId))
 			if case .success(let data) = result {
@@ -352,21 +382,9 @@ class ConversationViewModel: ObservableObject {
 
 
 @MainActor
-class NewConversationViewModel: ObservableObject {
+class NewConversationViewModel: UserSearchViewModel {
 	
-	@Published var users = [User]()
 	@Published var loadingState: APIResult<Conversation> = .none
-	
-	func searchUsers(query: String) async {
-		let queryParams = ["q": query]
-		let result: APIResult<[User]> = await APIManager.shared.request(endpoint: .searchUsers, queryParams: queryParams)
-		
-		DispatchQueue.main.async {
-			if case .success(let data) = result {
-				self.users = data.filter { $0.id != UserCfg.userId() }
-			}
-		}
-	}
 	
 	func createConversation(title: String = "Conversation", users: [User], message: String) async -> (Conversation?, String?) {
 		guard !message.isEmpty else {

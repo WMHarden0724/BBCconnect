@@ -41,3 +41,20 @@ class UserViewModel: ObservableObject {
 //		}
 	}
 }
+
+@MainActor
+open class UserSearchViewModel: ObservableObject {
+	
+	@Published var users = [User]()
+	
+	func searchUsers(query: String) async {
+		let queryParams = ["q": query]
+		let result: APIResult<[User]> = await APIManager.shared.request(endpoint: .searchUsers, queryParams: queryParams)
+		
+		DispatchQueue.main.async {
+			if case .success(let data) = result {
+				self.users = data.filter { $0.id != UserCfg.userId() }
+			}
+		}
+	}
+}

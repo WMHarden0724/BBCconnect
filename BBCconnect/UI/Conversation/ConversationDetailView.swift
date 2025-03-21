@@ -17,10 +17,12 @@ struct ConversationDetailView: View {
 	@State private var message = ""
 	@State private var viewSize: CGSize = .zero
 	
-	@State private var bottomAnchorId = Date()
 	@State private var alertToastError: String?
 	@State private var isShowingInfoView = false
 	@State private var typingCancellable: AnyCancellable?
+	
+	@State private var userTyping: User?
+	@State private var userTypingId = Date()
 	
 	private var navTitle: String {
 		let users = self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }
@@ -42,126 +44,100 @@ struct ConversationDetailView: View {
 	}
 	
 	var body: some View {
-		NavigationStack {
-			VStack(spacing: 0) {
-				ScrollView {
-					ScrollViewReader { proxy in
-						LazyVStack(spacing: 0) {
-							ForEach(self.viewModel.messages, id: \.id) { message in
-								if let timestamp = self.getPreviousMessageTimestamp(message: message) {
-									Text(timestamp)
-										.font(.footnote)
-										.foregroundColor(.textSecondary)
-										.padding(.top, Dimens.verticalPaddingMd)
-										.padding(.bottom, Dimens.verticalPaddingSm)
-								}
-								
-								ConversationMessageView(message: message,
-														isFromYou: message.user.id == UserCfg.userId(),
-														shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
-								.padding(.horizontal, Dimens.horizontalPadding)
+		VStack(spacing: 0) {
+			ScrollView {
+				LazyVStack(spacing: 0) {
+					ForEach(self.viewModel.messages, id: \.id) { message in
+						if let timestamp = self.getPreviousMessageTimestamp(message: message) {
+							Text(timestamp)
+								.font(.footnote)
+								.foregroundColor(.secondary)
+								.padding(.top, Dimens.verticalPaddingMd)
 								.padding(.bottom, Dimens.verticalPaddingSm)
-								.padding(.leading, message.user.id == UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
-								.padding(.trailing, message.user.id != UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
-							}
-							
-							if let userTyping = self.viewModel.userTyping {
-								TypingBubbleView(user: userTyping,
-												 shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
-									.padding(.horizontal, Dimens.horizontalPadding)
-									.padding(.bottom, Dimens.verticalPaddingSm)
-									.transition(.move(edge: .bottom).combined(with: .opacity))
-							}
 						}
-						.id(self.bottomAnchorId)
-						.padding(.top, Dimens.verticalPadding)
-						.onChange(of: self.viewModel.userTyping, initial: false) {
-							if self.viewModel.userTyping != nil {
-								proxy.scrollTo(self.bottomAnchorId, anchor: .bottom)
-							}
-						}
-						.onChange(of: self.viewModel.messages, initial: true) {
-							if self.viewModel.messages.last != nil {
-								proxy.scrollTo(self.bottomAnchorId, anchor: .bottom)
-							}
-						}
+
+						ConversationMessageView(message: message,
+												isFromYou: message.user.id == UserCfg.userId(),
+												shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
+						.padding(.horizontal, Dimens.horizontalPadding)
+						.padding(.bottom, Dimens.verticalPaddingSm)
+						.padding(.leading, message.user.id == UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
+						.padding(.trailing, message.user.id != UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
+					}
+
+					if let userTyping = self.userTyping {
+						TypingBubbleView(user: userTyping,
+										 shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
+						.padding(.horizontal, Dimens.horizontalPadding)
+						.padding(.bottom, Dimens.verticalPaddingSm)
+						.transition(.move(edge: .bottom).combined(with: .opacity))
 					}
 				}
-				.defaultScrollAnchor(.bottom)
-				.animation(.easeInOut, value: self.viewModel.userTyping)
-				.animation(.easeInOut, value: self.viewModel.messages)
-				
-				VStack {
-					Divider().foregroundColor(.divider)
-					
-					ConversationTextField(message: self.$message) {
-						self.addMessage()
-					}
-					.padding(.horizontal, Dimens.horizontalPadding)
-					.onChange(of: self.message, initial: false) {
-						self.viewModel.setTyping(typing: true)
-						self.debounceMessageChange()
-					}
-				}
-				.backgroundIgnoreSafeArea()
+				.padding(.top, Dimens.verticalPadding)
 			}
-			.readSize { size in
-				self.viewSize = size
+			.defaultScrollAnchor(.bottom)
+			
+			ConversationTextField(message: self.$message) {
+				self.addMessage()
 			}
-			.animation(.easeInOut, value: self.viewModel.conversation)
+			.padding(.horizontal, Dimens.horizontalPadding)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
-			.sheet(isPresented: self.$isShowingInfoView) {
-				ConversationInfoView(viewModel: self.viewModel) {
-					self.dismiss()
-				}
+			.onChange(of: self.message, initial: false) {
+				self.viewModel.setTyping(typing: true)
+				self.debounceMessageChange()
 			}
-			.onChange(of: self.viewModel.messages, initial: false) {
-				self.markMessagesAsRead()
+		}
+		.readSize { size in
+			self.viewSize = size
+		}
+		.animation(.easeInOut, value: self.viewModel.messages)
+		.animation(.easeInOut, value: self.viewModel.conversation)
+		.backgroundIgnoreSafeArea(color: .backgroundDark)
+		.sheet(isPresented: self.$isShowingInfoView) {
+			ConversationInfoView(viewModel: self.viewModel) {
+				self.dismiss()
 			}
-			.toast(isPresenting: Binding(
-				get: { self.alertToastError != nil },
-				set: { if !$0 { self.alertToastError = nil } }
-			), alert: {
-				AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
-			}, completion: {
-				self.alertToastError = nil
-			})
-			.navigationBarTitleDisplayMode(.inline)
-			.toolbar {
-				ToolbarItem(placement: .navigationBarLeading) {
-					Button(action: {
-						self.dismiss()
-					}) {
-						Image(systemName: "xmark")
-							.tint(.blue)
-							.imageScale(.medium)
-					}
-				}
-				
-				ToolbarItem(placement: .principal) {
-					Button(action: {
-						self.isShowingInfoView.toggle()
-					}) {
-						VStack {
-							if self.viewModel.conversation.users.count == 1 {
-								Avatar(type: .image(self.viewModel.conversation.users[0]), size: .xxs, state: .normal)
-							}
-							else {
-								AvatarGroup(users: self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() },
-											size: 24,
-											includeBackground: false)
-							}
-							
-							HStack(spacing: 2) {
-								Text(self.navTitle)
-									.foregroundColor(.textPrimary)
-									.font(.caption)
-								
-								Image(systemName: "chevron.right")
-									.font(.system(size: 8))
-									.foregroundColor(.actionActive)
-							}
+		}
+		.onChange(of: self.viewModel.messages, initial: false) {
+			self.markMessagesAsRead()
+		}
+		.onChange(of: self.viewModel.userTyping, initial: false) {
+			withAnimation(.easeInOut(duration: 0.3)) {
+				self.userTyping = self.viewModel.userTyping
+			}
+		}
+		.toast(isPresenting: Binding(
+			get: { self.alertToastError != nil },
+			set: { if !$0 { self.alertToastError = nil } }
+		), alert: {
+			AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
+		}, completion: {
+			self.alertToastError = nil
+		})
+		.toolbar(.hidden, for: .tabBar)
+		.navigationBarTitleDisplayMode(.inline)
+		.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+		.toolbarRole(.editor)
+		.toolbar {
+			ToolbarItem(placement: .principal) {
+				Button(action: {
+					self.isShowingInfoView.toggle()
+				}) {
+					HStack(spacing: 2) {
+						let users = self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }
+						if users.count == 1 {
+							Avatar(type: .image(users[0]), size: .custom(32), state: .normal)
 						}
+						else {
+							AvatarGroup(users: users,
+										width: 60,
+										height: 38,
+										includeBackground: false)
+						}
+						
+						Image(systemName: "chevron.right")
+							.font(.system(size: 7))
+							.foregroundColor(.actionActive)
 					}
 				}
 			}

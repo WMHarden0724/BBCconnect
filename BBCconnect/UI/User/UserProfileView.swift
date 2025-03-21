@@ -44,7 +44,7 @@ struct UserProfileView : View {
 			ZStack(alignment: .topLeading) {
 				Avatar(type: .userCfg, size: .xl, state: .normal)
 				
-				Avatar(type: .systemImage("pencil.circle", .primaryContrast, .primaryMain), size: .xs, state: .normal)
+				Avatar(type: .systemImage("pencil", .primaryContrast, .primaryMain), size: .xxs, state: .normal)
 					.padding(.leading, 110)
 					.padding(.top, 120)
 					.shadow(radius: 3)
@@ -104,7 +104,7 @@ struct UserProfileView : View {
 			
 			Text("\(self.firstName) \(self.lastName)")
 				.font(.largeTitle)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.padding(.top, Dimens.verticalPadding)
 			
 			Spacer()
@@ -117,7 +117,9 @@ struct UserProfileView : View {
 			.padding(.bottom, Dimens.verticalPadding)
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
-		.backgroundIgnoreSafeArea()
+		.backgroundIgnoreSafeArea(color: .background)
+		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarRole(.editor)
 		.alert("Log Out", isPresented: self.$showLogoutAlert) {
 			Button("Cancel", role: .cancel) { }
 			Button("Log Out", role: .destructive) {

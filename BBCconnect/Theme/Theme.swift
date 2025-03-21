@@ -23,23 +23,21 @@ public class Theme {
 		appearance.titleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .headline)]
 		appearance.largeTitleTextAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .largeTitle)]
 
-		// 🔙 Remove back button text (invisible title)
-		let backButtonAppearance = UIBarButtonItemAppearance()
-		backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
-		appearance.backButtonAppearance = backButtonAppearance
-
 		let navigationBar = UINavigationBar.appearance()
+		navigationBar.tintColor = UIColor(Color.background)
+		navigationBar.barTintColor = UIColor(Color.background)
 		navigationBar.standardAppearance = appearance
+		navigationBar.compactAppearance = appearance
 		navigationBar.scrollEdgeAppearance = appearance
 		
 		/// TabBar
 		let standardTabBarAppearance = UITabBarAppearance()
 		standardTabBarAppearance.configureWithDefaultBackground()
 		standardTabBarAppearance.backgroundColor = UIColor(Color.background)
-		standardTabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primaryMain)
-		standardTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.primaryMain)]
-		standardTabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.textSecondary)
-		standardTabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(Color.textSecondary)]
+		standardTabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primary)
+		standardTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.primary)]
+		standardTabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.secondary)
+		standardTabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(Color.secondary)]
 		
 		let tabBar = UITabBar.appearance()
 		tabBar.standardAppearance = standardTabBarAppearance

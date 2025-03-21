@@ -8,11 +8,12 @@
 import SwiftUI
 import AlertToast
 
-struct NewConversationView : View {
+struct AddUsersToConversationView : View {
 	
 	@Environment(\.dismiss) var dismiss
 	
-	@StateObject private var viewModel = NewConversationViewModel()
+	@ObservedObject var viewModel: ConversationViewModel
+	@StateObject private var searchViewModel = UserSearchViewModel()
 	
 	@State private var selectedUsers = [User]()
 	
@@ -23,7 +24,10 @@ struct NewConversationView : View {
 	
 	@State private var alertToastError: String?
 	
-	var onConversationCreated: (Conversation) -> Void
+	var filteredUsers: [User] {
+		let users = self.searchViewModel.users
+		return users.filter { !self.viewModel.conversation.users.contains($0) }
+	}
 	
 	var body: some View {
 		NavigationStack {
@@ -44,7 +48,7 @@ struct NewConversationView : View {
 					Text(user.fullName())
 				})
 				.searchSuggestions({
-					ForEach(self.viewModel.users) { user in
+					ForEach(self.filteredUsers) { user in
 						Button {
 							self.selectedUsers.append(user)
 							self.inputText.removeAll()
@@ -70,14 +74,6 @@ struct NewConversationView : View {
 				.onChange(of: self.inputText, initial: false) {
 					self.search()
 				}
-				
-				Spacer()
-				
-				ConversationTextField(message: self.$message) {
-					self.createConversation()
-				}
-				.applyHorizontalPadding(viewWidth: self.viewSize.width)
-				.backgroundIgnoreSafeArea(color: .backgroundDark)
 			}
 			.animation(.easeInOut(duration: 0.25), value: self.message)
 			.readSize { size in
@@ -91,13 +87,13 @@ struct NewConversationView : View {
 			}, completion: {
 				self.alertToastError = nil
 			})
-			.backgroundIgnoreSafeArea(color: .backgroundDark)
-			.navigationTitle("New Message")
+			.navigationTitle("Group")
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbarBackground(Color.clear, for: .navigationBar)
 			.toolbarRole(.automatic)
+			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.toolbar {
-				ToolbarItem(placement: .navigationBarTrailing) {
+				ToolbarItem(placement: .navigationBarLeading) {
 					Button(action: {
 						self.dismiss()
 					}) {
@@ -105,6 +101,17 @@ struct NewConversationView : View {
 							.foregroundStyle(.blue)
 							.font(.system(size: 17, weight: .medium))
 					}
+				}
+				
+				ToolbarItem(placement: .navigationBarTrailing) {
+					Button(action: {
+						self.updateConversation()
+					}) {
+						Text("Done")
+							.foregroundColor(self.selectedUsers.isEmpty ? .gray.opacity(0.5) : .blue)
+							.font(.system(size: 17, weight: .medium))
+					}
+					.disabled(self.selectedUsers.isEmpty)
 				}
 			}
 		}
@@ -116,21 +123,20 @@ struct NewConversationView : View {
 		self.searchQuery = components.last ?? ""
 		
 		if self.searchQuery.isEmpty {
-			self.viewModel.users.removeAll()
+			self.searchViewModel.users.removeAll()
 			return
 		}
 		
 		Task {
-			await self.viewModel.searchUsers(query: self.searchQuery)
+			await self.searchViewModel.searchUsers(query: self.searchQuery)
 		}
 	}
 	
-	private func createConversation() {
+	private func updateConversation() {
 		Task {
-			let result = await self.viewModel.createConversation(users: self.selectedUsers, message: self.message)
+			let result = await self.viewModel.addUsersToConversation(newUsers: self.selectedUsers)
 			DispatchQueue.main.async {
-				if let conversation = result.0 {
-					self.onConversationCreated(conversation)
+				if result.0 {
 					self.dismiss()
 				}
 				else if let error = result.1 {
@@ -138,11 +144,5 @@ struct NewConversationView : View {
 				}
 			}
 		}
-	}
-}
-
-struct NewConversationView_Previews: PreviewProvider {
-	static var previews: some View {
-		NewConversationView { _ in }
 	}
 }

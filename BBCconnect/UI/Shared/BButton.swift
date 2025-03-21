@@ -88,7 +88,7 @@ struct BButton : View {
 			.cornerRadius(12)
 			.overlay(
 				RoundedRectangle(cornerRadius: 12)
-					.stroke(self.style.border, lineWidth: 2)
+					.stroke(self.style.border, lineWidth: 1)
 			)
 		}
 		.disabled(self.isLoading)

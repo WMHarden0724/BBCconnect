@@ -20,7 +20,7 @@ struct AuthenticationLogInView: View {
 		VStack(spacing: Dimens.verticalPadding) {
 			
 			Text("Log into your BBC Connect account to store your data and keep them updated across all your devices.")
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.font(.body)
 				.padding(.top, Dimens.verticalPadding)
 			
@@ -31,7 +31,7 @@ struct AuthenticationLogInView: View {
 			}
 			
 			TextField("Email", text: self.$email)
-				.foregroundColor(.textPrimary)
+				.foregroundColor(.primary)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
@@ -60,7 +60,7 @@ struct AuthenticationLogInView: View {
 			self.viewSize = size
 		}
 		.applyHorizontalPadding(viewWidth: self.viewSize.width)
-		.backgroundIgnoreSafeArea()
+		.backgroundIgnoreSafeArea(color: .background)
 	}
 	
 	private func logIn() {

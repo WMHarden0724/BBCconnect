@@ -20,20 +20,23 @@ struct ConversationListView : View {
 	
 	var body: some View {
 		ZStack {
-			ScrollView {
-				LazyVStack(spacing: 0) {
-					ForEach(self.viewModel.conversations, id: \.id) { conversation in						
-						ConversationItemView(conversation: conversation, onOpen: {
-							self.selectedConversation = conversation
-						}) {
+			List {
+				ForEach(self.viewModel.conversations, id: \.id) { conversation in
+					ZStack {
+						ConversationItemView(conversation: conversation) {
 							self.leaveConversation(conversation)
 						}
+						NavigationLink(destination: ConversationDetailView(conversation: conversation)) {
+							EmptyView()
+						}.opacity(0)
 					}
-					
-					Spacer(minLength: Dimens.verticalPadding)
+					.listRowSeparator(.hidden)
+					.listRowBackground(Color.clear)
+					.listRowSpacing(0)
+					.listRowInsets(EdgeInsets())
 				}
 			}
-			.background(Color.background)
+			.listStyle(.plain)
 			.refreshable {
 				await self.viewModel.fetchConversations()
 			}
@@ -42,9 +45,9 @@ struct ConversationListView : View {
 				VStack {
 					Spacer()
 					
-					Text("No conversations")
+					Text("No messages")
 						.font(.headline)
-						.foregroundColor(.textPrimary)
+						.foregroundColor(.primary)
 						.frame(maxWidth: .infinity)
 					
 					Spacer()
@@ -52,7 +55,7 @@ struct ConversationListView : View {
 			}
 			
 			ProgressView()
-				.progressViewStyle(CircularProgressViewStyle(tint: Color.textPrimary))
+				.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
 				.opacity(self.viewModel.loadingState.isLoading ? 1 : 0)
 		}
 		.readSize { size in
@@ -68,7 +71,7 @@ struct ConversationListView : View {
 		}, completion: {
 			self.alertToastError = nil
 		})
-		.backgroundIgnoreSafeArea()
+		.backgroundIgnoreSafeArea(color: .backgroundDark)
 		.onCfgChanged(onChanged: { cfgType, value in
 			if cfgType == .sessionToken, UserCfg.isLoggedIn() {
 				Task {
@@ -77,7 +80,9 @@ struct ConversationListView : View {
 			}
 		})
 		.navigationBarTitleDisplayMode(.inline)
-		.navigationTitle("Conversations")
+		.navigationTitle("Messages")
+		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarRole(.editor)
 		.toolbar {
 			ToolbarItem(placement: .navigationBarTrailing) {
 				Button(action: {
@@ -85,7 +90,7 @@ struct ConversationListView : View {
 				}) {
 					Image(systemName: "square.and.pencil")
 						.tint(.blue)
-						.imageScale(.medium)
+						.imageScale(.large)
 				}
 			}
 		}

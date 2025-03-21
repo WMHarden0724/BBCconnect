@@ -11,15 +11,17 @@ import SwiftUI
 
 public struct LightColors {
 	
+	static let avatar = UIColor.systemGray3
 	static let actionActive = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5607843137254902)
 	static let actionDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
-	static let backgroundDark = UIColor(red: 0.941, green: 0.945, blue: 0.953, alpha: 1)
-	static let background = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let divider = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.12156862745098039)
+	static let backgroundLight = UIColor(red: 0.881, green: 0.885, blue: 0.883, alpha: 1)
+	static let backgroundDark = UIColor.systemGroupedBackground
+	static let background = UIColor.systemBackground
+	static let divider = UIColor(red: 0.82, green: 0.82, blue: 0.84, alpha: 1.00)
 	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let errorMain = UIColor(red: 0.827, green: 0.184, blue: 0.184, alpha: 1)
-	static let errorLight = UIColor(red: 0.898, green: 0.451, blue: 0.451, alpha: 1)
-	static let errorDark = UIColor(red: 0.718, green: 0.110, blue: 0.110, alpha: 1)
+	static let errorMain = UIColor.systemRed
+	static let messageBubbleYou = UIColor(Color.blue)
+	static let messageBubbleOther = UIColor(Color.secondary.opacity(0.4))
 	static let paper = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryMain = UIColor(red: 0.098, green: 0.110, blue: 0.118, alpha: 1)
@@ -29,22 +31,21 @@ public struct LightColors {
 	static let secondaryMain = UIColor(red: 0.882, green: 0.886, blue: 0.898, alpha: 1)
 	static let secondaryLight = UIColor(red: 0.941, green: 0.945, blue: 0.953, alpha: 1)
 	static let secondaryDark = UIColor(red: 0.773, green: 0.776, blue: 0.788, alpha: 1)
-	static let textDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
-	static let textPrimary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
-	static let textSecondary = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5019607843137254)
 }
 
 public struct DarkColors {
 	
+	static let avatar = UIColor.systemGray2
 	static let actionActive = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.5607843137254902)
 	static let actionDisabled = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.2)
-	static let backgroundDark = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
-	static let background = UIColor(red: 0.098, green: 0.110, blue: 0.118, alpha: 1)
-	static let divider = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.12156862745098039)
+	static let backgroundLight = UIColor.systemBackground
+	static let backgroundDark = UIColor.systemGroupedBackground
+	static let background = UIColor.secondarySystemBackground
+	static let divider = UIColor(red: 0.23, green: 0.23, blue: 0.24, alpha: 1.00)
 	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let errorMain = UIColor(red: 0.937, green: 0.325, blue: 0.314, alpha: 1)
-	static let errorLight = UIColor(red: 0.937, green: 0.604, blue: 0.604, alpha: 1)
-	static let errorDark = UIColor(red: 0.776, green: 0.157, blue: 0.157, alpha: 1)
+	static let errorMain = UIColor.systemRed
+	static let messageBubbleYou = UIColor(Color.blue)
+	static let messageBubbleOther = UIColor(Color.secondary.opacity(0.6))
 	static let paper = UIColor(red: 0.141, green: 0.153, blue: 0.161, alpha: 1)
 	static let primaryContrast = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
 	static let primaryMain = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
@@ -54,22 +55,21 @@ public struct DarkColors {
 	static let secondaryMain = UIColor(red: 0.271, green: 0.278, blue: 0.286, alpha: 1)
 	static let secondaryLight = UIColor(red: 0.361, green: 0.373, blue: 0.380, alpha: 1)
 	static let secondaryDark = UIColor(red: 0.180, green: 0.192, blue: 0.200, alpha: 1)
-	static let textDisabled = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.2)
-	static let textPrimary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let textSecondary = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 0.5019607843137254)
 }
 
 
 public enum ColorType {
+	case avatar
 	case actionDisabled
 	case actionActive
+	case backgroundLight
 	case backgroundDark
 	case background
 	case divider
 	case errorContrast
 	case errorMain
-	case errorLight
-	case errorDark
+	case messageBubbleYou
+	case messageBubbleOther
 	case paper
 	case primaryContrast
 	case primaryMain
@@ -79,9 +79,6 @@ public enum ColorType {
 	case secondaryMain
 	case secondaryLight
 	case secondaryDark
-	case textDisabled
-	case textPrimary
-	case textSecondary
 	
 	public static func color(type: ColorType) -> UIColor {
 		let color = UIColor { (traitCollection: UITraitCollection) -> UIColor in
@@ -93,10 +90,14 @@ public enum ColorType {
 	/// Retrieve a color based on the `WFThemeColorType` from our theme delegate, forcing whether dark mode or not
 	public static func color(type: ColorType, isDarkMode: Bool) -> UIColor {
 		switch type {
+		case .avatar:
+			return isDarkMode ? DarkColors.avatar : LightColors.avatar
 		case .actionActive:
 			return isDarkMode ? DarkColors.actionActive : LightColors.actionActive
 		case .actionDisabled:
 			return isDarkMode ? DarkColors.actionDisabled : LightColors.actionDisabled
+		case .backgroundLight:
+			return isDarkMode ? DarkColors.backgroundLight : LightColors.backgroundLight
 		case .backgroundDark:
 			return isDarkMode ? DarkColors.backgroundDark : LightColors.backgroundDark
 		case .background:
@@ -107,10 +108,10 @@ public enum ColorType {
 			return isDarkMode ? DarkColors.errorContrast : LightColors.errorContrast
 		case .errorMain:
 			return isDarkMode ? DarkColors.errorMain : LightColors.errorMain
-		case .errorLight:
-			return isDarkMode ? DarkColors.errorLight : LightColors.errorLight
-		case .errorDark:
-			return isDarkMode ? DarkColors.errorDark : LightColors.errorDark
+		case .messageBubbleYou:
+			return isDarkMode ? DarkColors.messageBubbleYou : LightColors.messageBubbleYou
+		case .messageBubbleOther:
+			return isDarkMode ? DarkColors.messageBubbleOther : LightColors.messageBubbleOther
 		case .paper:
 			return isDarkMode ? DarkColors.paper : LightColors.paper
 		case .primaryContrast:
@@ -129,17 +130,16 @@ public enum ColorType {
 			return isDarkMode ? DarkColors.secondaryLight : LightColors.secondaryLight
 		case .secondaryDark:
 			return isDarkMode ? DarkColors.secondaryDark : LightColors.secondaryDark
-		case .textDisabled:
-			return isDarkMode ? DarkColors.textDisabled : LightColors.textDisabled
-		case .textPrimary:
-			return isDarkMode ? DarkColors.textPrimary : LightColors.textPrimary
-		case .textSecondary:
-			return isDarkMode ? DarkColors.textSecondary : LightColors.textSecondary
 		}
 	}
 }
 
 public extension Color {
+	static var avatar: Color {
+		get {
+			return Color(ColorType.color(type: .avatar))
+		}
+	}
 	static var actionActive: Color {
 		get {
 			return Color(ColorType.color(type: .actionActive))
@@ -148,6 +148,11 @@ public extension Color {
 	static var actionDisabled: Color {
 		get {
 			return Color(ColorType.color(type: .actionDisabled))
+		}
+	}
+	static var backgroundLight: Color {
+		get {
+			return Color(ColorType.color(type: .backgroundLight))
 		}
 	}
 	static var backgroundDark: Color {
@@ -175,14 +180,14 @@ public extension Color {
 			return Color(ColorType.color(type: .errorMain))
 		}
 	}
-	static var errorLight: Color {
+	static var messageBubbleYou: Color {
 		get {
-			return Color(ColorType.color(type: .errorLight))
+			return Color(ColorType.color(type: .messageBubbleYou))
 		}
 	}
-	static var errorDark: Color {
+	static var messageBubbleOther: Color {
 		get {
-			return Color(ColorType.color(type: .errorDark))
+			return Color(ColorType.color(type: .messageBubbleOther))
 		}
 	}
 	static var paper: Color {
@@ -230,19 +235,20 @@ public extension Color {
 			return Color(ColorType.color(type: .secondaryDark))
 		}
 	}
-	static var textDisabled: Color {
-		get {
-			return Color(ColorType.color(type: .textDisabled))
-		}
-	}
-	static var textPrimary: Color {
-		get {
-			return Color(ColorType.color(type: .textPrimary))
-		}
-	}
-	static var textSecondary: Color {
-		get {
-			return Color(ColorType.color(type: .textSecondary))
-		}
+}
+
+// Helper to initialize Color with hex
+extension Color {
+	init(hex: String) {
+		let scanner = Scanner(string: hex)
+		scanner.currentIndex = scanner.string.startIndex
+		var rgbValue: UInt64 = 0
+		scanner.scanHexInt64(&rgbValue)
+		
+		let red = Double((rgbValue >> 16) & 0xFF) / 255.0
+		let green = Double((rgbValue >> 8) & 0xFF) / 255.0
+		let blue = Double(rgbValue & 0xFF) / 255.0
+		
+		self.init(red: red, green: green, blue: blue)
 	}
 }

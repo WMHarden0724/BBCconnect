@@ -100,6 +100,7 @@ enum APIEndpoint: Equatable {
 	case createConversation
 	case getConversations
 	case getConversation(Int)
+	case updateConversation(Int)
 	case deleteConversation(Int)
 	case leaveConversation(Int)
 	case markConversationRead(Int)
@@ -122,6 +123,7 @@ enum APIEndpoint: Equatable {
 		case .createConversation: return "/api/conversations"
 		case .getConversations: return "/api/conversations"
 		case .getConversation(let id): return "/api/conversations/\(id)"
+		case .updateConversation(let id): return "/api/conversations/\(id)"
 		case .deleteConversation(let id): return "/api/conversations/\(id)"
 		case .leaveConversation(let id): return "/api/conversations/\(id)/leave"
 		case .markConversationRead(let id): return "/api/conversations/\(id)/read"
@@ -145,6 +147,7 @@ enum APIEndpoint: Equatable {
 		case .createConversation: return .post
 		case .getConversations: return .get
 		case .getConversation(_): return .get
+		case .updateConversation(_): return .delete
 		case .deleteConversation(_): return .delete
 		case .leaveConversation(_): return .delete
 		case .markConversationRead(_): return .post

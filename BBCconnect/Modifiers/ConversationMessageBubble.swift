@@ -85,18 +85,18 @@ struct ConversationMessageBubbleStyle: ViewModifier {
 		if shouldSendInTheFuture {
 			return Color.clear.gradient
 		} else if isFromYou {
-			return Color.blue.gradient
+			return Color.messageBubbleYou.gradient
 		} else {
-			return Color.secondary.opacity(0.6).gradient
+			return Color.messageBubbleOther.gradient
 		}
 	}
 	var foregroundColor: Color {
 		if shouldSendInTheFuture {
-			return Color.blue
+			return Color.messageBubbleYou
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.textPrimary
+			return Color.primary
 		}
 	}
 	
@@ -109,7 +109,7 @@ struct ConversationMessageBubbleStyle: ViewModifier {
 				.background(
 					ConversationMessageBubble()
 						.fill(messageFillColor)
-						.stroke(Color.blue, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
+						.stroke(Color.messageBubbleYou, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
 						.rotation3DEffect(isFromYou ? .degrees(0) : .degrees(180), axis: (x: 0, y: 1, z: 0))
 				)
 	}
@@ -125,11 +125,11 @@ extension View {
 func ImageAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
 	var foregroundColor: Color {
 		if shouldSendInTheFuture {
-			return Color.blue
+			return Color.messageBubbleYou
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.textPrimary
+			return Color.primary
 		}
 	}
 	
@@ -139,7 +139,7 @@ func ImageAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 		.mask(
 			ConversationMessageBubble()
 				.fill()
-				.stroke(Color.blue, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
+				.stroke(Color.messageBubbleYou, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
 				.rotation3DEffect(isFromYou ? .degrees(0) : .degrees(180), axis: (x: 0, y: 1, z: 0))
 		)
 }
@@ -148,11 +148,11 @@ func ImageAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 func VideoAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
 	var foregroundColor: Color {
 		if shouldSendInTheFuture {
-			return Color.blue
+			return Color.messageBubbleYou
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.textPrimary
+			return Color.primary
 		}
 	}
 	
@@ -163,7 +163,7 @@ func VideoAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 			.mask(
 				ConversationMessageBubble()
 					.fill()
-					.stroke(Color.blue, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
+					.stroke(Color.messageBubbleYou, style: StrokeStyle(dash: [shouldSendInTheFuture ? 6 : 0]))
 					.rotation3DEffect(isFromYou ? .degrees(0) : .degrees(180), axis: (x: 0, y: 1, z: 0))
 			)
 		
@@ -184,18 +184,18 @@ func OtherAttachmentView(_ thumbnail: Image, fileName: String, docType: String, 
 		if shouldSendInTheFuture {
 			return Color.clear.gradient
 		} else if isFromYou {
-			return Color.blue.gradient
+			return Color.messageBubbleYou.gradient
 		} else {
-			return Color.secondary.opacity(0.6).gradient
+			return Color.messageBubbleOther.gradient
 		}
 	}
 	var foregroundColor: Color {
 		if shouldSendInTheFuture {
-			return Color.blue
+			return Color.messageBubbleYou
 		} else if isFromYou {
 			return Color.white
 		} else {
-			return Color.textPrimary
+			return Color.primary
 		}
 	}
 	

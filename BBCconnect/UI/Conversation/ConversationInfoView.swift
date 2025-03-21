@@ -11,10 +11,14 @@ import AlertToast
 struct ConversationInfoView : View {
 	
 	@Environment(\.dismiss) var dismiss
+	@Environment(\.colorScheme) var colorScheme
+
 	@ObservedObject var viewModel: ConversationViewModel
 	var onLeftConversation: () -> Void
 	
 	@State private var showLeaveConversationAlert = false
+	@State private var isUserListExpanded = false
+	@State private var isAddingUsers = false
 	@State private var alertToastError: String?
 	@State private var viewSize: CGSize = .zero
 	
@@ -34,25 +38,150 @@ struct ConversationInfoView : View {
 		}
 	}
 	
+	private var userCountString: String {
+		let count = self.viewModel.conversation.users.filter({ $0.id != UserCfg.userId() }).count
+		if count > 1 {
+			return "\(count) People"
+		}
+		
+		return "1 Person"
+	}
+	
+	@ViewBuilder
+	private func usersList() -> some View {
+		VStack(spacing: 0) {
+			
+			Button(action: {
+				withAnimation {
+					self.isUserListExpanded.toggle()
+				}
+			}) {
+				HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+					
+					AvatarGroupInline(users: self.viewModel.conversation.users.filter{ $0.id != UserCfg.userId() },
+									  size: 40, strokeColor: self.colorScheme == .dark ? .backgroundDark : .background )
+					
+					VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
+						Text(self.userCountString)
+							.font(.system(size: 17, weight: .medium))
+							.foregroundColor(.primary)
+							.lineLimit(1)
+							.frame(maxWidth: .infinity, alignment: .leading)
+						
+						Text(self.viewModel.conversation.users.filter({ $0.id != UserCfg.userId() }).map({ $0.first_name }).joined(separator: ", "))
+							.font(.subheadline)
+							.foregroundColor(.secondary)
+							.lineLimit(2)
+							.truncationMode(.tail)
+							.multilineTextAlignment(.leading)
+							.frame(maxWidth: .infinity, alignment: .leading)
+					}
+					
+					Image(systemName: "arrow.forward.circle")
+						.imageScale(.medium)
+						.tint(.actionActive)
+						.rotationEffect(self.isUserListExpanded ? Angle(degrees: 90) : Angle(degrees: 0))
+				}
+				.padding(.horizontal, Dimens.horizontalPadding)
+				.padding(.vertical, Dimens.verticalPadding)
+			}
+			
+			if self.isUserListExpanded {
+				ForEach(self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }, id: \.id) { user in
+					Divider().foregroundColor(.divider)
+					
+					HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+						Avatar(type: .image(user), size: .custom(40), state: .normal)
+						
+						Text(user.fullName())
+							.font(.system(size: 17, weight: .medium))
+							.foregroundColor(.primary)
+							.lineLimit(1)
+							.frame(maxWidth: .infinity, alignment: .leading)
+					}
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
+				}
+				
+				Divider().foregroundColor(.divider)
+				
+				Button(action: {
+					self.isAddingUsers.toggle()
+				}) {
+					HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+						Avatar(type: .systemImage("plus", .blue, .avatar),
+							   size: .custom(40),
+							   state: .normal,
+							   bgAsGradient: false)
+						
+						Text("Add User")
+							.font(.system(size: 17, weight: .regular))
+							.foregroundColor(.blue)
+							.lineLimit(1)
+							.frame(maxWidth: .infinity, alignment: .leading)
+					}
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
+				}
+			}
+			
+			Divider().foregroundColor(.divider)
+			
+			Button(action: {
+				self.showLeaveConversationAlert.toggle()
+			}) {
+				HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+					Avatar(type: .systemImage("arrow.right.square", .errorMain, .avatar),
+						   size: .custom(40),
+						   state: .normal,
+						   bgAsGradient: false)
+					
+					Text("Leave Group")
+						.font(.system(size: 17, weight: .regular))
+						.foregroundColor(.primary)
+						.lineLimit(1)
+						.frame(maxWidth: .infinity, alignment: .leading)
+				}
+				.padding(.horizontal, Dimens.horizontalPaddingMd)
+				.padding(.vertical, Dimens.verticalPaddingMd)
+			}
+		}
+		.background(Color.background)
+		.cornerRadius(8)
+	}
+	
 	var body: some View {
 		NavigationStack {
 			ScrollView {
-				VStack {
-					if self.viewModel.conversation.users.count == 1 {
+				VStack(spacing: Dimens.verticalPadding) {
+					let users = self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }
+					if users.count == 1 {
 						Avatar(type: .image(self.viewModel.conversation.users[0]), size: .custom(100), state: .normal)
 					}
 					else {
-						AvatarGroup(users: self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() },
-									size: 100,
+						AvatarGroup(users: users,
+									width: 200,
+									height: 150,
 									includeBackground: false)
 					}
 					
-					Text(self.usersTitle)
-						.foregroundColor(.textPrimary)
-						.font(.largeTitle)
+					VStack {
+						Text(self.usersTitle)
+							.foregroundColor(.primary)
+							.font(.largeTitle)
+						
+						if let timestamp = self.viewModel.conversation.createdAtTimestamp(includeDow: true) {
+							Text(timestamp)
+								.font(.caption)
+								.foregroundColor(.secondary)
+						}
+					}
+					
+					self.usersList()
+						.padding(.top, Dimens.verticalPaddingSm)
 				}
 				.applyHorizontalPadding(viewWidth: self.viewSize.width)
-				.padding(.top, Dimens.verticalPadding)
+				.padding(.vertical, Dimens.verticalPadding)
 			}
 			.toast(isPresenting: Binding(
 				get: { self.alertToastError != nil },
@@ -62,25 +191,27 @@ struct ConversationInfoView : View {
 			}, completion: {
 				self.alertToastError = nil
 			})
-			.alert("Leave conversation?", isPresented: self.$showLeaveConversationAlert) {
+			.sheet(isPresented: self.$isAddingUsers) {
+				AddUsersToConversationView(viewModel: self.viewModel)
+			}
+			.alert("Leave Group?", isPresented: self.$showLeaveConversationAlert) {
 				Button("Leave", role: .destructive) {
 					self.leaveConversation()
 				}
 				Button("Cancel", role: .cancel) {}
 			} message: {
-				if self.viewModel.conversation.owner_id == UserCfg.userId() {
-					Text("Are you sure you want to proceed? Since you own this conversation, ownership will pass to the next available user. If no other users exist, this conversation will be removed")
-				}
-				else {
-					Text("Are you sure you want to proceed?")
-				}
+				Text("Are you sure you want to proceed?")
+			}
+			.onAppear {
+				self.viewModel.fetchConversation()
 			}
 			.readSize { size in
 				self.viewSize = size
 			}
-			.backgroundIgnoreSafeArea()
+			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.navigationBarTitleDisplayMode(.inline)
-			.toolbarBackground(.hidden, for: .navigationBar)
+			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarRole(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {
 					Button(action: {
@@ -88,11 +219,12 @@ struct ConversationInfoView : View {
 					}) {
 						Text("Done")
 							.foregroundStyle(.blue)
-							.font(.headline)
+							.font(.system(size: 17, weight: .medium))
 					}
 				}
 			}
 		}
+		.tint(.blue)
 	}
 	
 	private func leaveConversation() {
@@ -100,6 +232,7 @@ struct ConversationInfoView : View {
 			let result = await self.viewModel.leaveConversation()
 			DispatchQueue.main.async {
 				if result.0 {
+					self.onLeftConversation()
 					self.dismiss()
 				}
 				else {

@@ -44,11 +44,12 @@ struct AuthenticationLanding: View {
 					}
 				}
 			}
-			.backgroundIgnoreSafeArea()
+			.backgroundIgnoreSafeArea(color: .background)
+			.readSize { size in
+				self.viewSize = size
+			}
 		}
-		.readSize { size in
-			self.viewSize = size
-		}
+		.tint(.blue)
 	}
 }
 

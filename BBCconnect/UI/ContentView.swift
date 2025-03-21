@@ -23,7 +23,7 @@ struct ContentView: View {
 			
 			ConversationsTabView()
 				.tabItem {
-					Label("Conversations", systemImage: "message.fill")
+					Label("Messages", systemImage: "message.fill")
 				}
 		}
 		.tint(.primaryMain)

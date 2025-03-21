@@ -171,10 +171,19 @@ enum PubSubMessageStatus: String, Codable {
 	case typing
 }
 
+enum PubSubMessageStatusSecondary: String, Codable {
+	case liked
+	case unliked
+	case leave
+	case read
+	case edit
+}
+
 struct PubSubMessage : Codable {
 	
 	let channel: PubSubMessageChannel
 	let status: PubSubMessageStatus
+	let secondary_status: PubSubMessageStatusSecondary?
 	let user_id: Int?
 	let conversation_id: Int?
 	let message_id: Int?
@@ -183,6 +192,9 @@ struct PubSubMessage : Codable {
 	
 	var description: String {
 		var messageBuilder = "[\(self.channel)] [\(self.status)] -"
+		if let secondaryStatus = self.secondary_status {
+			messageBuilder += " secondaryStatus=\(secondaryStatus),"
+		}
 		if let reason = self.reason {
 			messageBuilder += " reason=\(reason),"
 		}

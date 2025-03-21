@@ -17,7 +17,7 @@ public enum AvatarType {
 	var bgColor: Color {
 		switch self {
 		case .systemImage(_, _, let color): return color
-		default: return Color.gray
+		default: return Color.avatar
 		}
 	}
 }
@@ -117,27 +117,26 @@ struct Avatar: View {
 	var type: AvatarType
 	var size: AvatarSize
 	var state: AvatarState
+	var bgAsGradient: Bool
 	
-	@State private var useBorder = false
+	init(type: AvatarType, size: AvatarSize, state: AvatarState, bgAsGradient: Bool = true) {
+		self.type = type
+		self.size = size
+		self.state = state
+		self.bgAsGradient = bgAsGradient
+	}
 	
 	public var body: some View {
 		ZStack {
 			switch type {
 			case .systemImage(let name, let contentColor, _):
 				Image(systemName: name)
-					.resizable()
-					.frame(width: size.size, height: size.size)
+					.font(.system(size: size.size * 0.4, weight: .semibold))
 					.tint(contentColor)
-					.onAppear {
-						self.useBorder = true
-					}
 			case .icon(let icon):
 				Image(icon)
 					.resizable()
 					.frame(width: size.size, height: size.size)
-					.onAppear {
-						self.useBorder = true
-					}
 			case .image(let user):
 				if let avatarUrl = user.avatar, !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
 					AsyncImage(url: url) { phase in
@@ -145,17 +144,11 @@ struct Avatar: View {
 							image
 								.resizable()
 								.aspectRatio(contentMode: .fill)
-								.onAppear {
-									self.useBorder = false
-								}
 						}
 						else if phase.error != nil {
 							Text(UserCfg.initials())
 								.font(.system(size: size.size * 0.4, weight: .semibold))
 								.foregroundColor(.white)
-								.onAppear {
-									self.useBorder = true
-								}
 						}
 						else {
 							Text(user.initials())
@@ -168,9 +161,6 @@ struct Avatar: View {
 					Text(user.initials())
 						.font(.system(size: size.size * 0.4, weight: .semibold))
 						.foregroundColor(.white)
-						.onAppear {
-							self.useBorder = true
-						}
 				}
 			case .userCfg:
 				if let avatarUrl = UserCfg.avatar(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
@@ -179,17 +169,11 @@ struct Avatar: View {
 							image
 								.resizable()
 								.aspectRatio(contentMode: .fill)
-								.onAppear {
-									self.useBorder = false
-								}
 						}
 						else if phase.error != nil {
 							Text(UserCfg.initials())
 								.font(.system(size: size.size * 0.4, weight: .semibold))
 								.foregroundColor(.white)
-								.onAppear {
-									self.useBorder = true
-								}
 						}
 						else {
 							Text(UserCfg.initials())
@@ -202,21 +186,17 @@ struct Avatar: View {
 					Text(UserCfg.initials())
 						.font(.system(size: size.size * 0.4, weight: .semibold))
 						.foregroundColor(.white)
-						.onAppear {
-							self.useBorder = true
-						}
 				}
 			}
 		}
 		.frame(width: size.size, height: size.size)
-		.background(type.bgColor.gradient)
-		.clipShape(.circle)
-		.overlay {
-			if self.useBorder {
-				Circle()
-					.stroke(Color.divider)
-			}
+		.if(self.bgAsGradient) { view in
+			view.background(type.bgColor.gradient)
 		}
+		.if(!self.bgAsGradient) { view in
+			view.background(type.bgColor)
+		}
+		.clipShape(.circle)
 		.overlay(alignment: .bottomTrailing) {
 			if state != .normal {
 				AvatarBadge(
@@ -233,28 +213,39 @@ struct Avatar: View {
 struct AvatarGroup: View {
 	
 	private let users: [User]
-	private let size: CGFloat
+	private let width: CGFloat
+	private let height: CGFloat
 	private let includeBackground: Bool
-	private let isInNav: Bool
+	
+	var isWide: Bool {
+		return width != height
+	}
 	
 	var sizeMultipliers: [CGFloat] {
 		let count = users.count
 		switch count {
-		case 2: return isInNav ? [0.6, 0.4] : [0.5, 0.3]
-		case 3: return [0.5, 0.3, 0.25]
-		case 4: return [0.5, 0.3, 0.3, 0.2]
-		case 5: return [0.5, 0.3, 0.3, 0.2, 0.15]
-		case 6: return [0.5, 0.3, 0.25, 0.2, 0.15, 0.12]
-		case 7: return [0.5, 0.3, 0.25, 0.2, 0.15, 0.12, 0.12]
+		case 2: return isWide ? [0.6, 0.4] : [0.5, 0.3]
+		case 3: return isWide ? [0.55, 0.4, 0.25] : [0.5, 0.3, 0.25]
+		case 4: return isWide ? [0.55, 0.3, 0.25, 0.2] : [0.5, 0.3, 0.3, 0.2]
+		case 5: return isWide ? [0.55, 0.3, 0.25, 0.2, 0.175] : [0.5, 0.3, 0.3, 0.2, 0.15]
+		case 6: return isWide ? [0.55, 0.3, 0.25, 0.2, 0.175, 0.15] : [0.5, 0.3, 0.25, 0.2, 0.15, 0.12]
+		case 7: return isWide ? [0.55, 0.3, 0.25, 0.2, 0.175, 0.15, 0.15] : [0.5, 0.3, 0.25, 0.2, 0.15, 0.12, 0.12]
 		default: return [1.0]
 		}
 	}
 	
-	init(users: [User], size: CGFloat, includeBackground: Bool = true, isInNav: Bool = false) {
+	init(users: [User], size: CGFloat, includeBackground: Bool = true) {
 		self.users = users
-		self.size = size
+		self.width = size
+		self.height = size
 		self.includeBackground = includeBackground
-		self.isInNav = isInNav
+	}
+	
+	init(users: [User], width: CGFloat, height: CGFloat, includeBackground: Bool = true) {
+		self.users = users
+		self.width = width
+		self.height = height
+		self.includeBackground = includeBackground
 	}
 	
 	var body: some View {
@@ -263,18 +254,18 @@ struct AvatarGroup: View {
 				EmptyView()
 			}
 			else if users.count == 1 || users.count > 7 {
-				Avatar(type: .image(users[0]), size: .custom(size), state: .normal)
+				Avatar(type: .image(users[0]), size: .custom((width + height) / 2), state: .normal)
 			}
 			else {
 				ZStack {
 					ForEach(Array(users.enumerated()), id: \.element) { index, imageName in
-						Avatar(type: .image(users[index]), size: .custom(size * sizeMultipliers[index]), state: .normal)
+						Avatar(type: .image(users[index]), size: .custom(((width + height) / 2) * sizeMultipliers[index]), state: .normal)
 							.offset(x: self.position(for: index).x, y: self.position(for: index).y)
 					}
 				}
-				.frame(width: size, height: size)
+				.frame(width: width, height: height)
 				.background(self.includeBackground ? Color.background.gradient : Color.clear.gradient)
-				.if(!self.isInNav) { view in
+				.if(!isWide) { view in
 					view.clipShape(.circle)
 				}
 			}
@@ -283,11 +274,11 @@ struct AvatarGroup: View {
 			if users.count > 7 {
 				Circle()
 					.fill(Color.background.gradient)
-					.frame(width: size * 0.4, height: size * 0.4)
+					.frame(width: width * 0.4, height: height * 0.4)
 					.overlay {
 						Text("+\(users.count - 1)")
-							.foregroundColor(.textPrimary)
-							.font(.system(size: size * 0.2, weight: .semibold))
+							.foregroundColor(.primary)
+							.font(.system(size: ((width + height) / 2) * 0.2, weight: .semibold))
 							.lineLimit(1)
 							.padding(2)
 					}
@@ -303,80 +294,161 @@ struct AvatarGroup: View {
 		case 1:
 			switch count {
 			case 2:
-				if self.isInNav {
-					return CGPoint(x: size * 0.25, y: size * 0.3)
+				if isWide {
+					return CGPoint(x: width * 0.25, y: height * 0.2)
 				}
-				else {
-					return CGPoint(x: size * 0.2, y: size * 0.2)
+				return CGPoint(x: width * 0.2, y: height * 0.2)
+			case 3:
+				if isWide {
+					return CGPoint(x: width * 0.255, y: height * -0.09)
 				}
-			case 3, 4, 5:
-				return CGPoint(x: size * 0.275, y: size * 0.1)
-			case 6, 7:
-				return CGPoint(x: size * 0.25, y: size * 0.07)
+				return CGPoint(x: width * 0.275, y: height * 0.1)
+			case 4:
+				if isWide {
+					return CGPoint(x: width * 0.225, y: height * -0.09)
+				}
+				return CGPoint(x: width * 0.275, y: height * 0.1)
+			case 5:
+				if isWide {
+					return CGPoint(x: width * 0.2, y: height * -0.2)
+				}
+				return CGPoint(x: width * 0.275, y: height * 0.1)
+			case 6:
+				if isWide {
+					return CGPoint(x: width * 0.2, y: height * -0.2)
+				}
+				return CGPoint(x: width * 0.25, y: height * 0.07)
+			case 7:
+				if isWide {
+					return CGPoint(x: width * 0.18, y: height * -0.2)
+				}
+				return CGPoint(x: width * 0.25, y: height * 0.07)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		case 2:
 			switch count {
 			case 2:
-				return CGPoint(x: size * 0.1, y: size * 0.4)
-			case 3, 4, 5:
-				return CGPoint(x: size * 0.0, y: size * 0.275)
-			case 6, 7:
-				return CGPoint(x: size * 0.01, y: size * 0.255)
+				if isWide {
+					return CGPoint(x: width * 0.1, y: height * 0.4)
+				}
+				return CGPoint(x: width * 0.1, y: height * 0.4)
+			case 3:
+				if isWide {
+					return CGPoint(x: width * 0.07, y: height * 0.28)
+				}
+				return CGPoint(x: width * 0.0, y: height * 0.275)
+			case 4:
+				if isWide {
+					return CGPoint(x: width * 0.09, y: height * 0.275)
+				}
+				return CGPoint(x: width * 0.0, y: height * 0.275)
+			case 5:
+				if isWide {
+					return CGPoint(x: width * 0.15, y: height * 0.15)
+				}
+				return CGPoint(x: width * 0.0, y: height * 0.275)
+			case 6:
+				if isWide {
+					return CGPoint(x: width * 0.15, y: height * 0.15)
+				}
+				return CGPoint(x: width * 0.01, y: height * 0.255)
+			case 7:
+				if isWide {
+					return CGPoint(x: width * 0.125, y: height * 0.15)
+				}
+				return CGPoint(x: width * 0.01, y: height * 0.255)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		case 3:
 			switch count {
 			case 2:
-				return CGPoint(x: size * 0.1, y: size * 0.4)
+				return CGPoint(x: width * 0.1, y: height * 0.4)
 			case 3:
-				return CGPoint(x: size * 0.0, y: size * 0.275)
-			case 4, 5, 6, 7:
-				return CGPoint(x: size * 0.25, y: size * -0.2)
+				return CGPoint(x: width * 0.0, y: height * 0.275)
+			case 4:
+				if isWide {
+					return CGPoint(x: width * 0.35, y: height * 0.22)
+				}
+				return CGPoint(x: width * 0.25, y: height * -0.2)
+			case 5, 6:
+				if isWide {
+					return CGPoint(x: width * 0.375, y: height * 0.05)
+				}
+				return CGPoint(x: width * 0.25, y: height * -0.2)
+			case 7:
+				if isWide {
+					return CGPoint(x: width * 0.325, y: height * 0.05)
+				}
+				return CGPoint(x: width * 0.25, y: height * -0.2)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		case 4:
 			switch count {
 			case 2:
-				return CGPoint(x: size * 0.1, y: size * 0.4)
+				return CGPoint(x: width * 0.1, y: height * 0.4)
 			case 3, 4:
-				return CGPoint(x: size * 0.0, y: size * 0.275)
+				return CGPoint(x: width * 0.0, y: height * 0.275)
 			case 5:
-				return CGPoint(x: size * -0.25, y: size * 0.215)
-			case 6, 7:
-				return CGPoint(x: size * -0.2, y: size * 0.21)
+				if isWide {
+					return CGPoint(x: width * -0.05, y: height * 0.325)
+				}
+				return CGPoint(x: width * -0.25, y: height * 0.215)
+			case 6:
+				if isWide {
+					return CGPoint(x: width * -0.05, y: height * 0.325)
+				}
+				return CGPoint(x: width * -0.2, y: height * 0.21)
+			case 7:
+				if isWide {
+					return CGPoint(x: width * -0.05, y: height * 0.325)
+				}
+				return CGPoint(x: width * -0.2, y: height * 0.21)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		case 5:
 			switch count {
 			case 2:
-				return CGPoint(x: size * 0.1, y: size * 0.4)
+				return CGPoint(x: width * 0.1, y: height * 0.4)
 			case 3, 4, 5:
-				return CGPoint(x: size * 0.0, y: size * 0.275)
-			case 6, 7:
-				return CGPoint(x: size * 0.215, y: size * 0.3)
+				return CGPoint(x: width * 0.0, y: height * 0.275)
+			case 6:
+				if isWide {
+					return CGPoint(x: width * 0.325, y: height * 0.3)
+				}
+				return CGPoint(x: width * 0.215, y: height * 0.3)
+			case 7:
+				if isWide {
+					return CGPoint(x: width * 0.3, y: height * 0.275)
+				}
+				return CGPoint(x: width * 0.215, y: height * 0.3)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		case 6:
 			switch count {
 			case 2:
-				return CGPoint(x: size * 0.1, y: size * 0.4)
+				return CGPoint(x: width * 0.1, y: height * 0.4)
 			case 3, 4, 5, 6:
-				return CGPoint(x: size * 0.0, y: size * 0.275)
+				return CGPoint(x: width * 0.0, y: height * 0.275)
 			case 7:
-				return CGPoint(x: size * 0.125, y: size * -0.35)
+				if isWide {
+					return CGPoint(x: width * 0.3875, y: height * -0.155)
+				}
+				return CGPoint(x: width * 0.125, y: height * -0.35)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
 		default:
 			switch count {
 			case 2, 3, 4, 5, 6, 7:
-				return CGPoint(x: size * -0.125, y: size * -0.125)
+				if isWide {
+					return CGPoint(x: width * -0.2, y: height * -0.1)
+				}
+				return CGPoint(x: width * -0.125, y: height * -0.125)
 			default:
 				return CGPoint(x: 0, y: 0)
 			}
@@ -384,26 +456,69 @@ struct AvatarGroup: View {
 	}
 }
 
-fileprivate extension View {
-	@ViewBuilder
-	func `if`<Content: View>(_ condition: Bool, apply: (Self) -> Content) -> some View {
-		if condition {
-			apply(self)
-		} else {
-			self
+struct AvatarGroupInline : View {
+	
+	let users: [User]
+	let size: CGFloat
+	let strokeColor: Color
+	
+	var width: CGFloat {
+		let count = self.users.count - 1
+		let halfSize = self.size / 2
+		return (self.size + (halfSize * CGFloat(count))) - 2
+	}
+	
+	var body: some View {
+		ZStack {
+			ForEach(Array(self.users.enumerated()), id: \.element) { index, user in
+				Avatar(type: .image(user), size: .custom(self.size), state: .normal)
+					.overlay {
+						Circle()
+							.stroke(self.strokeColor, lineWidth: 2)
+					}
+					.position(x: (index > 0 ? (self.size / 2) * CGFloat(index + 1) : self.size / 2) - 2,
+							  y: self.size / 2)
+					.zIndex(Double(self.users.count - index))
+			}
 		}
+		.frame(width: self.width, height: self.size)
 	}
 }
 
-#Preview {
-	VStack {
-//		AvatarGroup(users: [User.sampleUser1], size: 200)
-//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2], size: 200, isInNav: true)
-//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3], size: 200, isInNav: true)
-//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4], size: 200, isInNav: true)
-//		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5], size: 200, isInNav: true)
-		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6], size: 200, isInNav: true)
-		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7], size: 200, isInNav: true)
-		AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7, User.sampleUser8], size: 200, isInNav: true)
-	}
-}
+//#Preview {
+//	VStack(alignment: .leading) {
+//		AvatarGroupInline(users: [User.sampleUser1, User.sampleUser2], size: 40, strokeColor: .backgroundDark)
+//		
+//		Avatar(type: .image(User.sampleUser1), size: .custom(40), state: .normal)
+//
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2], width: 200, height: 150, isInNav: true)
+//		}
+//		
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3], width: 200, height: 150, isInNav: true)
+//		}
+//		
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4], width: 200, height: 150, isInNav: true)
+//		}
+//		
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5], width: 200, height: 150, isInNav: true)
+//		}
+//		
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6], width: 200, height: 150, isInNav: true)
+//		}
+//		
+//		HStack {
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7], size: 200)
+//			AvatarGroup(users: [User.sampleUser1, User.sampleUser2, User.sampleUser3, User.sampleUser4, User.sampleUser5, User.sampleUser6, User.sampleUser7], width: 200, height: 150, isInNav: true)
+//		}
+//	}
+//}

@@ -23,13 +23,15 @@ struct HomeTabView : View {
 				Spacer()
 			}
 			.padding()
-			.backgroundIgnoreSafeArea()
+			.backgroundIgnoreSafeArea(color: .background)
 			.onCfgChanged(onChanged: { cfgType, _ in
 				if cfgType == .avatar {
 					self.avatarId = Date()
 				}
 			})
 			.navigationBarTitleDisplayMode(.inline)
+			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarRole(.editor)
 			.navigationTitle(Date.now.formatted(.dateTime.month().day().year()))
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {
@@ -40,5 +42,6 @@ struct HomeTabView : View {
 				}
 			}
 		}
+		.tint(.blue)
 	}
 }

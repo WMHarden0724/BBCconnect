@@ -14,6 +14,11 @@ public struct ConversationCreate: Codable, Equatable {
 	public let user_ids: [Int]
 }
 
+public struct ConversationUpdate: Codable, Equatable {
+	public let name: String?
+	public let user_ids: [Int]?
+}
+
 /// RESPONSE /api/conversation
 /// GET /api/conversation
 public struct Conversation: Codable, Equatable, Hashable, Identifiable {
@@ -29,6 +34,32 @@ public struct Conversation: Codable, Equatable, Hashable, Identifiable {
 	
 	var sortedUsers: [User] {
 		return self.users.sorted { $0.id == self.owner_id && $1.id != self.owner_id }
+	}
+	
+	var createdAtDate: Date? {
+		return Date.fromCloudUpdatedAt(dateString: self.created_at)
+	}
+	
+	func createdAtTimestamp(includeDow: Bool = true) -> String? {
+		guard let date = self.createdAtDate else { return nil }
+		
+		let calendar = Calendar.current
+		let formatter = DateFormatter()
+		formatter.timeStyle = .short
+		formatter.timeZone = TimeZone.current
+		
+		if includeDow {
+			if calendar.isDateInToday(date) {
+				return "Created today at \(formatter.string(from: date))"
+			} else if calendar.isDateInYesterday(date) {
+				return "Created yesterday at \(formatter.string(from: date))"
+			} else {
+				formatter.dateFormat = "Created on EEEE h:mm a" // "Saturday 3:30 PM"
+				return formatter.string(from: date)
+			}
+		}
+		
+		return formatter.string(from: date)
 	}
 }
 
