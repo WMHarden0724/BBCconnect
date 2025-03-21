@@ -101,7 +101,6 @@ struct AddUsersToConversationView : View {
 							.foregroundStyle(.blue)
 							.font(.system(size: 17, weight: .medium))
 					}
-					.buttonStyle(.plain)
 				}
 				
 				ToolbarItem(placement: .navigationBarTrailing) {
@@ -112,7 +111,6 @@ struct AddUsersToConversationView : View {
 							.foregroundColor(self.selectedUsers.isEmpty ? .gray.opacity(0.5) : .blue)
 							.font(.system(size: 17, weight: .medium))
 					}
-					.buttonStyle(.plain)
 					.disabled(self.selectedUsers.isEmpty)
 				}
 			}

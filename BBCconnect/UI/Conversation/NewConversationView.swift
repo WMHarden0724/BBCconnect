@@ -106,7 +106,6 @@ struct NewConversationView : View {
 							.foregroundStyle(.blue)
 							.font(.system(size: 17, weight: .medium))
 					}
-					.buttonStyle(.plain)
 				}
 			}
 		}
