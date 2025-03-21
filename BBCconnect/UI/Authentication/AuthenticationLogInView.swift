@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import MessageUI
+import AlertToast
 
 struct AuthenticationLogInView: View {
 	
@@ -15,6 +17,9 @@ struct AuthenticationLogInView: View {
 	@State private var viewSize: CGSize = .zero
 	@State private var email = ""
 	@State private var password = ""
+	
+	@State private var showMailView = false
+	@State private var showMailError = false
 	
 	var body: some View {
 		VStack(spacing: Dimens.verticalPadding) {
@@ -63,20 +68,40 @@ struct AuthenticationLogInView: View {
 			}
 			
 			VStack(spacing: 0) {
-				Text("Can't log in? Contact App Ministry")
+				Text("Can't log in? Contact Video Booth at")
 					.font(.body)
 					.multilineTextAlignment(.center)
 					.foregroundColor(.primaryMain)
 				
-                Button(action: (
-                    
-                ))
-					.font(.body)
-					.foregroundColor(.blue)
+				Button(action: {
+					if MFMailComposeViewController.canSendMail() {
+						self.showMailView.toggle()
+					}
+					else {
+						self.showMailError.toggle()
+					}
+				}) {
+					Text("Contact App Ministry")
+						.font(.body)
+						.foregroundColor(.blue)
+				}
+				.buttonStyle(.plain)
 			}
 			
 			Spacer()
 		}
+		.sheet(isPresented: self.$showMailView) {
+			MailView(
+				recipient: "biblebaptistchurchconnect@gmail.com",
+				subject: "Help from BBCConnect",
+				body: ""
+			)
+		}
+		.toast(isPresenting: self.$showMailError, alert: {
+			AlertToast(type: .error(Color.errorMain), title: "Email not supported")
+		}, completion: {
+			self.showMailError.toggle()
+		})
 		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in
 			self.viewSize = size
