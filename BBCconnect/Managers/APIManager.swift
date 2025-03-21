@@ -149,7 +149,7 @@ enum APIEndpoint: Equatable {
 		case .createConversation: return .post
 		case .getConversations: return .get
 		case .getConversation(_): return .get
-		case .updateConversation(_): return .delete
+		case .updateConversation(_): return .put
 		case .deleteConversation(_): return .delete
 		case .leaveConversation(_): return .delete
 		case .muteConversation(_): return .post

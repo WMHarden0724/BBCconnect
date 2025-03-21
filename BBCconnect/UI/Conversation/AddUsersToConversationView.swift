@@ -47,6 +47,7 @@ struct AddUsersToConversationView : View {
 							token: { user in
 					Text(user.fullName())
 				})
+				.searchPresentationToolbarBehavior(.avoidHidingContent)
 				.searchSuggestions({
 					ForEach(self.filteredUsers) { user in
 						Button {

@@ -43,6 +43,7 @@ struct NewConversationView : View {
 							token: { user in
 					Text(user.fullName())
 				})
+				.searchPresentationToolbarBehavior(.avoidHidingContent)
 				.searchSuggestions({
 					ForEach(self.viewModel.users) { user in
 						Button {
