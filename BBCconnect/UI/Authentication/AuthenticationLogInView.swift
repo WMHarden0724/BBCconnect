@@ -84,10 +84,14 @@ struct AuthenticationLogInView: View {
 			}
 			
 			VStack(spacing: 0) {
-				Text("Can't log in? Contact Video Booth at")
+				Text("Can't log in?")
 					.font(.body)
 					.multilineTextAlignment(.center)
 					.foregroundColor(.primaryMain)
+                Text("Contact BBC Connect at")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.primaryMain)
 				
 				Button(action: {
 					if MFMailComposeViewController.canSendMail() {
@@ -109,7 +113,7 @@ struct AuthenticationLogInView: View {
 		.sheet(isPresented: self.$showMailView) {
 			MailView(
 				recipient: "biblebaptistchurchconnect@gmail.com",
-				subject: "Help from BBCConnect",
+				subject: "Help from BBCConnectApp",
 				body: ""
 			)
 		}
