@@ -33,6 +33,7 @@ struct ConversationTextField : View {
 							.clipShape(Circle())
 							.padding(.trailing, 4)
 					}
+					.buttonStyle(.plain)
 				}
 			}
 			.clipShape(Capsule())
