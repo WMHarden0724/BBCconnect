@@ -84,12 +84,16 @@ public struct UserCfg {
 	}
 	
 	public static func logIn(result: UserAuthentication) {
-		Self.setUserId(userId: result.user.id)
-		Self.setEmail(email: result.user.email)
-		Self.setFirstName(firstName: result.user.first_name)
-		Self.setLastName(lastName: result.user.last_name)
-		Self.setAvatar(avatar: result.user.avatar)
+		Self.updateUser(user: result.user)
 		Self.setSessionToken(sessionToken: result.token)
+	}
+	
+	public static func updateUser(user: User) {
+		Self.setUserId(userId: user.id)
+		Self.setEmail(email: user.email)
+		Self.setFirstName(firstName: user.first_name)
+		Self.setLastName(lastName: user.last_name)
+		Self.setAvatar(avatar: user.avatar)
 	}
 	
 	public static func logOut() {

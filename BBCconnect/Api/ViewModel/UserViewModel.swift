@@ -27,18 +27,21 @@ class UserViewModel: ObservableObject {
 		}
 	}
 	
-	func updateAvatar(data: Data) async {
-		// TODO: THIS IS NOT DONE, SERVER WORK NEEDS TO BE FINISHED
+	func updateUserProfile(email: String? = nil, firstName: String? = nil, lastName: String? = nil, avatar: Data? = nil) async -> (User?, String?) {
+		let result: APIResult<User> = await APIManager.shared.request(endpoint: .updateUserProfile, body: UpdateUserProfilePayload(email: email,
+																																   first_name: firstName,
+																																   last_name: lastName,
+																																   avatar: avatar))
 		
-//		let result: APIResult<User> = await APIManager.shared.request(endpoint: .userAvatar, body: UserUpdateAvatar(avatar: "data:image/png;base64,\(avatarBase64)"))
-//
-//		DispatchQueue.main.async {
-//			if case .success(let data) = result {
-//				UserCfg.setAvatar(avatar: userData.avatar)
-//			}
-//
-//			self.loadingState = result
-//		}
+		if case .success(let data) = result {
+			UserCfg.updateUser(user: data)
+			return (data, nil)
+		}
+		else if case .failure(let error) = result {
+			return (nil, error.localizedDescription)
+		}
+		
+		return (nil, nil)
 	}
 }
 
@@ -55,6 +58,26 @@ open class UserSearchViewModel: ObservableObject {
 			if case .success(let data) = result {
 				self.users = data.filter { $0.id != UserCfg.userId() }
 			}
+		}
+	}
+}
+
+fileprivate struct UpdateUserProfilePayload: Codable {
+	let email: String?
+	let first_name: String?
+	let last_name: String?
+	let avatar: String?
+	
+	init(email: String? = nil, first_name: String? = nil, last_name: String? = nil, avatar: Data? = nil) {
+		self.email = email
+		self.first_name = first_name
+		self.last_name = last_name
+		
+		if let avatar = avatar {
+			self.avatar = "data:image/png;base64,\(avatar.base64EncodedString())"
+		}
+		else {
+			self.avatar = nil
 		}
 	}
 }

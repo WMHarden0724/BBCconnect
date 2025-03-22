@@ -97,7 +97,7 @@ enum APIEndpoint: Equatable {
 	case login
 	case forgotPassword
 	case userProfile
-	case userAvatar
+	case updateUserProfile
 	case createConversation
 	case getConversations
 	case getConversation(Int)
@@ -121,7 +121,7 @@ enum APIEndpoint: Equatable {
 		case .login: return "/api/users/login"
 		case .forgotPassword: return "/api/users/forgot-password"
 		case .userProfile: return "/api/users/profile"
-		case .userAvatar: return "/api/users/avatar"
+		case .updateUserProfile: return "/api/users/profile"
 		case .searchUsers: return "/api/users/search"
 		case .createConversation: return "/api/conversations"
 		case .getConversations: return "/api/conversations"
@@ -147,7 +147,7 @@ enum APIEndpoint: Equatable {
 		case .login: return .post
 		case .forgotPassword: return .post
 		case .userProfile: return .get
-		case .userAvatar: return .put
+		case .updateUserProfile: return .put
 		case .searchUsers: return .get
 		case .createConversation: return .post
 		case .getConversations: return .get

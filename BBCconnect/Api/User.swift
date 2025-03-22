@@ -32,10 +32,6 @@ public struct UserAuthentication: Codable, Equatable {
 	public let token: String
 }
 
-public struct UserUpdateAvatar: Codable, Equatable {
-	public let avatar: String
-}
-
 extension User {
 	func fullName() -> String {
 		return "\(self.first_name) \(self.last_name)"

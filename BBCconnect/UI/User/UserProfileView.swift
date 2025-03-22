@@ -20,12 +20,16 @@ struct UserProfileView : View {
 	@State private var showLogoutAlert = false
 	@State private var viewSize: CGSize = .zero
 	
+	@State private var isEditing = false
 	@State private var isUpdatingAvatar = false
 	@State private var showChangeAvatarAlert = false
 	@State private var showTakeImagePicker = false
 	@State private var showSelectImagePicker = false
 	@State private var showTakeUserToSettingAlert = false
 	@State private var noUseImage = UIImage()
+	
+	@State private var alertToastError: String?
+	@FocusState private var focusedField: Field?
 	
 	private var hasOpenedCameraView: Bool {
 		get {
@@ -34,6 +38,10 @@ struct UserProfileView : View {
 	}
 	private func setHasOpenedCameraView(_ newValue: Bool) {
 		UserDefaults.standard.set(newValue, forKey: "profileViewHasOpenedCamera")
+	}
+	
+	enum Field {
+		case firstName, lastName
 	}
 	
 	@ViewBuilder
@@ -70,14 +78,14 @@ struct UserProfileView : View {
 		.sheet(isPresented: self.$showTakeImagePicker) {
 			ImagePicker(sourceType: .camera, selectedImage: self.$noUseImage) { data in
 				if let data = data {
-					self.updateAvatar(data: data)
+					self.updateUser(data: data, includeOtherInfo: false)
 				}
 			}
 		}
 		.sheet(isPresented: self.$showSelectImagePicker) {
 			ImagePicker(sourceType: .photoLibrary, selectedImage: self.$noUseImage) { data in
 				if let data = data {
-					self.updateAvatar(data: data)
+					self.updateUser(data: data, includeOtherInfo: false)
 				}
 			}
 		}
@@ -93,28 +101,74 @@ struct UserProfileView : View {
 		})
 	}
 	
+	@ViewBuilder
+	private func nameFieldsView() -> some View {
+		VStack(spacing: Dimens.verticalPaddingXxsm) {
+			if self.isEditing {
+				TextField("First Name", text: self.$firstName)
+					.foregroundColor(.primary)
+					.textFieldStyle(PlainTextFieldStyle())
+					.textInputAutocapitalization(.words)
+					.focused(self.$focusedField, equals: .firstName)
+					.submitLabel(.done)
+					.padding(.horizontal, 12)
+					.padding(.vertical, 10)
+					.foregroundColor(.primary)
+					.overlay(
+						Capsule()
+							.stroke(Color.divider, lineWidth: 1)
+					)
+					.onSubmit {
+						self.focusedField = nil
+					}
+				
+				TextField("Last Name", text: self.$lastName)
+					.foregroundColor(.primary)
+					.textFieldStyle(PlainTextFieldStyle())
+					.textInputAutocapitalization(.words)
+					.focused(self.$focusedField, equals: .lastName)
+					.submitLabel(.done)
+					.padding(.horizontal, 12)
+					.padding(.vertical, 10)
+					.foregroundColor(.primary)
+					.overlay(
+						Capsule()
+							.stroke(Color.divider, lineWidth: 1)
+					)
+					.onSubmit {
+						self.focusedField = nil
+					}
+			}
+			else {
+				Text("\(self.firstName) \(self.lastName)")
+					.font(.system(size: 17, weight: .medium))
+					.foregroundColor(.primary)
+					.frame(maxWidth: .infinity, alignment: .leading)
+				
+				Text(UserCfg.email() ?? "")
+					.font(.subheadline)
+					.foregroundColor(.secondary)
+					.frame(maxWidth: .infinity, alignment: .leading)
+			}
+		}
+	}
+	
 	var body: some View {
 		ScrollView {
 			VStack(spacing: Dimens.verticalPadding) {
-				HStack(spacing: Dimens.horizontalPadding) {
+				HStack(alignment: self.isEditing ? .top : .center, spacing: Dimens.horizontalPadding) {
 					self.avatarView()
 					
-					VStack(spacing: Dimens.verticalPaddingXxsm) {
-						Text("\(self.firstName) \(self.lastName)")
-							.font(.system(size: 17, weight: .medium))
-							.foregroundColor(.primary)
-							.frame(maxWidth: .infinity, alignment: .leading)
-						
-						Text(UserCfg.email() ?? "")
-							.font(.subheadline)
-							.foregroundColor(.secondary)
-							.frame(maxWidth: .infinity, alignment: .leading)
-					}
+					self.nameFieldsView()
 				}
 				.padding(.horizontal, Dimens.horizontalPaddingMd)
 				.padding(.vertical, Dimens.verticalPaddingMd)
 				.background(Color.background)
 				.cornerRadius(8)
+				
+				BButton(style: .primary, text: "Log Out") {
+					self.showLogoutAlert.toggle()
+				}
 				
 				Spacer()
 				
@@ -125,14 +179,24 @@ struct UserProfileView : View {
 			.applyHorizontalPadding(viewWidth: self.viewSize.width)
 		}
 		.backgroundIgnoreSafeArea(color: .backgroundDark)
+		.toast(isPresenting: Binding(
+			get: { self.alertToastError != nil },
+			set: { if !$0 { self.alertToastError = nil } }
+		), alert: {
+			AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
+		}, completion: {
+			self.alertToastError = nil
+		})
 		.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 		.toolbarRole(.editor)
 		.toolbar {
 			ToolbarItem(placement: .navigationBarTrailing) {
 				Button(action: {
-					self.showLogoutAlert.toggle()
+					withAnimation {
+						self.isEditing.toggle()
+					}
 				}) {
-					Text("Log Out")
+					Text(self.isEditing ? "Done" : "Edit")
 						.foregroundStyle(.blue)
 						.font(.system(size: 17, weight: .medium))
 				}
@@ -169,9 +233,14 @@ struct UserProfileView : View {
 		}
 	}
 	
-	private func updateAvatar(data: Data) {
+	private func updateUser(data: Data? = nil, includeOtherInfo: Bool = true) {
 		Task {
-			await self.viewModel.updateAvatar(data: data)
+			let result = await self.viewModel.updateUserProfile(firstName: includeOtherInfo ? self.firstName : nil,
+																lastName: includeOtherInfo ? self.lastName : nil,
+																avatar: data)
+			if let error = result.1 {
+				self.alertToastError = error
+			}
 		}
 	}
 }
