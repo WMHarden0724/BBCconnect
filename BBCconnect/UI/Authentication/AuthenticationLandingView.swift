@@ -30,7 +30,7 @@ struct AuthenticationLanding: View {
                     .padding(.vertical, Dimens.verticalPaddingSm)
                     .padding(.horizontal, Dimens.horizontalPadding)
                     .background(Color.black)
-                    .cornerRadius(4)
+                    .cornerRadius(12)
                     
                 
                 Spacer()

@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "ChurchLogo.png",
+      "filename" : "ChurchLogo_Circular.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "ChurchLogo_Circular 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "ChurchLogo_Circular 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
