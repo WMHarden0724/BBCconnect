@@ -96,7 +96,7 @@ struct NewConversationView : View {
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.navigationTitle("New Message")
 			.navigationBarTitleDisplayMode(.inline)
-			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {

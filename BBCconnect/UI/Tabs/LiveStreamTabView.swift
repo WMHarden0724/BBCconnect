@@ -20,7 +20,7 @@ struct LiveStreamTabView : View {
 			Spacer()
 		}
 		.padding()
-		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 		.toolbarRole(.editor)
 		.backgroundIgnoreSafeArea(color: .background)
 	}

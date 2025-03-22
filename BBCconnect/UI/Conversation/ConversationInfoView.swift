@@ -110,10 +110,9 @@ struct ConversationInfoView : View {
 					self.isAddingUsers.toggle()
 				}) {
 					HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
-						Avatar(type: .systemImage("plus", .blue, .avatar),
+						Avatar(type: .systemImage("plus", .blue, .backgroundDark),
 							   size: .custom(40),
-							   state: .normal,
-							   bgAsGradient: false)
+							   state: .normal)
 						
 						Text("Add User")
 							.font(.system(size: 17, weight: .regular))
@@ -226,7 +225,7 @@ struct ConversationInfoView : View {
 			}
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.navigationBarTitleDisplayMode(.inline)
-			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.automatic)
 			.toolbar {
 				ToolbarItem(placement: .navigationBarTrailing) {

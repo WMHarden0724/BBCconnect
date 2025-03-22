@@ -42,13 +42,7 @@ struct UserProfileView : View {
 			self.showChangeAvatarAlert.toggle()
 		}) {
 			ZStack(alignment: .topLeading) {
-				Avatar(type: .userCfg, size: .xl, state: .normal)
-				
-				Avatar(type: .systemImage("pencil", .primaryContrast, .primaryMain), size: .xxs, state: .normal)
-					.padding(.leading, 110)
-					.padding(.top, 120)
-					.shadow(radius: 3)
-					.opacity(self.isUpdatingAvatar ? 0 : 1)
+				Avatar(type: .userCfg, size: .lg, state: .normal)
 				
 				ProgressView()
 					.progressViewStyle(CircularProgressViewStyle(tint: Color.primaryContrast))
@@ -100,27 +94,50 @@ struct UserProfileView : View {
 	}
 	
 	var body: some View {
-		VStack(spacing: Dimens.verticalPadding) {
-			self.avatarView()
-			
-			Text("\(self.firstName) \(self.lastName)")
-				.font(.largeTitle)
-				.foregroundColor(.primary)
-				.padding(.top, Dimens.verticalPadding)
-			
-			Spacer()
-			
-			// TODO add editable fields for user to modify their profile
-			
-			BButton(style: .destructive, text: "Log Out") {
-				self.showLogoutAlert.toggle()
+		ScrollView {
+			VStack(spacing: Dimens.verticalPadding) {
+				HStack(spacing: Dimens.horizontalPadding) {
+					self.avatarView()
+					
+					VStack(spacing: Dimens.verticalPaddingXxsm) {
+						Text("\(self.firstName) \(self.lastName)")
+							.font(.system(size: 17, weight: .medium))
+							.foregroundColor(.primary)
+							.frame(maxWidth: .infinity, alignment: .leading)
+						
+						Text(UserCfg.email() ?? "")
+							.font(.subheadline)
+							.foregroundColor(.secondary)
+							.frame(maxWidth: .infinity, alignment: .leading)
+					}
+				}
+				.padding(.horizontal, Dimens.horizontalPaddingMd)
+				.padding(.vertical, Dimens.verticalPaddingMd)
+				.background(Color.background)
+				.cornerRadius(8)
+				
+				Spacer()
+				
+				// TODO add editable fields for user to modify their profile
+				
 			}
-			.padding(.bottom, Dimens.verticalPadding)
+			.padding(.top, Dimens.verticalPadding)
+			.applyHorizontalPadding(viewWidth: self.viewSize.width)
 		}
-		.applyHorizontalPadding(viewWidth: self.viewSize.width)
-		.backgroundIgnoreSafeArea(color: .background)
-		.toolbarBackground(Color.clear, for: .navigationBar)
+		.backgroundIgnoreSafeArea(color: .backgroundDark)
+		.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 		.toolbarRole(.editor)
+		.toolbar {
+			ToolbarItem(placement: .navigationBarTrailing) {
+				Button(action: {
+					self.showLogoutAlert.toggle()
+				}) {
+					Text("Log Out")
+						.foregroundStyle(.blue)
+						.font(.system(size: 17, weight: .medium))
+				}
+			}
+		}
 		.alert("Log Out", isPresented: self.$showLogoutAlert) {
 			Button("Cancel", role: .cancel) { }
 			Button("Log Out", role: .destructive) {

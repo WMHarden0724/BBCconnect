@@ -29,7 +29,7 @@ struct AuthenticationSignUpView: View {
 			
 			Text("Sign up for BBC stream")
 				.foregroundColor(.primary)
-				.font(.body)
+				.font(.headline)
 				.multilineTextAlignment(.center)
 				.padding(.top, Dimens.verticalPadding)
 			

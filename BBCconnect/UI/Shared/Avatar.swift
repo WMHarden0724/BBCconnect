@@ -117,13 +117,11 @@ struct Avatar: View {
 	var type: AvatarType
 	var size: AvatarSize
 	var state: AvatarState
-	var bgAsGradient: Bool
 	
-	init(type: AvatarType, size: AvatarSize, state: AvatarState, bgAsGradient: Bool = true) {
+	init(type: AvatarType, size: AvatarSize, state: AvatarState) {
 		self.type = type
 		self.size = size
 		self.state = state
-		self.bgAsGradient = bgAsGradient
 	}
 	
 	public var body: some View {
@@ -132,69 +130,73 @@ struct Avatar: View {
 			case .systemImage(let name, let contentColor, _):
 				Image(systemName: name)
 					.font(.system(size: size.size * 0.4, weight: .semibold))
-					.tint(contentColor)
+					.foregroundColor(contentColor)
+					.frame(width: size.size, height: size.size)
+					.background(type.bgColor)
 			case .icon(let icon):
 				Image(icon)
 					.resizable()
 					.frame(width: size.size, height: size.size)
+					.background(type.bgColor)
 			case .image(let user):
-				if let avatarUrl = user.avatar, !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-					AsyncImage(url: url) { phase in
-						if let image = phase.image {
-							image
-								.resizable()
-								.aspectRatio(contentMode: .fill)
-						}
-						else if phase.error != nil {
-							Text(UserCfg.initials())
-								.font(.system(size: size.size * 0.4, weight: .semibold))
-								.foregroundColor(.white)
-						}
-						else {
-							Text(user.initials())
-								.font(.system(size: size.size * 0.4, weight: .semibold))
-								.foregroundColor(.white)
+				Group {
+					if let avatarUrl = user.avatar, !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
+						AsyncImage(url: url) { phase in
+							if let image = phase.image {
+								image
+									.resizable()
+									.aspectRatio(contentMode: .fill)
+							}
+							else if phase.error != nil {
+								Text(UserCfg.initials())
+									.font(.system(size: size.size * 0.4, weight: .semibold))
+									.foregroundColor(.white)
+							}
+							else {
+								Text(user.initials())
+									.font(.system(size: size.size * 0.4, weight: .semibold))
+									.foregroundColor(.white)
+							}
 						}
 					}
+					else {
+						Text(user.initials())
+							.font(.system(size: size.size * 0.4, weight: .semibold))
+							.foregroundColor(.white)
+					}
 				}
-				else {
-					Text(user.initials())
-						.font(.system(size: size.size * 0.4, weight: .semibold))
-						.foregroundColor(.white)
-				}
+				.frame(width: size.size, height: size.size)
+				.background(type.bgColor.gradient)
 			case .userCfg:
-				if let avatarUrl = UserCfg.avatar(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-					AsyncImage(url: url) { phase in
-						if let image = phase.image {
-							image
-								.resizable()
-								.aspectRatio(contentMode: .fill)
-						}
-						else if phase.error != nil {
-							Text(UserCfg.initials())
-								.font(.system(size: size.size * 0.4, weight: .semibold))
-								.foregroundColor(.white)
-						}
-						else {
-							Text(UserCfg.initials())
-								.font(.system(size: size.size * 0.4, weight: .semibold))
-								.foregroundColor(.white)
+				Group {
+					if let avatarUrl = UserCfg.avatar(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
+						AsyncImage(url: url) { phase in
+							if let image = phase.image {
+								image
+									.resizable()
+									.aspectRatio(contentMode: .fill)
+							}
+							else if phase.error != nil {
+								Text(UserCfg.initials())
+									.font(.system(size: size.size * 0.4, weight: .semibold))
+									.foregroundColor(.white)
+							}
+							else {
+								Text(UserCfg.initials())
+									.font(.system(size: size.size * 0.4, weight: .semibold))
+									.foregroundColor(.white)
+							}
 						}
 					}
+					else {
+						Text(UserCfg.initials())
+							.font(.system(size: size.size * 0.4, weight: .semibold))
+							.foregroundColor(.white)
+					}
 				}
-				else {
-					Text(UserCfg.initials())
-						.font(.system(size: size.size * 0.4, weight: .semibold))
-						.foregroundColor(.white)
-				}
+				.frame(width: size.size, height: size.size)
+				.background(type.bgColor.gradient)
 			}
-		}
-		.frame(width: size.size, height: size.size)
-		.if(self.bgAsGradient) { view in
-			view.background(type.bgColor.gradient)
-		}
-		.if(!self.bgAsGradient) { view in
-			view.background(type.bgColor)
 		}
 		.clipShape(.circle)
 		.overlay(alignment: .bottomTrailing) {

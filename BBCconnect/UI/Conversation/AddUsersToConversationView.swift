@@ -90,7 +90,7 @@ struct AddUsersToConversationView : View {
 			})
 			.navigationTitle("Group")
 			.navigationBarTitleDisplayMode(.inline)
-			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.automatic)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.toolbar {

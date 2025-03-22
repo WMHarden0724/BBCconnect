@@ -11,7 +11,7 @@ import SwiftUI
 
 public struct LightColors {
 	
-	static let avatar = UIColor.systemGray3
+	static let avatar = UIColor.systemGray2
 	static let actionActive = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.5607843137254902)
 	static let actionDisabled = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 0.2)
 	static let backgroundLight = UIColor(red: 0.881, green: 0.885, blue: 0.883, alpha: 1)
@@ -21,7 +21,7 @@ public struct LightColors {
 	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let errorMain = UIColor.systemRed
 	static let messageBubbleYou = UIColor(Color.blue)
-	static let messageBubbleOther = UIColor(Color.secondary.opacity(0.4))
+	static let messageBubbleOther = UIColor.systemGray4
 	static let paper = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let primaryMain = UIColor(red: 0.098, green: 0.110, blue: 0.118, alpha: 1)
@@ -45,7 +45,7 @@ public struct DarkColors {
 	static let errorContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
 	static let errorMain = UIColor.systemRed
 	static let messageBubbleYou = UIColor(Color.blue)
-	static let messageBubbleOther = UIColor(Color.secondary.opacity(0.6))
+	static let messageBubbleOther = UIColor.systemGray5
 	static let paper = UIColor(red: 0.141, green: 0.153, blue: 0.161, alpha: 1)
 	static let primaryContrast = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
 	static let primaryMain = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)

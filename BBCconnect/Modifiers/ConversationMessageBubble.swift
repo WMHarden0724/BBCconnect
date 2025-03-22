@@ -81,13 +81,13 @@ struct ConversationMessageBubble: Shape {
 struct ConversationMessageBubbleStyle: ViewModifier {
 	let isFromYou: Bool
 	let shouldSendInTheFuture: Bool
-	var messageFillColor: AnyGradient {
+	var messageFillColor: Color {
 		if shouldSendInTheFuture {
-			return Color.clear.gradient
+			return Color.clear
 		} else if isFromYou {
-			return Color.messageBubbleYou.gradient
+			return Color.messageBubbleYou
 		} else {
-			return Color.messageBubbleOther.gradient
+			return Color.messageBubbleOther
 		}
 	}
 	var foregroundColor: Color {
@@ -104,7 +104,7 @@ struct ConversationMessageBubbleStyle: ViewModifier {
 			content
 				.foregroundStyle(foregroundColor)
 				.padding(.vertical, 8)
-				.padding(.horizontal, 20)
+				.padding(.horizontal, 10)
 				.padding(isFromYou ? .trailing : .leading, 8) // 8 is the tail width
 				.background(
 					ConversationMessageBubble()
@@ -180,13 +180,13 @@ func VideoAttachmentView(_ thumbnail: Image, isFromYou: Bool, shouldSendInTheFut
 
 @ViewBuilder
 func OtherAttachmentView(_ thumbnail: Image, fileName: String, docType: String, fileSize: String, isFromYou: Bool, shouldSendInTheFuture: Bool) -> some View {
-	var messageFillColor: AnyGradient {
+	var messageFillColor: Color {
 		if shouldSendInTheFuture {
-			return Color.clear.gradient
+			return Color.clear
 		} else if isFromYou {
-			return Color.messageBubbleYou.gradient
+			return Color.messageBubbleYou
 		} else {
-			return Color.messageBubbleOther.gradient
+			return Color.messageBubbleOther
 		}
 	}
 	var foregroundColor: Color {

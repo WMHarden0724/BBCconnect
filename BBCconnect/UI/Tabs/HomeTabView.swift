@@ -30,7 +30,7 @@ struct HomeTabView : View {
 				}
 			})
 			.navigationBarTitleDisplayMode(.inline)
-			.toolbarBackground(Color.clear, for: .navigationBar)
+			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.editor)
 			.navigationTitle(Date.now.formatted(.dateTime.month().day().year()))
 			.toolbar {

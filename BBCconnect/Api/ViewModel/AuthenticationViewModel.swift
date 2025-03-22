@@ -54,4 +54,21 @@ class AuthenticationViewModel: ObservableObject {
 			self.loadingState = result
 		}
 	}
+	
+	func resetPassword(email: String) async -> (Bool, String?) {
+		let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .forgotPassword, body: ForgotPasswordPayload(email: email))
+		
+		if case .success(_) = result {
+			return (true, nil)
+		}
+		else if case .failure(let error) = result {
+			return (false, error.localizedDescription)
+		}
+		
+		return (false, nil)
+	}
+}
+
+fileprivate struct ForgotPasswordPayload: Codable {
+	let email: String
 }

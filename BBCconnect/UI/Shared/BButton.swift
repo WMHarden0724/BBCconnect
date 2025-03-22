@@ -72,7 +72,7 @@ struct BButton : View {
 		}) {
 			ZStack {
 				Text(self.text)
-					.font(.system(size: 17, weight: .bold))
+					.font(.headline)
 					.foregroundColor(self.style.foreground)
 					.padding(.horizontal, Dimens.horizontalPadding)
 					.padding(.vertical, Dimens.verticalButtonPadding)

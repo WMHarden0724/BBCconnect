@@ -31,13 +31,13 @@ struct AuthenticationLogInView: View {
 		VStack(spacing: Dimens.verticalPadding) {
             Image("ChurchLogo")
                 .resizable()
-                .frame(width:250, height:250)
+                .frame(width: 175, height: 175)
                 .padding(.vertical, 30)
                 .clipShape(.circle)
 			
 			Text("Log in to view stream")
 				.foregroundColor(.primary)
-				.font(.body)
+				.font(.headline)
 				.multilineTextAlignment(.center)
 			
 			if case .failure(let error) = self.viewModel.loadingState {
@@ -52,6 +52,7 @@ struct AuthenticationLogInView: View {
 				.focused(self.$focusedField, equals: .email)
 				.submitLabel(.next)
 				.keyboardType(.emailAddress)
+				.textContentType(.emailAddress)
 				.textInputAutocapitalization(.never)
 				.padding(.horizontal, 12)
 				.padding(.vertical, 10)
@@ -82,6 +83,15 @@ struct AuthenticationLogInView: View {
 			BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
 				self.logIn()
 			}
+			
+			NavigationLink(destination: AuthenticationForgotPasswordView(viewModel: self.viewModel)) {
+				Text("Reset Password?")
+					.font(.system(size: 17, weight: .regular))
+					.foregroundColor(.blue)
+			}
+			.buttonStyle(.plain)
+			
+			Spacer()
 			
 			VStack(spacing: 0) {
 				Text("Can't log in?")

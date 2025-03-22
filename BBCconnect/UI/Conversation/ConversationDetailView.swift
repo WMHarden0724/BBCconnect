@@ -56,10 +56,14 @@ struct ConversationDetailView: View {
 								.padding(.bottom, Dimens.verticalPaddingSm)
 						}
 
+						let showOwnerName = self.shouldShowMessageOwnerName(message: message)
 						ConversationMessageView(message: message,
 												isFromYou: message.user.id == UserCfg.userId(),
-												shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2)
+												shouldShowParticipantInfo: self.viewModel.conversation.users.count > 2,
+												showOwnerName: showOwnerName,
+												participantOpacity: self.showParticipantInfo(message: message) ? 1 : 0)
 						.padding(.horizontal, Dimens.horizontalPadding)
+						.padding(.top, showOwnerName ? Dimens.verticalPaddingMd : 0)
 						.padding(.bottom, Dimens.verticalPaddingSm)
 						.padding(.leading, message.user.id == UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
 						.padding(.trailing, message.user.id != UserCfg.userId() ? self.viewSize.width * 0.2 : 0)
@@ -165,6 +169,51 @@ struct ConversationDetailView: View {
 		}
 		
 		return nil
+	}
+	
+	private func shouldShowMessageOwnerName(message: ConversationMessage) -> Bool {
+		guard self.viewModel.conversation.users.count > 2 else { return false }
+		guard message.user.id != UserCfg.userId() else { return false }
+		
+		guard let index = self.viewModel.messages.firstIndex(of: message) else {
+			return false
+		}
+		
+		if index == 0 {
+			return true
+		}
+		
+		let previousMessage = self.viewModel.messages[index - 1]
+		if previousMessage.user.id != message.user.id {
+			return true
+		}
+		
+		if let date1 = previousMessage.createdAtDate, let date2 = message.createdAtDate {
+			let differenceInMinutes = abs(date1.timeIntervalSince(date2)) / 60
+			return differenceInMinutes > 30
+		}
+		
+		return false
+	}
+	
+	private func showParticipantInfo(message: ConversationMessage) -> Bool {
+		guard self.viewModel.conversation.users.count > 2 else { return false }
+		guard let index = self.viewModel.messages.firstIndex(of: message) else {
+			return true
+		}
+		
+		if index < (self.viewModel.messages.count - 1) {
+			let nextMessage = self.viewModel.messages[index + 1]
+			
+			if let date1 = message.createdAtDate, let date2 = nextMessage.createdAtDate {
+				let differenceInMinutes = abs(date1.timeIntervalSince(date2)) / 60
+				return differenceInMinutes > 30
+			}
+			
+			return nextMessage.user.id != message.user.id
+		}
+		
+		return true
 	}
 	
 	private func markMessagesAsRead() {

@@ -81,7 +81,7 @@ struct ConversationListView : View {
 		})
 		.navigationBarTitleDisplayMode(.inline)
 		.navigationTitle("Messages")
-		.toolbarBackground(Color.clear, for: .navigationBar)
+		.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 		.toolbarRole(.editor)
 		.toolbar {
 			ToolbarItem(placement: .navigationBarTrailing) {

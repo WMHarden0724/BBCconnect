@@ -15,7 +15,7 @@ public struct APICfg {
 	// Production URL - comment out when locally testing
 	//	public static let baseURL = URL(string: "https://your-api.com/api")!
 	// Local testing url - uncomment when locally testing
-	public static let baseURL = URL(string: "https://75bd-64-239-42-24.ngrok-free.app")!
+	public static let baseURL = URL(string: "https://6a14-64-239-42-24.ngrok-free.app")!
 	public static var wsUrl: URL {
 		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "http", with: "ws"))/ws")!
 	}
@@ -95,6 +95,7 @@ enum HTTPMethod: String {
 enum APIEndpoint: Equatable {
 	case createUser
 	case login
+	case forgotPassword
 	case userProfile
 	case userAvatar
 	case createConversation
@@ -118,6 +119,7 @@ enum APIEndpoint: Equatable {
 		switch self {
 		case .createUser: return "/api/users/create"
 		case .login: return "/api/users/login"
+		case .forgotPassword: return "/api/users/forgot-password"
 		case .userProfile: return "/api/users/profile"
 		case .userAvatar: return "/api/users/avatar"
 		case .searchUsers: return "/api/users/search"
@@ -143,6 +145,7 @@ enum APIEndpoint: Equatable {
 		switch self {
 		case .createUser: return .post
 		case .login: return .post
+		case .forgotPassword: return .post
 		case .userProfile: return .get
 		case .userAvatar: return .put
 		case .searchUsers: return .get
