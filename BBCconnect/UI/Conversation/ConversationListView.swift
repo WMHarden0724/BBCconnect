@@ -67,7 +67,7 @@ struct ConversationListView : View {
 			get: { self.alertToastError != nil },
 			set: { if !$0 { self.alertToastError = nil } }
 		), alert: {
-			AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
+			AlertToast(displayMode: .hud, type: .error(Color.errorMain), title: self.alertToastError ?? "")
 		}, completion: {
 			self.alertToastError = nil
 		})

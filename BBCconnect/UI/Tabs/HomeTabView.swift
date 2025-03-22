@@ -29,6 +29,9 @@ struct HomeTabView : View {
 					self.avatarId = Date()
 				}
 			})
+			.onAppear {
+				self.avatarId = Date()
+			}
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.editor)

@@ -15,6 +15,7 @@ struct UserProfileView : View {
 	@StateObject private var viewModel = UserViewModel()
 	
 	@State private var avatar: String?
+	@State private var email = UserCfg.email() ?? ""
 	@State private var firstName = UserCfg.firstName() ?? ""
 	@State private var lastName = UserCfg.lastName() ?? ""
 	@State private var showLogoutAlert = false
@@ -145,7 +146,7 @@ struct UserProfileView : View {
 					.foregroundColor(.primary)
 					.frame(maxWidth: .infinity, alignment: .leading)
 				
-				Text(UserCfg.email() ?? "")
+				Text(self.email)
 					.font(.subheadline)
 					.foregroundColor(.secondary)
 					.frame(maxWidth: .infinity, alignment: .leading)
@@ -183,7 +184,7 @@ struct UserProfileView : View {
 			get: { self.alertToastError != nil },
 			set: { if !$0 { self.alertToastError = nil } }
 		), alert: {
-			AlertToast(type: .error(Color.errorMain), title: self.alertToastError ?? "")
+			AlertToast(displayMode: .hud, type: .error(Color.errorMain), title: self.alertToastError ?? "")
 		}, completion: {
 			self.alertToastError = nil
 		})
@@ -193,6 +194,10 @@ struct UserProfileView : View {
 			ToolbarItem(placement: .navigationBarTrailing) {
 				Button(action: {
 					withAnimation {
+						if self.isEditing {
+							self.updateUser()
+						}
+						
 						self.isEditing.toggle()
 					}
 				}) {
@@ -218,6 +223,8 @@ struct UserProfileView : View {
 			switch cfgType {
 			case .avatar:
 				self.avatar = value as? String
+			case .email:
+				self.email = value as? String ?? ""
 			case .firstName:
 				self.firstName = value as? String ?? ""
 			case .lastName:
@@ -228,6 +235,7 @@ struct UserProfileView : View {
 		})
 		.onAppear {
 			self.avatar = UserCfg.avatar()
+			self.email = UserCfg.email() ?? ""
 			self.firstName = UserCfg.firstName() ?? ""
 			self.lastName = UserCfg.lastName() ?? ""
 		}
@@ -238,8 +246,10 @@ struct UserProfileView : View {
 			let result = await self.viewModel.updateUserProfile(firstName: includeOtherInfo ? self.firstName : nil,
 																lastName: includeOtherInfo ? self.lastName : nil,
 																avatar: data)
-			if let error = result.1 {
-				self.alertToastError = error
+			DispatchQueue.main.async {
+				if let error = result.1 {
+					self.alertToastError = error
+				}
 			}
 		}
 	}
