@@ -127,7 +127,7 @@ struct AuthenticationLogInView: View {
 				body: ""
 			)
 		}
-		.toast(isPresenting: self.$showMailError, alert: {
+		.toast(isPresenting: self.$showMailError, duration: 5, offsetY: 60, alert: {
 			AlertToast(displayMode: .hud, type: .error(Color.errorMain), title: "Email not supported")
 		}, completion: {
 			self.showMailError.toggle()

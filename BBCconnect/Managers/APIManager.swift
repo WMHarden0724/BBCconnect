@@ -114,6 +114,7 @@ enum APIEndpoint: Equatable {
 	case likeMessage(Int, Int)
 	case unlikeMessage(Int, Int)
 	case searchUsers
+	case getNews
 	
 	var path: String {
 		switch self {
@@ -138,6 +139,7 @@ enum APIEndpoint: Equatable {
 		case .deleteMessage(let cid, let id): return "/api/conversations/\(cid)messages/\(id)"
 		case .likeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		case .unlikeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
+		case .getNews: return "/api/news"
 		}
 	}
 	
@@ -164,6 +166,7 @@ enum APIEndpoint: Equatable {
 		case .deleteMessage(_, _): return .delete
 		case .likeMessage(_, _): return .post
 		case .unlikeMessage(_, _): return .delete
+		case .getNews: return .get
 		}
 	}
 }
