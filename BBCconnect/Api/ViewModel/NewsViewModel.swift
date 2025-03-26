@@ -40,7 +40,7 @@ class NewsViewModel: ObservableObject {
 			
 			DispatchQueue.main.async {
 				if case .success(let news) = result {
-					self.hasNextPage = news.totalPages > self.page
+					self.hasNextPage = news.total_pages > self.page
 					
 					if reset {
 						self.news = news.news

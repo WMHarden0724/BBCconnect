@@ -11,7 +11,7 @@ struct NewsResponse: Codable, Equatable {
 	let news: [News]
 	let total: Int
 	let page: Int
-	let totalPages: Int
+	let total_pages: Int
 }
 
 enum NewsType: String, Codable, Equatable {

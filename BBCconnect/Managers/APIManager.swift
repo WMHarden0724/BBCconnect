@@ -15,7 +15,7 @@ public struct APICfg {
 	// Production URL - comment out when locally testing
 	//	public static let baseURL = URL(string: "https://your-api.com/api")!
 	// Local testing url - uncomment when locally testing
-	public static let baseURL = URL(string: "https://7fb2-64-239-42-24.ngrok-free.app")!
+	public static let baseURL = URL(string: "https://c282-64-239-42-24.ngrok-free.app")!
 	public static var wsUrl: URL {
 		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "http", with: "ws"))/ws")!
 	}
