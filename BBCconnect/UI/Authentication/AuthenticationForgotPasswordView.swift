@@ -19,6 +19,7 @@ struct AuthenticationForgotPasswordView: View {
 	@State private var showSuccessMessage = false
 	@State private var errorMessage: String?
 	
+	@State private var isLoading = false
 	@FocusState private var focusedField: Field?
 	
 	enum Field {
@@ -44,25 +45,16 @@ struct AuthenticationForgotPasswordView: View {
 					.foregroundColor(.blue)
 			}
 			
-			TextField("Email", text: self.$email)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
+			BTextField("Email", text: self.$email)
 				.focused(self.$focusedField, equals: .email)
 				.submitLabel(.done)
 				.keyboardType(.emailAddress)
 				.textInputAutocapitalization(.never)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
 				.onSubmit {
 					self.resetPassword()
 				}
 			
-			BButton(style: .primary, text: "Reset Password", isLoading: self.viewModel.loadingState.isLoading) {
+			BButton(style: .primary, text: "Reset Password", isLoading: self.isLoading) {
 				self.resetPassword()
 			}
 			
@@ -78,10 +70,12 @@ struct AuthenticationForgotPasswordView: View {
 	}
 	
 	private func resetPassword() {
+		self.isLoading.toggle()
 		self.hideKeyboard()
 		Task {
 			let result = await self.viewModel.resetPassword(email: self.email)
 			DispatchQueue.main.async {
+				self.isLoading.toggle()
 				withAnimation {
 					if result.0 {
 						self.showSuccessMessage = true

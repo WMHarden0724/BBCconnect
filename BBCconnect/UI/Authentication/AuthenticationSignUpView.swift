@@ -25,93 +25,62 @@ struct AuthenticationSignUpView: View {
 	}
 	
 	var body: some View {
-		VStack(spacing: Dimens.verticalPadding) {
-			
-			Text("Sign up for BBC stream")
-				.foregroundColor(.primary)
-				.font(.headline)
-				.multilineTextAlignment(.center)
-				.padding(.top, Dimens.verticalPadding)
-			
-			if case .failure(let error) = self.viewModel.loadingState {
-				Text(error.localizedDescription)
-					.font(.callout)
-					.foregroundColor(.errorMain)
-			}
-			
-			TextField("Email", text: self.$email)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
-				.keyboardType(.emailAddress)
-				.textInputAutocapitalization(.never)
-				.focused(self.$focusedField, equals: .email)
-				.submitLabel(.next)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
-					self.focusedField = .firstName
+		ScrollView {
+			VStack(spacing: Dimens.verticalPadding) {
+				
+				Image("ChurchLogo")
+					.resizable()
+					.frame(width: 175, height: 175)
+					.padding(.vertical, 30)
+					.clipShape(.circle)
+				
+				Text("Sign up for BBC stream")
+					.foregroundColor(.primary)
+					.font(.headline)
+					.multilineTextAlignment(.center)
+				
+				if case .failure(let error) = self.viewModel.loadingState {
+					Text(error.localizedDescription)
+						.font(.callout)
+						.foregroundColor(.errorMain)
 				}
-			
-			TextField("First Name", text: self.$firstName)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
-				.textInputAutocapitalization(.words)
-				.focused(self.$focusedField, equals: .firstName)
-				.submitLabel(.next)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
-					self.focusedField = .lastName
-				}
-			
-			TextField("Last Name", text: self.$lastName)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
-				.textInputAutocapitalization(.words)
-				.focused(self.$focusedField, equals: .lastName)
-				.submitLabel(.next)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
-					self.focusedField = .password
-				}
-			
-			SecureField("Password", text: self.$password)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
-				.focused(self.$focusedField, equals: .password)
-				.submitLabel(.done)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
+				
+				BTextField("Email", text: self.$email)
+					.keyboardType(.emailAddress)
+					.textInputAutocapitalization(.never)
+					.focused(self.$focusedField, equals: .email)
+					.submitLabel(.next)
+					.onSubmit {
+						self.focusedField = .firstName
+					}
+				
+				BTextField("First Name", text: self.$firstName)
+					.textInputAutocapitalization(.words)
+					.focused(self.$focusedField, equals: .firstName)
+					.submitLabel(.next)
+					.onSubmit {
+						self.focusedField = .lastName
+					}
+				
+				BTextField("Last Name", text: self.$lastName)
+					.textInputAutocapitalization(.words)
+					.focused(self.$focusedField, equals: .lastName)
+					.submitLabel(.next)
+					.onSubmit {
+						self.focusedField = .password
+					}
+				
+				BSecureField("Password", text: self.$password)
+					.focused(self.$focusedField, equals: .password)
+					.submitLabel(.done)
+					.onSubmit {
+						self.signUp()
+					}
+				
+				BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
 					self.signUp()
 				}
-			
-			BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
-				self.signUp()
 			}
-			
-			Spacer()
 		}
 		.animation(.easeInOut, value: self.viewModel.loadingState)
 		.readSize { size in

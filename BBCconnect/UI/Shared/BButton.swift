@@ -85,9 +85,9 @@ struct BButton : View {
 				}
 			}
 			.background(self.style.background)
-			.cornerRadius(12)
+			.cornerRadius(24)
 			.overlay(
-				RoundedRectangle(cornerRadius: 12)
+				RoundedRectangle(cornerRadius: 24)
 					.stroke(self.style.border, lineWidth: 1)
 			)
 		}
@@ -111,7 +111,7 @@ struct BNavigationLink<P> : View where P : Hashable {
 				.padding(.vertical, Dimens.verticalButtonPadding)
 				.frame(maxWidth: .infinity)
 				.background(self.style.background)
-				.cornerRadius(12)
+				.cornerRadius(24)
 		}
 		.buttonStyle(.plain)
 	}

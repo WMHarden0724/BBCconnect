@@ -19,7 +19,7 @@ struct ConversationTextField : View {
 					.textInputAutocapitalization(.sentences)
 					.textFieldStyle(PlainTextFieldStyle())
 					.padding(.horizontal, 12)
-					.padding(.vertical, 10)
+					.padding(.vertical, 12)
 					.foregroundColor(.primary)
 				
 				// Send button inside the text field

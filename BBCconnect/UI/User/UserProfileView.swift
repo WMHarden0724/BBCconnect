@@ -106,36 +106,18 @@ struct UserProfileView : View {
 	private func nameFieldsView() -> some View {
 		VStack(spacing: Dimens.verticalPaddingXxsm) {
 			if self.isEditing {
-				TextField("First Name", text: self.$firstName)
-					.foregroundColor(.primary)
-					.textFieldStyle(PlainTextFieldStyle())
+				BTextField("First Name", text: self.$firstName)
 					.textInputAutocapitalization(.words)
 					.focused(self.$focusedField, equals: .firstName)
 					.submitLabel(.done)
-					.padding(.horizontal, 12)
-					.padding(.vertical, 10)
-					.foregroundColor(.primary)
-					.overlay(
-						Capsule()
-							.stroke(Color.divider, lineWidth: 1)
-					)
 					.onSubmit {
 						self.focusedField = nil
 					}
 				
-				TextField("Last Name", text: self.$lastName)
-					.foregroundColor(.primary)
-					.textFieldStyle(PlainTextFieldStyle())
+				BTextField("Last Name", text: self.$lastName)
 					.textInputAutocapitalization(.words)
 					.focused(self.$focusedField, equals: .lastName)
 					.submitLabel(.done)
-					.padding(.horizontal, 12)
-					.padding(.vertical, 10)
-					.foregroundColor(.primary)
-					.overlay(
-						Capsule()
-							.stroke(Color.divider, lineWidth: 1)
-					)
 					.onSubmit {
 						self.focusedField = nil
 					}

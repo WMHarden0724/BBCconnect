@@ -6,8 +6,8 @@
 //
 
 import SwiftUI
-import MessageUI
 import AlertToast
+import MessageUI
 
 struct AuthenticationLogInView: View {
 	
@@ -28,97 +28,53 @@ struct AuthenticationLogInView: View {
 	}
 	
 	var body: some View {
-		VStack(spacing: Dimens.verticalPadding) {
-            Image("ChurchLogo")
-                .resizable()
-                .frame(width: 175, height: 175)
-                .padding(.vertical, 30)
-                .clipShape(.circle)
-			
-			Text("Log in to view stream")
-				.foregroundColor(.primary)
-				.font(.headline)
-				.multilineTextAlignment(.center)
-			
-			if case .failure(let error) = self.viewModel.loadingState {
-				Text(error.localizedDescription)
-					.font(.callout)
-					.foregroundColor(.errorMain)
-			}
-			
-			TextField("Email", text: self.$email)
-				.foregroundColor(.primary)
-				.textFieldStyle(PlainTextFieldStyle())
-				.focused(self.$focusedField, equals: .email)
-				.submitLabel(.next)
-				.keyboardType(.emailAddress)
-				.textContentType(.emailAddress)
-				.textInputAutocapitalization(.never)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
-					self.focusedField = .password
+		ScrollView {
+			VStack(spacing: Dimens.verticalPadding) {
+				Image("ChurchLogo")
+					.resizable()
+					.frame(width: 175, height: 175)
+					.padding(.vertical, 30)
+					.clipShape(.circle)
+				
+				Text("Log in to view stream")
+					.foregroundColor(.primary)
+					.font(.headline)
+					.multilineTextAlignment(.center)
+				
+				if case .failure(let error) = self.viewModel.loadingState {
+					Text(error.localizedDescription)
+						.font(.callout)
+						.foregroundColor(.errorMain)
 				}
-			
-			SecureField("Password", text: self.$password)
-				.textFieldStyle(PlainTextFieldStyle())
-				.focused(self.$focusedField, equals: .password)
-				.submitLabel(.done)
-				.padding(.horizontal, 12)
-				.padding(.vertical, 10)
-				.foregroundColor(.primary)
-				.overlay(
-					Capsule()
-						.stroke(Color.divider, lineWidth: 1)
-				)
-				.onSubmit {
+				
+				BTextField("Email", text: self.$email)
+					.focused(self.$focusedField, equals: .email)
+					.submitLabel(.next)
+					.keyboardType(.emailAddress)
+					.textContentType(.emailAddress)
+					.textInputAutocapitalization(.never)
+					.onSubmit {
+						self.focusedField = .password
+					}
+				
+				BSecureField("Password", text: self.$password)
+					.focused(self.$focusedField, equals: .password)
+					.submitLabel(.done)
+					.onSubmit {
+						self.logIn()
+					}
+				
+				BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
 					self.logIn()
 				}
-			
-			BButton(style: .primary, text: "Log In", isLoading: self.viewModel.loadingState.isLoading) {
-				self.logIn()
-			}
-			
-			NavigationLink(destination: AuthenticationForgotPasswordView(viewModel: self.viewModel)) {
-				Text("Reset Password?")
-					.font(.system(size: 17, weight: .regular))
-					.foregroundColor(.blue)
-			}
-			.buttonStyle(.plain)
-			
-			Spacer()
-			
-			VStack(spacing: 0) {
-				Text("Can't log in?")
-					.font(.body)
-					.multilineTextAlignment(.center)
-					.foregroundColor(.primaryMain)
-                Text("Contact BBC Connect at")
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.primaryMain)
 				
-				Button(action: {
-					if MFMailComposeViewController.canSendMail() {
-						self.showMailView.toggle()
-					}
-					else {
-						self.showMailError.toggle()
-					}
-				}) {
-					Text("Contact App Ministry")
-						.font(.body)
-						.foregroundColor(.blue)
+				NavigationLink(destination: AuthenticationForgotPasswordView(viewModel: self.viewModel)) {
+					Text("Reset Password?")
+						.font(.system(size: 17, weight: .regular))
+						.foregroundColor(.primary)
 				}
 				.buttonStyle(.plain)
 			}
-			
-			Spacer()
 		}
 		.sheet(isPresented: self.$showMailView) {
 			MailView(
