@@ -40,22 +40,24 @@ struct NewsListItem : View {
 							.clipped()
 					}
 					else if let imageUrl = self.news.imageURL {
-						AsyncImage(url: imageUrl) { phase in
-							if let image = phase.image {
+						AsyncImage(
+							url: imageUrl,
+							transaction: Transaction(animation: .easeInOut)
+						) { phase in
+							switch phase {
+							case .success(let image):
 								image
 									.resizable()
 									.aspectRatio(contentMode: .fill)
 									.frame(height: 200)
-							}
-							else if phase.error != nil {
+							case .failure:
 								ZStack {
 									Image(systemName: "photo.fill.on.rectangle.fill")
 										.imageScale(.large)
 								}
 								.background(Color.background)
 								.frame(height: 250)
-							}
-							else {
+							default:
 								ZStack {
 									ProgressView()
 										.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
@@ -111,22 +113,24 @@ fileprivate struct NewsSheetView : View {
 						.clipped()
 				}
 				else if let imageUrl = self.news.imageURL {
-					AsyncImage(url: imageUrl) { phase in
-						if let image = phase.image {
+					AsyncImage(
+						url: imageUrl,
+						transaction: Transaction(animation: .easeInOut)
+					) { phase in
+						switch phase {
+						case .success(let image):
 							image
 								.resizable()
 								.aspectRatio(contentMode: .fill)
-								.frame(height: 250)
-						}
-						else if phase.error != nil {
+								.frame(height: 200)
+						case .failure:
 							ZStack {
 								Image(systemName: "photo.fill.on.rectangle.fill")
 									.imageScale(.large)
 							}
 							.background(Color.background)
 							.frame(height: 250)
-						}
-						else {
+						default:
 							ZStack {
 								ProgressView()
 									.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))

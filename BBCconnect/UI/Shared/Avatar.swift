@@ -141,21 +141,27 @@ struct Avatar: View {
 			case .image(let user):
 				Group {
 					if let avatarUrl = user.avatar, !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-						AsyncImage(url: url) { phase in
-							if let image = phase.image {
+						AsyncImage(
+							url: url,
+							transaction: Transaction(animation: .easeInOut)
+						) { phase in
+							switch phase {
+							case .success(let image):
 								image
 									.resizable()
 									.aspectRatio(contentMode: .fill)
-							}
-							else if phase.error != nil {
+									.frame(width: size.size, height: size.size)
+							case .failure:
 								Text(UserCfg.initials())
 									.font(.system(size: size.size * 0.4, weight: .semibold))
 									.foregroundColor(.white)
-							}
-							else {
-								Text(user.initials())
-									.font(.system(size: size.size * 0.4, weight: .semibold))
-									.foregroundColor(.white)
+							default:
+								ZStack {
+									ProgressView()
+										.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
+								}
+								.frame(width: size.size, height: size.size)
+								.background(Color.background)
 							}
 						}
 					}
@@ -170,21 +176,27 @@ struct Avatar: View {
 			case .userCfg:
 				Group {
 					if let avatarUrl = UserCfg.avatar(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-						AsyncImage(url: url) { phase in
-							if let image = phase.image {
+						AsyncImage(
+							url: url,
+							transaction: Transaction(animation: .easeInOut)
+						) { phase in
+							switch phase {
+							case .success(let image):
 								image
 									.resizable()
 									.aspectRatio(contentMode: .fill)
-							}
-							else if phase.error != nil {
+									.frame(width: size.size, height: size.size)
+							case .failure:
 								Text(UserCfg.initials())
 									.font(.system(size: size.size * 0.4, weight: .semibold))
 									.foregroundColor(.white)
-							}
-							else {
-								Text(UserCfg.initials())
-									.font(.system(size: size.size * 0.4, weight: .semibold))
-									.foregroundColor(.white)
+							default:
+								ZStack {
+									ProgressView()
+										.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
+								}
+								.frame(width: size.size, height: size.size)
+								.background(Color.background)
 							}
 						}
 					}
