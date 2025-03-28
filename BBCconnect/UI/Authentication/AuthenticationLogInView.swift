@@ -69,7 +69,7 @@ struct AuthenticationLogInView: View {
 				}
 				
 				NavigationLink(destination: AuthenticationForgotPasswordView(viewModel: self.viewModel)) {
-					Text("Reset Password?")
+					Text("Forgot Password?")
 						.font(.system(size: 17, weight: .regular))
 						.foregroundColor(.primary)
 				}
