@@ -14,7 +14,7 @@ struct UserProfileView : View {
 	@Environment(\.dismiss) var dismiss
 	@StateObject private var viewModel = UserViewModel()
 	
-	@State private var avatar: String?
+	@State private var avatarId = Date()
 	@State private var email = UserCfg.email() ?? ""
 	@State private var firstName = UserCfg.firstName() ?? ""
 	@State private var lastName = UserCfg.lastName() ?? ""
@@ -52,6 +52,7 @@ struct UserProfileView : View {
 		}) {
 			ZStack(alignment: .topLeading) {
 				Avatar(type: .userCfg, size: .lg, state: .normal)
+					.id(self.avatarId)
 				
 				ProgressView()
 					.progressViewStyle(CircularProgressViewStyle(tint: Color.primaryContrast))
@@ -204,7 +205,7 @@ struct UserProfileView : View {
 		.onCfgChanged(onChanged: { cfgType, value in
 			switch cfgType {
 			case .avatar:
-				self.avatar = value as? String
+				self.avatarId = Date()
 			case .email:
 				self.email = value as? String ?? ""
 			case .firstName:
@@ -216,7 +217,6 @@ struct UserProfileView : View {
 			}
 		})
 		.onAppear {
-			self.avatar = UserCfg.avatar()
 			self.email = UserCfg.email() ?? ""
 			self.firstName = UserCfg.firstName() ?? ""
 			self.lastName = UserCfg.lastName() ?? ""
@@ -224,11 +224,21 @@ struct UserProfileView : View {
 	}
 	
 	private func updateUser(data: Data? = nil, includeOtherInfo: Bool = true) {
+		if data != nil {
+			withAnimation {
+				self.isUpdatingAvatar = true
+			}
+		}
+		
 		Task {
 			let result = await self.viewModel.updateUserProfile(firstName: includeOtherInfo ? self.firstName : nil,
 																lastName: includeOtherInfo ? self.lastName : nil,
 																avatar: data)
 			DispatchQueue.main.async {
+				withAnimation {
+					self.isUpdatingAvatar = false
+				}
+				
 				if let error = result.1 {
 					self.alertToastError = error
 				}

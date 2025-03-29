@@ -12,12 +12,14 @@ import os
 // MARK: Cfg
 public struct APICfg {
 	
-	// Production URL - comment out when locally testing
-	//	public static let baseURL = URL(string: "https://your-api.com/api")!
+	// TODO: Production URL - comment out when locally testing
+		public static let baseURL = URL(string: "http://ec2-3-16-206-208.us-east-2.compute.amazonaws.com:8181")!
+	
 	// Local testing url - uncomment when locally testing
-	public static let baseURL = URL(string: "https://0b35-64-239-42-24.ngrok-free.app")!
+//	public static let baseURL = URL(string: "https://0b35-64-239-42-24.ngrok-free.app")!
+	
 	public static var wsUrl: URL {
-		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "http", with: "ws"))/ws")!
+		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "https", with: "ws").replacingOccurrences(of: "http", with: "ws"))/ws")!
 	}
 	
 	public static let wsApiKey = "ed287191bcfc7318e4dfb34431c1fff51a03d704f415d886f9fd1cb694a016f0"
