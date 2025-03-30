@@ -1,5 +1,5 @@
 //
-//  News.swift
+//  Bulletin.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/23/25.
@@ -7,24 +7,24 @@
 
 import Foundation
 
-struct NewsResponse: Codable, Equatable {
-	let news: [News]
+struct BulletinsResponse: Codable, Equatable {
+	let bulletins: [Bulletin]
 	let total: Int
 	let page: Int
 	let total_pages: Int
 }
 
-enum NewsType: String, Codable, Equatable {
+enum BulletinType: String, Codable, Equatable {
 	case general
 	case alert
 	case event
 }
 
-struct News: Codable, Equatable {
+struct Bulletin: Codable, Equatable {
 	let id: Int
 	let title: String
 	let content: String
-	let type: NewsType
+	let type: BulletinType
 	let date: String?
 	let link: String?
 	let image: String?

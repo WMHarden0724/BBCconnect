@@ -10,9 +10,9 @@ import AlertToast
 
 struct HomeTabView : View {
 	
-	@StateObject private var viewModel = NewsViewModel()
+	@StateObject private var viewModel = BulletinsViewModel()
 	
-	@State private var showNewNewsAvailable = false
+	@State private var showNewBulletinsAvailable = false
 	@State private var alertToastError: String?
 	@State private var avatarId = Date()
 	
@@ -20,11 +20,11 @@ struct HomeTabView : View {
 		NavigationStack {
 			ZStack {
 				List {
-					ForEach(self.viewModel.news, id: \.id) { news in
-						NewsListItem(news: news)
+					ForEach(self.viewModel.bulletins, id: \.id) { bulletin in
+						BulletinListItem(bulletin: bulletin)
 							.padding(.leading, Dimens.horizontalPadding)
 							.padding(.trailing, Dimens.horizontalPadding)
-							.padding(.top, self.viewModel.news.firstIndex(where: { $0.id == news.id }) == 0 ? Dimens.verticalPaddingLg : 0)
+							.padding(.top, self.viewModel.bulletins.firstIndex(where: { $0.id == bulletin.id }) == 0 ? Dimens.verticalPaddingLg : 0)
 							.padding(.bottom, Dimens.verticalPaddingXl)
 							.listRowSeparator(.hidden)
 							.listRowBackground(Color.clear)
@@ -34,19 +34,19 @@ struct HomeTabView : View {
 				}
 				.listStyle(.plain)
 				.refreshable {
-					self.viewModel.fetchNews(reset: true)
+					self.viewModel.fetchBulletins(reset: true)
 				}
-				.toast(isPresenting: self.$viewModel.newNewsAvailable, duration: 5, offsetY: 60, alert: {
+				.toast(isPresenting: self.$viewModel.newBulletinsAvailable, duration: 5, offsetY: 60, alert: {
 					AlertToast(displayMode: .hud, type: .complete(Color.blue), title: "Updates available! Pull to refresh")
 				}, completion: {
-					self.viewModel.newNewsAvailable = false
+					self.viewModel.newBulletinsAvailable = false
 				})
 				
-				if self.viewModel.news.isEmpty {
+				if self.viewModel.bulletins.isEmpty {
 					VStack {
 						Spacer()
 						
-						Text("No news")
+						Text("No bulletins")
 							.font(.headline)
 							.foregroundColor(.primary)
 							.frame(maxWidth: .infinity)
@@ -59,7 +59,7 @@ struct HomeTabView : View {
 					.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
 					.opacity(self.viewModel.loadingState.isLoading ? 1 : 0)
 			}
-			.animation(.easeInOut, value: self.viewModel.news)
+			.animation(.easeInOut, value: self.viewModel.bulletins)
 			.animation(.easeInOut, value: self.viewModel.loadingState)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
 			.onCfgChanged(onChanged: { cfgType, _ in

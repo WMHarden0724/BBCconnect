@@ -1,5 +1,5 @@
 //
-//  NewsViewModel.swift
+//  BulletinsViewModel.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/23/25.
@@ -9,12 +9,12 @@ import Foundation
 import Combine
 
 @MainActor
-class NewsViewModel: ObservableObject {
+class BulletinsViewModel: ObservableObject {
 	
-	@Published var loadingState: APIResult<NewsResponse> = .none
-	@Published var news = [News]()
+	@Published var loadingState: APIResult<BulletinsResponse> = .none
+	@Published var bulletins = [Bulletin]()
 	
-	@Published var newNewsAvailable = false
+	@Published var newBulletinsAvailable = false
 	
 	private var page = 0
 	private var hasNextPage = false
@@ -22,11 +22,11 @@ class NewsViewModel: ObservableObject {
 	private let subManager = SubscriptionManager()
 	
 	init() {
-		self.fetchNews()
+		self.fetchBulletins()
 		self.setupSubscribers()
 	}
 	
-	func fetchNews(reset: Bool = false) {
+	func fetchBulletins(reset: Bool = false) {
 		if reset {
 			self.page = 0
 		}
@@ -36,17 +36,17 @@ class NewsViewModel: ObservableObject {
 		
 		Task {
 			let queryParams = [ "page": self.page ]
-			let result: APIResult<NewsResponse> = await APIManager.shared.request(endpoint: .getNews, queryParams: queryParams)
+			let result: APIResult<BulletinsResponse> = await APIManager.shared.request(endpoint: .getBulletins, queryParams: queryParams)
 			
 			DispatchQueue.main.async {
-				if case .success(let news) = result {
-					self.hasNextPage = news.total_pages > self.page
+				if case .success(let bulletins) = result {
+					self.hasNextPage = bulletins.total_pages > self.page
 					
 					if reset {
-						self.news = news.news
+						self.bulletins = bulletins.bulletins
 					}
 					else {
-						self.news.append(contentsOf: news.news)
+						self.bulletins.append(contentsOf: bulletins.bulletins)
 					}
 				}
 				
@@ -61,16 +61,16 @@ class NewsViewModel: ObservableObject {
 				.receive(on: DispatchQueue.main)
 				.compactMap { $0.object as? PubSubMessage }
 				.sink(receiveValue: { payload in
-					guard payload.channel == .news else { return }
+					guard payload.channel == .bulletins else { return }
 					if payload.status == .create {
 						DispatchQueue.main.async {
-							self.newNewsAvailable = true
+							self.newBulletinsAvailable = true
 						}
 					}
 					else if payload.status == .delete {
 						DispatchQueue.main.async {
-							if let newsId = payload.news_id {
-								self.news.removeAll(where: { $0.id == newsId })
+							if let bulletinId = payload.bulletin_id {
+								self.bulletins.removeAll(where: { $0.id == bulletinId })
 							}
 						}
 					}

@@ -1,5 +1,5 @@
 //
-//  NewsLinkPreview.swift
+//  BulletinLinkPreview.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/23/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import LinkPresentation
 
-struct NewsLinkPreview: UIViewRepresentable {
+struct BulletinLinkPreview: UIViewRepresentable {
 	
 	let url: URL
 	let maxHeight: CGFloat // Custom height limit

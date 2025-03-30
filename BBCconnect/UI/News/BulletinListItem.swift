@@ -1,5 +1,5 @@
 //
-//  NewsListItem.swift
+//  BulletinListItem.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/23/25.
@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct NewsListItem : View {
+struct BulletinListItem : View {
 	
-	let news: News
+	let bulletin: Bulletin
 	
 	@State private var isShowingLarge = false
 	
 	var date: String? {
-		if let date = self.news.createdAtTimestamp(includeDow: true) {
+		if let date = self.bulletin.createdAtTimestamp(includeDow: true) {
 			return date
 		}
 		
@@ -34,12 +34,12 @@ struct NewsListItem : View {
 				}
 				
 				VStack(alignment: .leading, spacing: 0) {
-					if let linkUrl = self.news.linkURL {
-						NewsLinkPreview(url: linkUrl, maxHeight: 200)
+					if let linkUrl = self.bulletin.linkURL {
+						BulletinLinkPreview(url: linkUrl, maxHeight: 200)
 							.frame(height: 200)
 							.clipped()
 					}
-					else if let imageUrl = self.news.imageURL {
+					else if let imageUrl = self.bulletin.imageURL {
 						AsyncImage(
 							url: imageUrl,
 							transaction: Transaction(animation: .easeInOut)
@@ -69,13 +69,13 @@ struct NewsListItem : View {
 					}
 					
 					VStack {
-						Text(self.news.title)
+						Text(self.bulletin.title)
 							.font(.system(size: 17, weight: .medium))
 							.foregroundColor(.primary)
 							.lineLimit(1)
 							.frame(maxWidth: .infinity, alignment: .leading)
 						
-						Text(self.news.content)
+						Text(self.bulletin.content)
 							.font(.subheadline)
 							.foregroundColor(.secondary)
 							.lineLimit(2)
@@ -91,28 +91,28 @@ struct NewsListItem : View {
 			}
 		}
 		.sheet(isPresented: self.$isShowingLarge) {
-			NewsSheetView(news: self.news)
+			BulletinSheetView(bulletin: self.bulletin)
 				.presentationDetents([.medium, .large])
 				.presentationDragIndicator(.visible)
 		}
 	}
 }
 
-fileprivate struct NewsSheetView : View {
+fileprivate struct BulletinSheetView : View {
 	
 	@Environment(\.dismiss) private var dismiss
 	
-	let news: News
+	let bulletin: Bulletin
 	
 	var body: some View {
 		VStack(spacing: 0) {
 			ZStack(alignment: .topTrailing) {
-				if let linkUrl = self.news.linkURL {
-					NewsLinkPreview(url: linkUrl, maxHeight: 250)
+				if let linkUrl = self.bulletin.linkURL {
+					BulletinLinkPreview(url: linkUrl, maxHeight: 250)
 						.frame(height: 250)
 						.clipped()
 				}
-				else if let imageUrl = self.news.imageURL {
+				else if let imageUrl = self.bulletin.imageURL {
 					AsyncImage(
 						url: imageUrl,
 						transaction: Transaction(animation: .easeInOut)
@@ -158,12 +158,12 @@ fileprivate struct NewsSheetView : View {
 			
 			ScrollView {
 				VStack(spacing: Dimens.verticalPadding) {
-					Text(self.news.title)
+					Text(self.bulletin.title)
 						.font(.largeTitle)
 						.foregroundStyle(.primary)
 						.frame(maxWidth: .infinity, alignment: .leading)
 					
-					Text(self.news.content)
+					Text(self.bulletin.content)
 						.font(.body)
 						.foregroundColor(.secondary)
 						.frame(maxWidth: .infinity, alignment: .leading)
