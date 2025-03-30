@@ -82,7 +82,7 @@ struct NewConversationView : View {
 						.listRowInsets(EdgeInsets())
 					}
 					else if self.viewModel.isError {
-						Text("Failed to load users.")
+						Text("Failed to load users")
 							.font(.headline)
 							.foregroundColor(.primary)
 							.padding(.vertical, Dimens.verticalPadding)
@@ -116,7 +116,6 @@ struct NewConversationView : View {
 							token: { user in
 					Text(user.fullName())
 				})
-				.searchPresentationToolbarBehavior(.avoidHidingContent)
 				.onChange(of: self.searchQuery, initial: false) {
 					self.viewModel.searchUsers(reset: true, query: self.searchQuery)
 				}

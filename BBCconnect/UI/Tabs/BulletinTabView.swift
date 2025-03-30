@@ -51,7 +51,7 @@ struct BulletinTabView : View {
 					.listRowInsets(EdgeInsets())
 				}
 				else if self.viewModel.isError {
-					Text("Failed to load bulletins.")
+					Text("Failed to load bulletins")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
@@ -81,7 +81,6 @@ struct BulletinTabView : View {
 			}
 			.searchable(text: self.$searchQuery,
 						prompt: "Filter bulletins")
-			.searchPresentationToolbarBehavior(.avoidHidingContent)
 			.toast(isPresenting: self.$viewModel.newBulletinsAvailable, duration: 5, offsetY: 60, alert: {
 				AlertToast(displayMode: .hud, type: .complete(Color.blue), title: "Updates available! Pull to refresh")
 			}, completion: {
