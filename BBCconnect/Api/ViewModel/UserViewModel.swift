@@ -48,15 +48,53 @@ class UserViewModel: ObservableObject {
 @MainActor
 open class UserSearchViewModel: ObservableObject {
 	
+	@Published var isError = false
+	@Published var isLoading = false
 	@Published var users = [User]()
 	
-	func searchUsers(query: String) async {
-		let queryParams = ["q": query]
-		let result: APIResult<[User]> = await APIManager.shared.request(endpoint: .searchUsers, queryParams: queryParams)
+	private var page = 0
+	private let limit = 25
+	private var totalPages = 1
+	
+	init() {
+		self.searchUsers(reset: true, query: "")
+	}
+	
+	func searchUsers(reset: Bool = false, query: String = "") {
+		if reset {
+			self.page = 0
+			self.totalPages = 1
+		}
 		
-		DispatchQueue.main.async {
-			if case .success(let data) = result {
-				self.users = data.filter { $0.id != UserCfg.userId() }
+		if self.page > self.totalPages {
+			// We are on the last page
+			return
+		}
+		
+		self.isLoading = true
+		
+		// Load next page
+		self.page = self.page + 1
+		
+		Task {
+			let queryParams = [ "query": query, "page": self.page, "limit": self.limit ]
+			let result: APIResult<SearchUsersResponse> = await APIManager.shared.request(endpoint: .getUsers, queryParams: queryParams)
+			
+			DispatchQueue.main.async {
+				self.isLoading = false
+				
+				if case .success(let response) = result {
+					self.isError = false
+					if response.page == 1 {
+						self.users = response.users
+					}
+					else {
+						self.users.append(contentsOf: response.users)
+					}
+				}
+				else if case .failure(_) = result {
+					self.isError = true
+				}
 			}
 		}
 	}

@@ -11,46 +11,58 @@ import Combine
 @MainActor
 class BulletinsViewModel: ObservableObject {
 	
-	@Published var loadingState: APIResult<BulletinsResponse> = .none
+	@Published var isError = false
+	@Published var isLoading = false
 	@Published var bulletins = [Bulletin]()
 	
 	@Published var newBulletinsAvailable = false
 	
 	private var page = 0
-	private var hasNextPage = false
+	private let limit = 25
+	private var totalPages = 1
 	
 	private let subManager = SubscriptionManager()
 	
 	init() {
-		self.fetchBulletins()
+		self.fetchBulletins(query: "")
 		self.setupSubscribers()
 	}
 	
-	func fetchBulletins(reset: Bool = false) {
+	func fetchBulletins(reset: Bool = false, query: String) {
 		if reset {
 			self.page = 0
+			self.totalPages = 1
 		}
+		
+		if self.page > self.totalPages {
+			// We are on the last page
+			return
+		}
+		
+		self.isLoading = true
 		
 		// Load next page
 		self.page = self.page + 1
 		
 		Task {
-			let queryParams = [ "page": self.page ]
-			let result: APIResult<BulletinsResponse> = await APIManager.shared.request(endpoint: .getBulletins, queryParams: queryParams)
+			let queryParams = [ "query": query, "page": self.page, "limit": self.limit ]
+			let result: APIResult<SearchBulletinsResponse> = await APIManager.shared.request(endpoint: .getBulletins, queryParams: queryParams)
 			
 			DispatchQueue.main.async {
-				if case .success(let bulletins) = result {
-					self.hasNextPage = bulletins.total_pages > self.page
-					
-					if reset {
-						self.bulletins = bulletins.bulletins
+				self.isLoading = false
+				
+				if case .success(let response) = result {
+					self.isError = false
+					if response.page == 1 {
+						self.bulletins = response.bulletins
 					}
 					else {
-						self.bulletins.append(contentsOf: bulletins.bulletins)
+						self.bulletins.append(contentsOf: response.bulletins)
 					}
 				}
-				
-				self.loadingState = result
+				else if case .failure(_) = result {
+					self.isError = true
+				}
 			}
 		}
 	}

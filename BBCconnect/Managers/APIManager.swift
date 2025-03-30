@@ -16,7 +16,7 @@ public struct APICfg {
 		public static let baseURL = URL(string: "http://ec2-3-16-206-208.us-east-2.compute.amazonaws.com:8181")!
 	
 	// Local testing url - uncomment when locally testing
-//	public static let baseURL = URL(string: "https://0b35-64-239-42-24.ngrok-free.app")!
+//	public static let baseURL = URL(string: "https://36c3-64-239-42-24.ngrok-free.app")!
 	
 	public static var wsUrl: URL {
 		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "https", with: "ws").replacingOccurrences(of: "http", with: "ws"))/ws")!
@@ -115,7 +115,7 @@ enum APIEndpoint: Equatable {
 	case deleteMessage(Int, Int)
 	case likeMessage(Int, Int)
 	case unlikeMessage(Int, Int)
-	case searchUsers
+	case getUsers
 	case getBulletins
 	
 	var path: String {
@@ -125,7 +125,7 @@ enum APIEndpoint: Equatable {
 		case .forgotPassword: return "/api/users/forgot-password"
 		case .userProfile: return "/api/users/profile"
 		case .updateUserProfile: return "/api/users/profile"
-		case .searchUsers: return "/api/users/search"
+		case .getUsers: return "/api/users/all"
 		case .createConversation: return "/api/conversations"
 		case .getConversations: return "/api/conversations"
 		case .getConversation(let id): return "/api/conversations/\(id)"
@@ -141,7 +141,7 @@ enum APIEndpoint: Equatable {
 		case .deleteMessage(let cid, let id): return "/api/conversations/\(cid)messages/\(id)"
 		case .likeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		case .unlikeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
-		case .getBulletins: return "/api/bulletins"
+		case .getBulletins: return "/api/bulletins/all"
 		}
 	}
 	
@@ -152,7 +152,7 @@ enum APIEndpoint: Equatable {
 		case .forgotPassword: return .post
 		case .userProfile: return .get
 		case .updateUserProfile: return .put
-		case .searchUsers: return .get
+		case .getUsers: return .get
 		case .createConversation: return .post
 		case .getConversations: return .get
 		case .getConversation(_): return .get

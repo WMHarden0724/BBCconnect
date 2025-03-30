@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct BulletinsResponse: Codable, Equatable {
+struct SearchBulletinsResponse: Codable, Equatable {
 	let bulletins: [Bulletin]
 	let total: Int
 	let page: Int

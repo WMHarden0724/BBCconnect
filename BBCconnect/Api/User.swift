@@ -7,6 +7,13 @@
 
 import Foundation
 
+struct SearchUsersResponse: Codable, Equatable {
+	let users: [User]
+	let total: Int
+	let page: Int
+	let total_pages: Int
+}
+
 public struct User: Codable, Equatable, Hashable, Identifiable {
 	public let id: Int
 	public let first_name: String

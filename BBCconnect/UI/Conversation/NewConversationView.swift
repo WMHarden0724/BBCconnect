@@ -15,40 +15,28 @@ struct NewConversationView : View {
 	@StateObject private var viewModel = NewConversationViewModel()
 	
 	@State private var selectedUsers = [User]()
+	@State private var searchQuery = ""
 	
 	@State private var viewSize: CGSize = .zero
-	@State private var inputText: String = ""
-	@State private var searchQuery: String = ""
 	@State private var message = ""
 	
 	@State private var alertToastError: String?
 	
 	var onConversationCreated: (Conversation) -> Void
 	
+	var filteredUsers: [User] {
+		let users = self.viewModel.users
+		return users.filter { !self.selectedUsers.contains($0) && $0.id != UserCfg.userId() }
+	}
+	
 	var body: some View {
 		NavigationStack {
 			VStack(spacing: 0) {
-				ScrollView {
-					VStack {
-						Spacer()
-						
-						Text("")
-							.frame(maxWidth: .infinity)
-					}
-					.applyHorizontalPadding(viewWidth: self.viewSize.width)
-					.padding(.vertical, Dimens.verticalPadding)
-				}
-				.searchable(text: self.$inputText,
-							tokens: self.$selectedUsers,
-							token: { user in
-					Text(user.fullName())
-				})
-				.searchPresentationToolbarBehavior(.avoidHidingContent)
-				.searchSuggestions({
-					ForEach(self.viewModel.users) { user in
+				List {
+					ForEach(self.filteredUsers) { user in
 						Button {
 							self.selectedUsers.append(user)
-							self.inputText.removeAll()
+							self.searchQuery.removeAll()
 						} label: {
 							HStack(spacing: Dimens.horizontalPadding) {
 								Avatar(type: .image(user), size: .sm, state: .normal)
@@ -65,11 +53,72 @@ struct NewConversationView : View {
 								
 								Spacer()
 							}
+							.padding(.horizontal, Dimens.horizontalPadding)
+							.padding(.bottom, Dimens.verticalPaddingMd)
 						}
+						.onAppear {
+							if user == self.viewModel.users.last {
+								self.viewModel.searchUsers(query: self.searchQuery)
+							}
+						}
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
 					}
+					
+					if self.viewModel.isLoading {
+						HStack {
+							Spacer()
+							
+							ProgressView()
+								.progressViewStyle(CircularProgressViewStyle(tint: Color.primary))
+							
+							Spacer()
+						}
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
+					}
+					else if self.viewModel.isError {
+						Text("Failed to load users.")
+							.font(.headline)
+							.foregroundColor(.primary)
+							.padding(.vertical, Dimens.verticalPadding)
+							.padding(.horizontal, Dimens.horizontalPadding)
+							.frame(maxWidth: .infinity)
+							.listRowSeparator(.hidden)
+							.listRowBackground(Color.clear)
+							.listRowSpacing(0)
+							.listRowInsets(EdgeInsets())
+					}
+					else if self.viewModel.users.isEmpty {
+						Text("No users match your filter criteria")
+							.font(.headline)
+							.foregroundColor(.primary)
+							.padding(.vertical, Dimens.verticalPadding)
+							.padding(.horizontal, Dimens.horizontalPadding)
+							.frame(maxWidth: .infinity)
+							.listRowSeparator(.hidden)
+							.listRowBackground(Color.clear)
+							.listRowSpacing(0)
+							.listRowInsets(EdgeInsets())
+					}
+				}
+				.listStyle(.plain)
+				.refreshable {
+					self.viewModel.searchUsers(reset: true, query: self.searchQuery)
+				}
+				.searchable(text: self.$searchQuery,
+							tokens: self.$selectedUsers,
+							prompt: "Filter users by name or email",
+							token: { user in
+					Text(user.fullName())
 				})
-				.onChange(of: self.inputText, initial: false) {
-					self.search()
+				.searchPresentationToolbarBehavior(.avoidHidingContent)
+				.onChange(of: self.searchQuery, initial: false) {
+					self.viewModel.searchUsers(reset: true, query: self.searchQuery)
 				}
 				
 				Spacer()
@@ -111,20 +160,6 @@ struct NewConversationView : View {
 			}
 		}
 		.tint(.blue)
-	}
-	
-	private func search() {
-		let components = self.inputText.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-		self.searchQuery = components.last ?? ""
-		
-		if self.searchQuery.isEmpty {
-			self.viewModel.users.removeAll()
-			return
-		}
-		
-		Task {
-			await self.viewModel.searchUsers(query: self.searchQuery)
-		}
 	}
 	
 	private func createConversation() {

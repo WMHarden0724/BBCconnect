@@ -11,9 +11,9 @@ struct ContentView: View {
 	
 	var body: some View {
 		TabView {
-			HomeTabView()
+			BulletinTabView()
 				.tabItem {
-					Label("Home", systemImage: "house")
+					Label("Bulletin", systemImage: "newspaper")
 				}
 			
 			LiveStreamTabView()
