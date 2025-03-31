@@ -88,7 +88,7 @@ struct AddUsersToConversationView : View {
 						.listRowInsets(EdgeInsets())
 				}
 				else if self.filteredUsers.isEmpty {
-					Text(!self.searchViewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users")
+					Text(!self.searchViewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users available")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)

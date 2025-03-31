@@ -92,7 +92,7 @@ struct NewConversationView : View {
 							.listRowInsets(EdgeInsets())
 					}
 					else if self.filteredUsers.isEmpty {
-						Text(!self.viewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users")
+						Text(!self.viewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users available")
 							.font(.headline)
 							.foregroundColor(.primary)
 							.padding(.vertical, Dimens.verticalPadding)

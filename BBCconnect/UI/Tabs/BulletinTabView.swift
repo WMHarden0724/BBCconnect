@@ -57,7 +57,7 @@ struct BulletinTabView : View {
 						.listRowInsets(EdgeInsets())
 				}
 				else if self.viewModel.bulletins.isEmpty {
-					Text(!self.viewModel.searchQuery.isEmpty ? "No bulletins match your search criteria" : "No bulletins")
+					Text(!self.viewModel.searchQuery.isEmpty ? "No bulletins match your search criteria" : "No bulletins available")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
