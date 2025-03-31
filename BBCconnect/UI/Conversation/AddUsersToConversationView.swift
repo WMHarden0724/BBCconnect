@@ -133,7 +133,7 @@ struct AddUsersToConversationView : View {
 			}
 			.searchable(text: self.$searchViewModel.searchQuery,
 						tokens: self.$selectedUsers,
-						prompt: "Search users by name or email",
+						prompt: "Search users by name, email, or role",
 						token: { user in
 				Text(user.fullName())
 			})
