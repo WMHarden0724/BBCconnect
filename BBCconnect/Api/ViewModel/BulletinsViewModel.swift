@@ -11,6 +11,7 @@ import Combine
 @MainActor
 class BulletinsViewModel: ObservableObject {
 	
+	@Published var searchQuery = ""
 	@Published var isError = false
 	@Published var isLoading = false
 	@Published var bulletins = [Bulletin]()
@@ -21,11 +22,21 @@ class BulletinsViewModel: ObservableObject {
 	private let limit = 25
 	private var totalPages = 1
 	
+	private var cancellables = Set<AnyCancellable>()
 	private let subManager = SubscriptionManager()
 	
 	init() {
 		self.fetchBulletins(query: "")
 		self.setupSubscribers()
+		
+		self.$searchQuery
+			.debounce(for: .milliseconds(250), scheduler: RunLoop.main) // Delay API calls until user stops typing
+			.removeDuplicates() // Prevent duplicate calls for the same query
+			.sink { [weak self] newQuery in
+				guard let self = self else { return }
+				self.fetchBulletins(reset: true, query: newQuery)
+			}
+			.store(in: &self.cancellables)
 	}
 	
 	func fetchBulletins(reset: Bool = false, query: String) {

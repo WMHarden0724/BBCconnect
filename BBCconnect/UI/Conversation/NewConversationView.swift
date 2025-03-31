@@ -15,7 +15,6 @@ struct NewConversationView : View {
 	@StateObject private var viewModel = NewConversationViewModel()
 	
 	@State private var selectedUsers = [User]()
-	@State private var searchQuery = ""
 	
 	@State private var viewSize: CGSize = .zero
 	@State private var message = ""
@@ -24,9 +23,13 @@ struct NewConversationView : View {
 	
 	var onConversationCreated: (Conversation) -> Void
 	
-	var filteredUsers: [User] {
+	private var filteredUsers: [User] {
 		let users = self.viewModel.users
 		return users.filter { !self.selectedUsers.contains($0) && $0.id != UserCfg.userId() }
+	}
+	
+	init(onConversationCreated: @escaping (Conversation) -> Void) {
+		self.onConversationCreated = onConversationCreated
 	}
 	
 	var body: some View {
@@ -36,7 +39,6 @@ struct NewConversationView : View {
 					ForEach(self.filteredUsers) { user in
 						Button {
 							self.selectedUsers.append(user)
-							self.searchQuery.removeAll()
 						} label: {
 							HStack(spacing: Dimens.horizontalPadding) {
 								Avatar(type: .image(user), size: .sm, state: .normal)
@@ -58,7 +60,7 @@ struct NewConversationView : View {
 						}
 						.onAppear {
 							if user == self.viewModel.users.last {
-								self.viewModel.searchUsers(query: self.searchQuery)
+								self.viewModel.searchUsers(query: self.viewModel.searchQuery)
 							}
 						}
 						.listRowSeparator(.hidden)
@@ -93,7 +95,7 @@ struct NewConversationView : View {
 							.listRowSpacing(0)
 							.listRowInsets(EdgeInsets())
 					}
-					else if self.viewModel.users.isEmpty {
+					else if self.filteredUsers.isEmpty {
 						Text("No users match your filter criteria")
 							.font(.headline)
 							.foregroundColor(.primary)
@@ -108,17 +110,15 @@ struct NewConversationView : View {
 				}
 				.listStyle(.plain)
 				.refreshable {
-					self.viewModel.searchUsers(reset: true, query: self.searchQuery)
+					self.viewModel.searchUsers(reset: true, query: self.viewModel.searchQuery)
 				}
-				.searchable(text: self.$searchQuery,
+				.searchable(text: self.$viewModel.searchQuery,
 							tokens: self.$selectedUsers,
-							prompt: "Filter users by name or email",
+							prompt: "Search users by name or email",
 							token: { user in
 					Text(user.fullName())
 				})
-				.onChange(of: self.searchQuery, initial: false) {
-					self.viewModel.searchUsers(reset: true, query: self.searchQuery)
-				}
+				.searchPresentationToolbarBehavior(.avoidHidingContent)
 				
 				Spacer()
 				

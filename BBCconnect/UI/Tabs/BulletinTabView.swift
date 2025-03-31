@@ -12,7 +12,6 @@ struct BulletinTabView : View {
 	
 	@StateObject private var viewModel = BulletinsViewModel()
 	
-	@State private var searchQuery = ""
 	@State private var showNewBulletinsAvailable = false
 	@State private var avatarId = Date()
 	
@@ -31,7 +30,7 @@ struct BulletinTabView : View {
 						.listRowInsets(EdgeInsets())
 						.onAppear {
 							if bulletin == self.viewModel.bulletins.last {
-								self.viewModel.fetchBulletins(query: self.searchQuery)
+								self.viewModel.fetchBulletins(query: self.viewModel.searchQuery)
 							}
 						}
 				}
@@ -77,10 +76,10 @@ struct BulletinTabView : View {
 			}
 			.listStyle(.plain)
 			.refreshable {
-				self.viewModel.fetchBulletins(reset: true, query: self.searchQuery)
+				self.viewModel.fetchBulletins(reset: true, query: self.viewModel.searchQuery)
 			}
-			.searchable(text: self.$searchQuery,
-						prompt: "Filter bulletins")
+			.searchable(text: self.$viewModel.searchQuery,
+						prompt: "Search bulletins")
 			.toast(isPresenting: self.$viewModel.newBulletinsAvailable, duration: 5, offsetY: 60, alert: {
 				AlertToast(displayMode: .hud, type: .complete(Color.blue), title: "Updates available! Pull to refresh")
 			}, completion: {
@@ -90,9 +89,6 @@ struct BulletinTabView : View {
 			.animation(.easeInOut, value: self.viewModel.isLoading)
 			.animation(.easeInOut, value: self.viewModel.isError)
 			.backgroundIgnoreSafeArea(color: .backgroundDark)
-			.onChange(of: self.searchQuery, initial: false) {
-				self.viewModel.fetchBulletins(reset: true, query: self.searchQuery)
-			}
 			.onCfgChanged(onChanged: { cfgType, _ in
 				if cfgType == .avatar {
 					self.avatarId = Date()

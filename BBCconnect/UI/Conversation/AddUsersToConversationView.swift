@@ -16,7 +16,6 @@ struct AddUsersToConversationView : View {
 	@StateObject private var searchViewModel = UserSearchViewModel()
 	
 	@State private var selectedUsers = [User]()
-	@State private var searchQuery = ""
 	
 	@State private var viewSize: CGSize = .zero
 	@State private var message = ""
@@ -36,7 +35,6 @@ struct AddUsersToConversationView : View {
 				ForEach(self.filteredUsers) { user in
 					Button {
 						self.selectedUsers.append(user)
-						self.searchQuery.removeAll()
 					} label: {
 						HStack(spacing: Dimens.horizontalPadding) {
 							Avatar(type: .image(user), size: .sm, state: .normal)
@@ -58,7 +56,7 @@ struct AddUsersToConversationView : View {
 					}
 					.onAppear {
 						if user == self.searchViewModel.users.last {
-							self.searchViewModel.searchUsers(query: self.searchQuery)
+							self.searchViewModel.searchUsers(query: self.searchViewModel.searchQuery)
 						}
 					}
 					.listRowSeparator(.hidden)
@@ -93,7 +91,7 @@ struct AddUsersToConversationView : View {
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
 				}
-				else if self.searchViewModel.users.isEmpty {
+				else if self.filteredUsers.isEmpty {
 					Text("No users match your filter criteria")
 						.font(.headline)
 						.foregroundColor(.primary)
@@ -108,17 +106,15 @@ struct AddUsersToConversationView : View {
 			}
 			.listStyle(.plain)
 			.refreshable {
-				self.searchViewModel.searchUsers(reset: true, query: self.searchQuery)
+				self.searchViewModel.searchUsers(reset: true, query: self.searchViewModel.searchQuery)
 			}
-			.searchable(text: self.$searchQuery,
+			.searchable(text: self.$searchViewModel.searchQuery,
 						tokens: self.$selectedUsers,
-						prompt: "Filter users by name or email",
+						prompt: "Search users by name or email",
 						token: { user in
 				Text(user.fullName())
 			})
-			.onChange(of: self.searchQuery, initial: false) {
-				self.searchViewModel.searchUsers(reset: true, query: self.searchQuery)
-			}
+			.searchPresentationToolbarBehavior(.avoidHidingContent)
 			.animation(.easeInOut, value: self.searchViewModel.users)
 			.animation(.easeInOut, value: self.searchViewModel.isLoading)
 			.animation(.easeInOut, value: self.searchViewModel.isError)

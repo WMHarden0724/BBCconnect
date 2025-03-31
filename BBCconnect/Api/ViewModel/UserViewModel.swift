@@ -48,6 +48,7 @@ class UserViewModel: ObservableObject {
 @MainActor
 open class UserSearchViewModel: ObservableObject {
 	
+	@Published var searchQuery = ""
 	@Published var isError = false
 	@Published var isLoading = false
 	@Published var users = [User]()
@@ -56,8 +57,23 @@ open class UserSearchViewModel: ObservableObject {
 	private let limit = 25
 	private var totalPages = 1
 	
+	private var cancellables = Set<AnyCancellable>()
+	
 	init() {
 		self.searchUsers(reset: true, query: "")
+		
+		self.$searchQuery
+			.debounce(for: .milliseconds(250), scheduler: RunLoop.main) // Delay API calls until user stops typing
+			.removeDuplicates() // Prevent duplicate calls for the same query
+			.sink { [weak self] newQuery in
+				guard let self = self else { return }
+				self.searchUsers(reset: true, query: newQuery)
+			}
+			.store(in: &self.cancellables)
+	}
+	
+	deinit {
+		self.cancellables.forEach { $0.cancel() }
 	}
 	
 	func searchUsers(reset: Bool = false, query: String = "") {
