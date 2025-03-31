@@ -99,3 +99,9 @@ struct Bulletin: Codable, Equatable {
 		return formatter.string(from: date)
 	}
 }
+
+struct BulletinPreview: Codable {
+	let title: String?
+	let description: String?
+	let image: String?
+}

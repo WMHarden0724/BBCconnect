@@ -16,7 +16,7 @@ public struct APICfg {
 		public static let baseURL = URL(string: "http://ec2-3-16-206-208.us-east-2.compute.amazonaws.com:8181")!
 	
 	// Local testing url - uncomment when locally testing
-//	public static let baseURL = URL(string: "https://36c3-64-239-42-24.ngrok-free.app")!
+//	public static let baseURL = URL(string: "https://f3f8-64-239-42-24.ngrok-free.app")!
 	
 	public static var wsUrl: URL {
 		return URL(string: "\(Self.baseURL.absoluteString.replacingOccurrences(of: "https", with: "ws").replacingOccurrences(of: "http", with: "ws"))/ws")!
@@ -117,6 +117,7 @@ enum APIEndpoint: Equatable {
 	case unlikeMessage(Int, Int)
 	case getUsers
 	case getBulletins
+	case getBulletinPreview(Int)
 	
 	var path: String {
 		switch self {
@@ -142,6 +143,7 @@ enum APIEndpoint: Equatable {
 		case .likeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		case .unlikeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		case .getBulletins: return "/api/bulletins/all"
+		case .getBulletinPreview(let id): return "/api/bulletins/\(id)/preview"
 		}
 	}
 	
@@ -169,6 +171,7 @@ enum APIEndpoint: Equatable {
 		case .likeMessage(_, _): return .post
 		case .unlikeMessage(_, _): return .delete
 		case .getBulletins: return .get
+		case .getBulletinPreview(_): return .get
 		}
 	}
 }
