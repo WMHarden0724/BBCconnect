@@ -30,8 +30,10 @@ struct ConversationMessageView: View {
 			}
 			
 			if self.shouldShowParticipantInfo && !self.isFromYou {
-				Avatar(type: .image(self.message.user), size: .xs, state: .normal)
-					.opacity(self.participantOpacity)
+				NavigationLink(destination: OtherUserProfileView(user: self.message.user)) {
+					Avatar(type: .image(self.message.user), size: .xs, state: .normal)
+						.opacity(self.participantOpacity)
+				}
 			}
 			
 			VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {

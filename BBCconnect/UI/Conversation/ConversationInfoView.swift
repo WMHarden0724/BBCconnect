@@ -91,17 +91,19 @@ struct ConversationInfoView : View {
 				ForEach(self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }, id: \.id) { user in
 					Divider().foregroundColor(.divider)
 					
-					HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
-						Avatar(type: .image(user), size: .custom(40), state: .normal)
-						
-						Text(user.fullName())
-							.font(.system(size: 17, weight: .medium))
-							.foregroundColor(.primary)
-							.lineLimit(1)
-							.frame(maxWidth: .infinity, alignment: .leading)
+					NavigationLink(destination: OtherUserProfileView(user: user)) {
+						HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
+							Avatar(type: .image(user), size: .custom(40), state: .normal)
+							
+							Text(user.fullName())
+								.font(.system(size: 17, weight: .medium))
+								.foregroundColor(.primary)
+								.lineLimit(1)
+								.frame(maxWidth: .infinity, alignment: .leading)
+						}
+						.padding(.horizontal, Dimens.horizontalPaddingMd)
+						.padding(.vertical, Dimens.verticalPaddingMd)
 					}
-					.padding(.horizontal, Dimens.horizontalPaddingMd)
-					.padding(.vertical, Dimens.verticalPaddingMd)
 				}
 				
 				Divider().foregroundColor(.divider)

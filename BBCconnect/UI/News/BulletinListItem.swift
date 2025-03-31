@@ -40,8 +40,9 @@ struct BulletinListItem : View {
 							.clipped()
 					}
 					else if let imageUrl = self.bulletin.imageURL {
-						AsyncImage(
+						CachedAsyncImage(
 							url: imageUrl,
+							urlCache: .imageCache,
 							transaction: Transaction(animation: .easeInOut)
 						) { phase in
 							switch phase {
@@ -113,8 +114,9 @@ fileprivate struct BulletinSheetView : View {
 						.clipped()
 				}
 				else if let imageUrl = self.bulletin.imageURL {
-					AsyncImage(
+					CachedAsyncImage(
 						url: imageUrl,
+						urlCache: .imageCache,
 						transaction: Transaction(animation: .easeInOut)
 					) { phase in
 						switch phase {

@@ -19,6 +19,7 @@ public struct User: Codable, Equatable, Hashable, Identifiable {
 	public let first_name: String
 	public let last_name: String
 	public let email: String
+	public let role: String
 	public let avatar: String?
 }
 
@@ -40,7 +41,11 @@ public struct UserAuthentication: Codable, Equatable {
 }
 
 extension User {
-	func fullName() -> String {
+	func fullName(includeRoleIfAdmin: Bool = false) -> String {
+		if includeRoleIfAdmin && self.role == "admin" {
+			return "\(self.first_name) \(self.last_name) (Admin)"
+		}
+		
 		return "\(self.first_name) \(self.last_name)"
 	}
 	
@@ -55,47 +60,55 @@ extension User {
 								  first_name: "Garrett",
 								  last_name: "Franks",
 								  email: "lgfz71@gmail.com",
+								  role: "admin",
 								  avatar: nil)
 	
 	static let sampleUser2 = User(id: 2,
 								  first_name: "Wesley",
 								  last_name: "Harden",
 								  email: "test@gmail.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser3 = User(id: 3,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser4 = User(id: 4,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser5 = User(id: 5,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser6 = User(id: 6,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser7 = User(id: 7,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 	
 	static let sampleUser8 = User(id: 8,
 								  first_name: "Test",
 								  last_name: "User",
 								  email: "test@test.com",
+								  role: "default",
 								  avatar: nil)
 }

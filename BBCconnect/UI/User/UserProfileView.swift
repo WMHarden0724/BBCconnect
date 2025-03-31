@@ -32,6 +32,14 @@ struct UserProfileView : View {
 	@State private var alertToastError: String?
 	@FocusState private var focusedField: Field?
 	
+	private var fullNameWithRole: String {
+		if let role = UserCfg.role(), role == "admin" {
+			return "\(self.firstName) \(self.lastName) (Admin)"
+		}
+		
+		return "\(self.firstName) \(self.lastName)"
+	}
+	
 	private var hasOpenedCameraView: Bool {
 		get {
 			return UserDefaults.standard.bool(forKey: "profileViewHasOpenedCamera")
@@ -51,7 +59,7 @@ struct UserProfileView : View {
 			self.showChangeAvatarAlert.toggle()
 		}) {
 			ZStack(alignment: .topLeading) {
-				Avatar(type: .userCfg, size: .lg, state: .normal)
+				Avatar(type: .userCfg, size: .xxl, state: .normal)
 					.id(self.avatarId)
 				
 				ProgressView()
@@ -124,15 +132,15 @@ struct UserProfileView : View {
 					}
 			}
 			else {
-				Text("\(self.firstName) \(self.lastName)")
-					.font(.system(size: 17, weight: .medium))
+				Text(self.fullNameWithRole)
+					.font(.system(size: 20, weight: .medium))
 					.foregroundColor(.primary)
-					.frame(maxWidth: .infinity, alignment: .leading)
+					.frame(maxWidth: .infinity, alignment: .center)
 				
 				Text(self.email)
 					.font(.subheadline)
 					.foregroundColor(.secondary)
-					.frame(maxWidth: .infinity, alignment: .leading)
+					.frame(maxWidth: .infinity, alignment: .center)
 			}
 		}
 	}
@@ -140,15 +148,11 @@ struct UserProfileView : View {
 	var body: some View {
 		ScrollView {
 			VStack(spacing: Dimens.verticalPadding) {
-				HStack(alignment: self.isEditing ? .top : .center, spacing: Dimens.horizontalPadding) {
-					self.avatarView()
-					
-					self.nameFieldsView()
-				}
-				.padding(.horizontal, Dimens.horizontalPaddingMd)
-				.padding(.vertical, Dimens.verticalPaddingMd)
-				.background(Color.background)
-				.cornerRadius(8)
+				self.avatarView()
+				
+				self.nameFieldsView()
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
 				
 				BButton(style: .primary, text: "Log Out") {
 					self.showLogoutAlert.toggle()
@@ -156,7 +160,7 @@ struct UserProfileView : View {
 				
 				Spacer()
 				
-				// TODO add editable fields for user to modify their profile
+				// TODO: add editable fields for user to modify their profile
 				
 			}
 			.padding(.top, Dimens.verticalPadding)

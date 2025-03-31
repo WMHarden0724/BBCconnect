@@ -34,6 +34,10 @@ public struct UserCfg {
 		return CfgManager.shared.getValue(cfgType: .lastName) as? String
 	}
 	
+	public static func role() -> String? {
+		return CfgManager.shared.getValue(cfgType: .role) as? String
+	}
+	
 	public static func initials() -> String {
 		if let firstName = self.firstName(), let lastName = self.lastName() {
 			return "\(firstName.first!)\(lastName.first!)"
@@ -75,6 +79,10 @@ public struct UserCfg {
 		CfgManager.shared.setValue(cfgType: .lastName, value: lastName)
 	}
 	
+	public static func setRole(role: String) {
+		CfgManager.shared.setValue(cfgType: .role, value: role)
+	}
+	
 	public static func setUserId(userId: Int) {
 		CfgManager.shared.setValue(cfgType: .userId, value: userId)
 	}
@@ -93,6 +101,7 @@ public struct UserCfg {
 		Self.setEmail(email: user.email)
 		Self.setFirstName(firstName: user.first_name)
 		Self.setLastName(lastName: user.last_name)
+		Self.setRole(role: user.role)
 		Self.setAvatar(avatar: user.avatar)
 	}
 	

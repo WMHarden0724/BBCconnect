@@ -24,7 +24,7 @@ public enum AvatarType {
 
 @available(iOS 13.0, *)
 public enum AvatarSize {
-	case xxxxs, xxxs, xxs, xs, sm, md, lg, xl, custom(CGFloat)
+	case xxxxs, xxxs, xxs, xs, sm, md, lg, xl, xxl, custom(CGFloat)
 	
 	var size: CGFloat {
 		switch self {
@@ -35,7 +35,8 @@ public enum AvatarSize {
 		case .sm: 40
 		case .md: 48
 		case .lg: 56
-		case .xl: 150
+		case .xl: 80
+		case .xxl: 150
 		case .custom(let size): size
 		}
 	}
@@ -49,7 +50,8 @@ public enum AvatarSize {
 		case .sm: return 14
 		case .md: return 16
 		case .lg: return 18
-		case .xl: return 50
+		case .xl: return 24
+		case .xxl: return 50
 		case .custom(let size): return size * 0.3
 		}
 	}
@@ -61,7 +63,8 @@ public enum AvatarSize {
 		case .xxs: return 6
 		case .xs, .sm: return 8
 		case .md, .lg: return 12
-		case .xl: return 20
+		case .xl: return 14
+		case .xxl: return 20
 		case .custom(let size): return size * 0.2
 		}
 	}
@@ -141,8 +144,9 @@ struct Avatar: View {
 			case .image(let user):
 				Group {
 					if let avatarUrl = user.avatar, !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-						AsyncImage(
+						CachedAsyncImage(
 							url: url,
+							urlCache: .imageCache,
 							transaction: Transaction(animation: .easeInOut)
 						) { phase in
 							switch phase {
@@ -176,8 +180,9 @@ struct Avatar: View {
 			case .userCfg:
 				Group {
 					if let avatarUrl = UserCfg.avatar(), !avatarUrl.isEmpty, let url = URL(string: avatarUrl) {
-						AsyncImage(
+						CachedAsyncImage(
 							url: url,
+							urlCache: .imageCache,
 							transaction: Transaction(animation: .easeInOut)
 						) { phase in
 							switch phase {
