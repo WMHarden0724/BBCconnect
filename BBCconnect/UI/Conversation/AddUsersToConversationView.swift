@@ -32,33 +32,43 @@ struct AddUsersToConversationView : View {
 	var body: some View {
 		NavigationStack {
 			List {
-				ForEach(self.filteredUsers) { user in
-					Button {
-						self.selectedUsers.append(user)
-					} label: {
-						HStack(spacing: Dimens.horizontalPadding) {
-							Avatar(type: .image(user), size: .sm, state: .normal)
-							
-							VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
-								Text(user.fullName())
-									.font(.body)
-									.foregroundColor(.primary)
-								
-								Text(user.email)
-									.font(.caption)
+				ForEach(self.searchViewModel.groupedUsers.keys.sorted(), id: \.self) { userGroup in
+					if let users = self.searchViewModel.groupedUsers[userGroup] {
+						Section(
+							header: Text(userGroup)
 									.foregroundColor(.secondary)
+									.font(.headline)
+						) {
+							ForEach(users, id: \.id) { user in
+								Button {
+									self.selectedUsers.append(user)
+								} label: {
+									HStack(spacing: Dimens.horizontalPadding) {
+										Avatar(type: .image(user), size: .sm, state: .normal)
+										
+										VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
+											Text(user.fullName())
+												.font(.body)
+												.foregroundColor(.primary)
+											
+											Text(user.email)
+												.font(.caption)
+												.foregroundColor(.secondary)
+										}
+										
+										Spacer()
+									}
+									.padding(.horizontal, Dimens.horizontalPadding)
+									.padding(.bottom, Dimens.verticalPaddingMd)
+								}
+								.buttonStyle(.plain)
+								.listRowSeparator(.hidden)
+								.listRowBackground(Color.clear)
+								.listRowSpacing(0)
+								.listRowInsets(EdgeInsets())
 							}
-							
-							Spacer()
 						}
-						.padding(.horizontal, Dimens.horizontalPadding)
-						.padding(.bottom, Dimens.verticalPaddingMd)
 					}
-					.buttonStyle(.plain)
-					.listRowSeparator(.hidden)
-					.listRowBackground(Color.clear)
-					.listRowSpacing(0)
-					.listRowInsets(EdgeInsets())
 				}
 				
 				if self.searchViewModel.isLoading {
@@ -160,14 +170,30 @@ struct AddUsersToConversationView : View {
 				}
 				
 				ToolbarItem(placement: .navigationBarTrailing) {
-					Button(action: {
-						self.updateConversation()
-					}) {
-						Text("Done")
-							.foregroundColor(self.selectedUsers.isEmpty ? .gray.opacity(0.5) : .blue)
-							.font(.system(size: 17, weight: .medium))
+					HStack {
+						Menu {
+							ForEach(UserSearchViewModel.UserSearchSortOption.allCases, id: \.self) { option in
+								Button {
+									self.searchViewModel.sortOption = option
+								} label: {
+									Text(self.searchViewModel.sortOption == option ? "• \(option.uiName)" : option.uiName)
+								}
+							}
+						} label: {
+							Image(systemName: "arrow.up.arrow.down")
+								.imageScale(.large)
+								.foregroundStyle(.blue)
+						}
+						
+						Button(action: {
+							self.updateConversation()
+						}) {
+							Text("Done")
+								.foregroundColor(self.selectedUsers.isEmpty ? .gray.opacity(0.5) : .blue)
+								.font(.system(size: 17, weight: .medium))
+						}
+						.disabled(self.selectedUsers.isEmpty)
 					}
-					.disabled(self.selectedUsers.isEmpty)
 				}
 			}
 		}

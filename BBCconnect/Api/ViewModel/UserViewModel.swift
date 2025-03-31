@@ -48,10 +48,31 @@ class UserViewModel: ObservableObject {
 @MainActor
 open class UserSearchViewModel: ObservableObject {
 	
+	enum UserSearchSortOption: String, CaseIterable {
+		case firstname
+		case lastname
+		case email
+		
+		var uiName: String {
+			switch self {
+			case .firstname: return "First Name"
+			case .lastname: return "Last Name"
+			case .email: return "Email"
+			}
+		}
+	}
+	
 	@Published var searchQuery = ""
+	@Published var sortOption: UserSearchSortOption = .lastname {
+		didSet {
+			self.searchUsers(reset: true, query: self.searchQuery)
+			UserDefaults.standard.set(self.sortOption.rawValue, forKey: "userSortOption")
+		}
+	}
 	@Published var isError = false
 	@Published var isLoading = false
 	@Published var users = [User]()
+	@Published var groupedUsers: [String : [User]] = [:]
 	@Published var canLoadMore = false
 	
 	private var page = 0
@@ -61,6 +82,10 @@ open class UserSearchViewModel: ObservableObject {
 	private var cancellables = Set<AnyCancellable>()
 	
 	init() {
+		if let sortOptionString = UserDefaults.standard.string(forKey: "userSortOption") {
+			self.sortOption = UserSearchSortOption(rawValue: sortOptionString) ?? .lastname
+		}
+		
 		self.searchUsers(reset: true, query: "")
 		
 		self.$searchQuery
@@ -95,7 +120,7 @@ open class UserSearchViewModel: ObservableObject {
 		self.page = self.page + 1
 		
 		Task {
-			let queryParams = [ "query": query, "page": self.page, "limit": self.limit ]
+			let queryParams = [ "query": query, "page": self.page, "limit": self.limit, "sortby": self.sortOption ]
 			let result: APIResult<SearchUsersResponse> = await APIManager.shared.request(endpoint: .getUsers, queryParams: queryParams)
 			
 			DispatchQueue.main.async {
@@ -110,12 +135,29 @@ open class UserSearchViewModel: ObservableObject {
 						self.users.append(contentsOf: response.users)
 					}
 					
+					self.groupUsersByFirstLetter()
+					
 					self.canLoadMore = response.page < response.total_pages
 				}
 				else if case .failure(_) = result {
 					self.isError = true
 				}
 			}
+		}
+	}
+	
+	private func groupUsersByFirstLetter() {
+		self.groupedUsers = Dictionary(grouping: self.users) { user in
+			let key: String
+			switch self.sortOption {
+			case .firstname:
+				key = String(user.first_name.prefix(1))
+			case .lastname:
+				key = String(user.last_name.prefix(1))
+			case .email:
+				key = String(user.email.prefix(1))
+			}
+			return key.uppercased()
 		}
 	}
 }

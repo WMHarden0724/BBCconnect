@@ -23,11 +23,6 @@ struct NewConversationView : View {
 	
 	var onConversationCreated: (Conversation) -> Void
 	
-	private var filteredUsers: [User] {
-		let users = self.viewModel.users
-		return users.filter { !self.selectedUsers.contains($0) && $0.id != UserCfg.userId() }
-	}
-	
 	init(onConversationCreated: @escaping (Conversation) -> Void) {
 		self.onConversationCreated = onConversationCreated
 	}
@@ -36,33 +31,43 @@ struct NewConversationView : View {
 		NavigationStack {
 			VStack(spacing: 0) {
 				List {
-					ForEach(self.filteredUsers) { user in
-						Button {
-							self.selectedUsers.append(user)
-						} label: {
-							HStack(spacing: Dimens.horizontalPadding) {
-								Avatar(type: .image(user), size: .sm, state: .normal)
-								
-								VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
-									Text(user.fullName())
-										.font(.body)
-										.foregroundColor(.primary)
-									
-									Text(user.email)
-										.font(.caption)
+					ForEach(self.viewModel.groupedUsers.keys.sorted(), id: \.self) { userGroup in
+						if let users = self.viewModel.groupedUsers[userGroup] {
+							Section(
+								header: Text(userGroup)
 										.foregroundColor(.secondary)
+										.font(.headline)
+							) {
+								ForEach(users, id: \.id) { user in
+									Button {
+										self.selectedUsers.append(user)
+									} label: {
+										HStack(spacing: Dimens.horizontalPadding) {
+											Avatar(type: .image(user), size: .sm, state: .normal)
+											
+											VStack(alignment: .leading, spacing: Dimens.verticalPaddingXxsm) {
+												Text(user.fullName())
+													.font(.body)
+													.foregroundColor(.primary)
+												
+												Text(user.email)
+													.font(.caption)
+													.foregroundColor(.secondary)
+											}
+											
+											Spacer()
+										}
+										.padding(.horizontal, Dimens.horizontalPadding)
+										.padding(.bottom, Dimens.verticalPaddingMd)
+									}
+									.buttonStyle(.plain)
+									.listRowSeparator(.hidden)
+									.listRowBackground(Color.clear)
+									.listRowSpacing(0)
+									.listRowInsets(EdgeInsets())
 								}
-								
-								Spacer()
 							}
-							.padding(.horizontal, Dimens.horizontalPadding)
-							.padding(.bottom, Dimens.verticalPaddingMd)
 						}
-						.buttonStyle(.plain)
-						.listRowSeparator(.hidden)
-						.listRowBackground(Color.clear)
-						.listRowSpacing(0)
-						.listRowInsets(EdgeInsets())
 					}
 					
 					if self.viewModel.isLoading {
@@ -91,7 +96,7 @@ struct NewConversationView : View {
 							.listRowSpacing(0)
 							.listRowInsets(EdgeInsets())
 					}
-					else if self.filteredUsers.isEmpty {
+					else if self.viewModel.groupedUsers.isEmpty {
 						Text(!self.viewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users available")
 							.font(.headline)
 							.foregroundColor(.primary)
@@ -160,13 +165,29 @@ struct NewConversationView : View {
 			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.automatic)
 			.toolbar {
-				ToolbarItem(placement: .navigationBarTrailing) {
+				ToolbarItem(placement: .navigationBarLeading) {
 					Button(action: {
 						self.dismiss()
 					}) {
 						Text("Cancel")
 							.foregroundStyle(.blue)
 							.font(.system(size: 17, weight: .medium))
+					}
+				}
+				
+				ToolbarItem(placement: .navigationBarTrailing) {
+					Menu {
+						ForEach(UserSearchViewModel.UserSearchSortOption.allCases, id: \.self) { option in
+							Button {
+								self.viewModel.sortOption = option
+							} label: {
+								Text(self.viewModel.sortOption == option ? "• \(option.uiName)" : option.uiName)
+							}
+						}
+					} label: {
+						Image(systemName: "arrow.up.arrow.down")
+							.imageScale(.large)
+							.foregroundStyle(.blue)
 					}
 				}
 			}
