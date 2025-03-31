@@ -15,6 +15,7 @@ class BulletinsViewModel: ObservableObject {
 	@Published var isError = false
 	@Published var isLoading = false
 	@Published var bulletins = [Bulletin]()
+	@Published var canLoadMore = false
 	
 	@Published var newBulletinsAvailable = false
 	
@@ -43,6 +44,7 @@ class BulletinsViewModel: ObservableObject {
 		if reset {
 			self.page = 0
 			self.totalPages = 1
+			self.canLoadMore = false
 		}
 		
 		if self.page > self.totalPages {
@@ -70,6 +72,8 @@ class BulletinsViewModel: ObservableObject {
 					else {
 						self.bulletins.append(contentsOf: response.bulletins)
 					}
+					
+					self.canLoadMore = response.page < response.total_pages
 				}
 				else if case .failure(_) = result {
 					self.isError = true

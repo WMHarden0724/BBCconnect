@@ -52,6 +52,7 @@ open class UserSearchViewModel: ObservableObject {
 	@Published var isError = false
 	@Published var isLoading = false
 	@Published var users = [User]()
+	@Published var canLoadMore = false
 	
 	private var page = 0
 	private let limit = 25
@@ -80,6 +81,7 @@ open class UserSearchViewModel: ObservableObject {
 		if reset {
 			self.page = 0
 			self.totalPages = 1
+			self.canLoadMore = false
 		}
 		
 		if self.page > self.totalPages {
@@ -107,6 +109,8 @@ open class UserSearchViewModel: ObservableObject {
 					else {
 						self.users.append(contentsOf: response.users)
 					}
+					
+					self.canLoadMore = response.page < response.total_pages
 				}
 				else if case .failure(_) = result {
 					self.isError = true

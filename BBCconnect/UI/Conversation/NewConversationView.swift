@@ -58,11 +58,7 @@ struct NewConversationView : View {
 							.padding(.horizontal, Dimens.horizontalPadding)
 							.padding(.bottom, Dimens.verticalPaddingMd)
 						}
-						.onAppear {
-							if user == self.viewModel.users.last {
-								self.viewModel.searchUsers(query: self.viewModel.searchQuery)
-							}
-						}
+						.buttonStyle(.plain)
 						.listRowSeparator(.hidden)
 						.listRowBackground(Color.clear)
 						.listRowSpacing(0)
@@ -96,7 +92,7 @@ struct NewConversationView : View {
 							.listRowInsets(EdgeInsets())
 					}
 					else if self.filteredUsers.isEmpty {
-						Text("No users match your filter criteria")
+						Text(!self.viewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users")
 							.font(.headline)
 							.foregroundColor(.primary)
 							.padding(.vertical, Dimens.verticalPadding)
@@ -106,6 +102,23 @@ struct NewConversationView : View {
 							.listRowBackground(Color.clear)
 							.listRowSpacing(0)
 							.listRowInsets(EdgeInsets())
+					}
+					else if self.viewModel.canLoadMore {
+						Button(action: {
+							self.viewModel.searchUsers(query: self.viewModel.searchQuery)
+						}) {
+							Text("Load More")
+								.font(.headline)
+								.foregroundColor(.primary)
+								.frame(maxWidth: .infinity)
+								.padding(.vertical, Dimens.verticalPadding)
+								.padding(.horizontal, Dimens.horizontalPadding)
+						}
+						.buttonStyle(.plain)
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
 					}
 				}
 				.listStyle(.plain)

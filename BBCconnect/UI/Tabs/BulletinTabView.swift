@@ -28,11 +28,6 @@ struct BulletinTabView : View {
 						.listRowBackground(Color.clear)
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
-						.onAppear {
-							if bulletin == self.viewModel.bulletins.last {
-								self.viewModel.fetchBulletins(query: self.viewModel.searchQuery)
-							}
-						}
 				}
 				
 				if self.viewModel.isLoading {
@@ -62,7 +57,7 @@ struct BulletinTabView : View {
 						.listRowInsets(EdgeInsets())
 				}
 				else if self.viewModel.bulletins.isEmpty {
-					Text("No bulletins")
+					Text(!self.viewModel.searchQuery.isEmpty ? "No bulletins match your search criteria" : "No bulletins")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
@@ -72,6 +67,23 @@ struct BulletinTabView : View {
 						.listRowBackground(Color.clear)
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
+				}
+				else if self.viewModel.canLoadMore {
+					Button(action: {
+						self.viewModel.fetchBulletins(query: self.viewModel.searchQuery)
+					}) {
+						Text("Load More")
+							.font(.headline)
+							.foregroundColor(.primary)
+							.frame(maxWidth: .infinity)
+							.padding(.vertical, Dimens.verticalPadding)
+							.padding(.horizontal, Dimens.horizontalPadding)
+					}
+					.buttonStyle(.plain)
+					.listRowSeparator(.hidden)
+					.listRowBackground(Color.clear)
+					.listRowSpacing(0)
+					.listRowInsets(EdgeInsets())
 				}
 			}
 			.listStyle(.plain)
