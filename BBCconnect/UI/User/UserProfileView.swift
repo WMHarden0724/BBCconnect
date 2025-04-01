@@ -32,14 +32,6 @@ struct UserProfileView : View {
 	@State private var alertToastError: String?
 	@FocusState private var focusedField: Field?
 	
-	private var fullNameWithRole: String {
-		if let role = UserCfg.role(), role == "admin" {
-			return "\(self.firstName) \(self.lastName) (Admin)"
-		}
-		
-		return "\(self.firstName) \(self.lastName)"
-	}
-	
 	private var hasOpenedCameraView: Bool {
 		get {
 			return UserDefaults.standard.bool(forKey: "profileViewHasOpenedCamera")
@@ -132,7 +124,7 @@ struct UserProfileView : View {
 					}
 			}
 			else {
-				Text(self.fullNameWithRole)
+				Text("\(self.firstName) \(self.lastName)")
 					.font(.system(size: 20, weight: .medium))
 					.foregroundColor(.primary)
 					.frame(maxWidth: .infinity, alignment: .center)

@@ -28,6 +28,7 @@ public struct UserSignUp: Codable, Equatable {
 	public let last_name: String
 	public let email: String
 	public let password: String
+	public let access_key: String
 }
 
 public struct UserLogIn: Codable, Equatable {
@@ -41,11 +42,7 @@ public struct UserAuthentication: Codable, Equatable {
 }
 
 extension User {
-	func fullName(includeRoleIfAdmin: Bool = false) -> String {
-		if includeRoleIfAdmin && self.role == "admin" {
-			return "\(self.first_name) \(self.last_name) (Admin)"
-		}
-		
+	func fullName() -> String {
 		return "\(self.first_name) \(self.last_name)"
 	}
 	

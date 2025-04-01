@@ -16,7 +16,7 @@ struct OtherUserProfileView: View {
 	@ViewBuilder
 	private func nameFieldsView() -> some View {
 		VStack(spacing: Dimens.verticalPaddingXsm) {
-			Text(self.user.fullName(includeRoleIfAdmin: true))
+			Text(self.user.fullName())
 				.font(.system(size: 20, weight: .medium))
 				.foregroundColor(.primary)
 				.frame(maxWidth: .infinity, alignment: .center)

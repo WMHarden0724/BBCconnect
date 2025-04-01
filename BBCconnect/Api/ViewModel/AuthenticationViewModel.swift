@@ -13,8 +13,8 @@ class AuthenticationViewModel: ObservableObject {
 	
 	@Published var loadingState: APIResult<UserAuthentication> = .none
 	
-	func createUser(email: String, firstName: String, lastName: String, password: String) async {
-		guard !email.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !password.isEmpty else {
+	func createUser(email: String, firstName: String, lastName: String, password: String, accessKey: String) async {
+		guard !email.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !password.isEmpty, !accessKey.isEmpty else {
 			self.loadingState = .failure(.apiError("Please check all required fields."))
 			return
 		}
@@ -24,7 +24,8 @@ class AuthenticationViewModel: ObservableObject {
 																					body: UserSignUp(first_name: firstName,
 																									 last_name: lastName,
 																									 email: email,
-																									 password: password))
+																									 password: password,
+																									 access_key: accessKey))
 		
 		DispatchQueue.main.async {
 			if case .success(let data) = result {

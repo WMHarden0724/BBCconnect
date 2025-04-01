@@ -17,11 +17,12 @@ struct AuthenticationSignUpView: View {
 	@State private var firstName = ""
 	@State private var lastName = ""
 	@State private var password = ""
+	@State private var accessKey = ""
 	
 	@FocusState private var focusedField: Field?
 	
 	enum Field {
-		case email, firstName, lastName, password
+		case email, firstName, lastName, password, accessKey
 	}
 	
 	var body: some View {
@@ -72,6 +73,13 @@ struct AuthenticationSignUpView: View {
 				
 				BSecureField("Password", text: self.$password)
 					.focused(self.$focusedField, equals: .password)
+					.submitLabel(.next)
+					.onSubmit {
+						self.focusedField = .accessKey
+					}
+				
+				BSecureField("Access Key", text: self.$accessKey)
+					.focused(self.$focusedField, equals: .accessKey)
 					.submitLabel(.done)
 					.onSubmit {
 						self.signUp()
@@ -98,7 +106,8 @@ struct AuthenticationSignUpView: View {
 			await self.viewModel.createUser(email: self.email,
 											firstName: self.firstName,
 											lastName: self.lastName,
-											password: self.password)
+											password: self.password,
+											accessKey: self.accessKey)
 		}
 	}
 }
