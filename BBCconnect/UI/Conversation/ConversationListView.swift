@@ -23,10 +23,10 @@ struct ConversationListView : View {
 			List {
 				ForEach(self.viewModel.conversations, id: \.id) { conversation in
 					ZStack {
-						ConversationItemView(conversation: conversation) {
+						ConversationListItemView(conversation: conversation) {
 							self.leaveConversation(conversation)
 						}
-						NavigationLink(destination: ConversationDetailView(conversation: conversation)) {
+						NavigationLink(destination: ConversationView(conversation: conversation)) {
 							EmptyView()
 						}.opacity(0)
 					}

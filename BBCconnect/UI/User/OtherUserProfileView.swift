@@ -11,6 +11,7 @@ struct OtherUserProfileView: View {
 	
 	let user: User
 	
+	@State private var showMailView = false
 	@State private var viewSize: CGSize = .zero
 	
 	@ViewBuilder
@@ -28,12 +29,56 @@ struct OtherUserProfileView: View {
 		}
 	}
 	
+	@ViewBuilder
+	private func actionsView() -> some View {
+		CardView {
+//			Button(action: {
+//				// TODO
+//			}) {
+//				Text("Start Conversation")
+//					.font(.system(size: 17, weight: .regular))
+//					.foregroundColor(.primary)
+//					.lineLimit(1)
+//					.padding(.horizontal, Dimens.horizontalPaddingMd)
+//					.padding(.vertical, Dimens.verticalPaddingMd)
+//					.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
+//			}
+//			.buttonStyle(.plain)
+//			
+//			Divider().foregroundColor(.divider)
+			
+			Button(action: {
+				self.showMailView.toggle()
+			}) {
+				Text("Email")
+					.font(.system(size: 17, weight: .regular))
+					.foregroundColor(.primary)
+					.lineLimit(1)
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
+					.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
+			}
+			.buttonStyle(.plain)
+			.sheet(isPresented: self.$showMailView) {
+				MailView(
+					recipient: self.user.email,
+					subject: "",
+					body: ""
+				)
+			}
+		}
+	}
+	
 	var body: some View {
 		ScrollView {
 			VStack(spacing: Dimens.verticalPadding) {
 				Avatar(type: .image(self.user), size: .xxl, state: .normal)
 				
 				self.nameFieldsView()
+					.padding(.horizontal, Dimens.horizontalPaddingMd)
+					.padding(.vertical, Dimens.verticalPaddingMd)
+				
+				self.actionsView()
 					.padding(.horizontal, Dimens.horizontalPaddingMd)
 					.padding(.vertical, Dimens.verticalPaddingMd)
 				

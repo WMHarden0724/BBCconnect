@@ -1,5 +1,5 @@
 //
-//  ConversationDetailView.swift
+//  ConversationView.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/18/25.
@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 import AlertToast
 
-struct ConversationDetailView: View {
+struct ConversationView: View {
 	
 	@Environment(\.dismiss) var dismiss
 	@StateObject private var viewModel: ConversationViewModel
@@ -266,6 +266,6 @@ struct ConversationDetailView: View {
 
 struct ConversationView_Previews: PreviewProvider {
 	static var previews: some View {
-		ConversationDetailView(viewModel: MockConversationViewModel())
+		ConversationView(viewModel: MockConversationViewModel())
 	}
 }

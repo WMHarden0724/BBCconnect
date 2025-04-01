@@ -49,7 +49,7 @@ struct ConversationInfoView : View {
 	
 	@ViewBuilder
 	private func usersList() -> some View {
-		VStack(spacing: 0) {
+		CardView {
 			
 			Button(action: {
 				withAnimation {
@@ -128,14 +128,12 @@ struct ConversationInfoView : View {
 				.buttonStyle(.plain)
 			}
 		}
-		.background(Color.background)
-		.cornerRadius(8)
 	}
 	
 	@ViewBuilder
 	private func actionsView() -> some View {
 		VStack(spacing: Dimens.verticalPadding) {
-			VStack(spacing: 0) {
+			CardView {
 				HStack(alignment: .center, spacing: Dimens.horizontalPadding) {
 					Toggle("Hide Alerts", isOn: self.$viewModel.muted)
 						.font(.system(size: 17, weight: .regular))
@@ -145,23 +143,21 @@ struct ConversationInfoView : View {
 				.padding(.vertical, Dimens.verticalPaddingMd)
 				.frame(minHeight: Dimens.minListItemHeight)
 			}
-			.background(Color.background)
-			.cornerRadius(8)
 			
-			Button(action: {
-				self.showLeaveConversationAlert.toggle()
-			}) {
-				Text("Leave Conversation")
-					.font(.system(size: 17, weight: .regular))
-					.foregroundColor(.primary)
-					.lineLimit(1)
-					.padding(.horizontal, Dimens.horizontalPaddingMd)
-					.padding(.vertical, Dimens.verticalPaddingMd)
-					.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
+			CardView {
+				Button(action: {
+					self.showLeaveConversationAlert.toggle()
+				}) {
+					Text("Leave Conversation")
+						.font(.system(size: 17, weight: .regular))
+						.foregroundColor(.primary)
+						.lineLimit(1)
+						.padding(.horizontal, Dimens.horizontalPaddingMd)
+						.padding(.vertical, Dimens.verticalPaddingMd)
+						.frame(maxWidth: .infinity, minHeight: Dimens.minListItemHeight, alignment: .leading)
+				}
+				.buttonStyle(.plain)
 			}
-			.buttonStyle(.plain)
-			.background(Color.background)
-			.cornerRadius(8)
 		}
 	}
 	

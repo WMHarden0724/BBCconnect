@@ -1,5 +1,5 @@
 //
-//  ConversationItemView.swift
+//  ConversationListItemView.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/19/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import SwipeActions
 
-struct ConversationItemView : View {
+struct ConversationListItemView : View {
 	
 	let conversation: Conversation
 	var onLeaveConversation: () -> Void

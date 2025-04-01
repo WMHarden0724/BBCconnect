@@ -22,7 +22,7 @@ struct ConversationsTabView : View {
 					ConversationListView(selectedConversation: self.$selectedConversation,
 										 creatingConversation: self.$creatingConversation)
 					.navigationDestination(item: self.$selectedConversation) { conversation in
-						ConversationDetailView(conversation: conversation)
+						ConversationView(conversation: conversation)
 					}
 				}
 				.tint(.blue)
