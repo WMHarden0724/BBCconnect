@@ -14,7 +14,7 @@ struct BulletinListItem : View {
 	@State private var isShowingLarge = false
 	
 	var date: String? {
-		if let date = self.bulletin.createdAtTimestamp(includeDow: true) {
+		if let date = self.bulletin.publishedAtTimestamp(includeDow: true) {
 			return date
 		}
 		
@@ -144,7 +144,7 @@ fileprivate struct BulletinSheetView : View {
 				}
 				else {
 					Spacer(minLength: 30)
-					.frame(maxWidth: .infinity, maxHeight: 30)
+						.frame(maxWidth: .infinity, maxHeight: 30)
 				}
 				
 				Button(action: {

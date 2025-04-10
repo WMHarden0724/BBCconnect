@@ -7,11 +7,9 @@
 
 import Foundation
 
-struct SearchBulletinsResponse: Codable, Equatable {
-	let bulletins: [Bulletin]
-	let total: Int
-	let page: Int
-	let total_pages: Int
+struct SanityBulletinResponse: Codable, Equatable {
+	let query: String
+	let result: [Bulletin]
 }
 
 enum BulletinType: String, Codable, Equatable {
@@ -21,15 +19,14 @@ enum BulletinType: String, Codable, Equatable {
 }
 
 struct Bulletin: Codable, Equatable {
-	let id: Int
+	let _id: String
 	let title: String
 	let content: String
 	let type: BulletinType
 	let date: String?
 	let link: String?
 	let image: String?
-	let created_at: String
-	let updated_at: String
+	let publishedAt: String
 	
 	var linkURL: URL? {
 		if let link = self.link, let url = URL(string: link) {
@@ -48,7 +45,11 @@ struct Bulletin: Codable, Equatable {
 	}
 	
 	var dateDate: Date? {
-		return Date.fromCloudUpdatedAt(dateString: self.created_at)
+		if let date = self.date {
+			return Date.fromCloudUpdatedAt(dateString: date)
+		}
+		
+		return nil
 	}
 	
 	func dateTimestamp(includeDow: Bool = true) -> String? {
@@ -73,12 +74,12 @@ struct Bulletin: Codable, Equatable {
 		return formatter.string(from: date)
 	}
 	
-	var createdAtDate: Date? {
-		return Date.fromCloudUpdatedAt(dateString: self.created_at)
+	var publishedDate: Date? {
+		return Date.fromCloudUpdatedAt(dateString: self.publishedAt)
 	}
 	
-	func createdAtTimestamp(includeDow: Bool = true) -> String? {
-		guard let date = self.createdAtDate else { return nil }
+	func publishedAtTimestamp(includeDow: Bool = true) -> String? {
+		guard let date = self.publishedDate else { return nil }
 		
 		let calendar = Calendar.current
 		let formatter = DateFormatter()

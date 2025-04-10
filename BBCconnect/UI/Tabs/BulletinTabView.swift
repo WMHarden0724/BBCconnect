@@ -18,11 +18,11 @@ struct BulletinTabView : View {
 	var body: some View {
 		NavigationStack {
 			List {
-				ForEach(self.viewModel.bulletins, id: \.id) { bulletin in
+				ForEach(self.viewModel.bulletins, id: \._id) { bulletin in
 					BulletinListItem(bulletin: bulletin)
 						.padding(.leading, Dimens.horizontalPadding)
 						.padding(.trailing, Dimens.horizontalPadding)
-						.padding(.top, self.viewModel.bulletins.firstIndex(where: { $0.id == bulletin.id }) == 0 ? Dimens.verticalPaddingLg : 0)
+						.padding(.top, self.viewModel.bulletins.firstIndex(where: { $0._id == bulletin._id }) == 0 ? Dimens.verticalPaddingLg : 0)
 						.padding(.bottom, Dimens.verticalPaddingXl)
 						.listRowSeparator(.hidden)
 						.listRowBackground(Color.clear)
@@ -57,7 +57,7 @@ struct BulletinTabView : View {
 						.listRowInsets(EdgeInsets())
 				}
 				else if self.viewModel.bulletins.isEmpty {
-					Text(!self.viewModel.searchQuery.isEmpty ? "No bulletins match your search criteria" : "No bulletins available")
+					Text("No bulletins available")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
@@ -70,7 +70,7 @@ struct BulletinTabView : View {
 				}
 				else if self.viewModel.canLoadMore {
 					Button(action: {
-						self.viewModel.fetchBulletins(query: self.viewModel.searchQuery)
+						self.viewModel.fetchBulletins()
 					}) {
 						Text("Load More")
 							.font(.headline)
@@ -88,15 +88,8 @@ struct BulletinTabView : View {
 			}
 			.listStyle(.plain)
 			.refreshable {
-				self.viewModel.fetchBulletins(reset: true, query: self.viewModel.searchQuery)
+				self.viewModel.fetchBulletins(reset: true)
 			}
-			.searchable(text: self.$viewModel.searchQuery,
-						prompt: "Search bulletins")
-			.toast(isPresenting: self.$viewModel.newBulletinsAvailable, duration: 5, offsetY: 60, alert: {
-				AlertToast(displayMode: .hud, type: .complete(Color.blue), title: "Updates available! Pull to refresh")
-			}, completion: {
-				self.viewModel.newBulletinsAvailable = false
-			})
 			.animation(.easeInOut, value: self.viewModel.bulletins)
 			.animation(.easeInOut, value: self.viewModel.isLoading)
 			.animation(.easeInOut, value: self.viewModel.isError)

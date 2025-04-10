@@ -203,7 +203,6 @@ class APIManager {
 		body: Encodable? = nil,
 		queryParams: [String: Any]? = nil
 	) async -> APIResult<T> {
-		
 		guard var urlComponents = URLComponents(string: "\(APICfg.baseURL)\(endpoint.path)") else {
 			return .failure(APIError.invalidURL)
 		}
@@ -216,12 +215,23 @@ class APIManager {
 			return .failure(APIError.invalidURL)
 		}
 		
+		return await request(url: url, method: endpoint.method, body: body)
+	}
+	
+	/// Generic function to make API requests
+	func request<T: Decodable>(
+		url: URL,
+		method: HTTPMethod = .get,
+		includeSessionToken: Bool = true,
+		body: Encodable? = nil
+	) async -> APIResult<T> {
+		
 		var request = URLRequest(url: url)
 		request.httpMethod = method.rawValue
 		request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 		
 		// **Add Authorization Header if Token Exists**
-		if let token = UserCfg.sessionToken() {
+		if includeSessionToken, let token = UserCfg.sessionToken() {
 			request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 		}
 		

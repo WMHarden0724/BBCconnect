@@ -162,7 +162,6 @@ class PubSubManager: ObservableObject {
 enum PubSubMessageChannel: String, Codable {
 	case conversations
 	case messages
-	case bulletins
 }
 
 enum PubSubMessageStatus: String, Codable {
@@ -188,7 +187,6 @@ struct PubSubMessage : Codable {
 	let user_id: Int?
 	let conversation_id: Int?
 	let message_id: Int?
-	let bulletin_id: Int?
 	let typing: Bool?
 	let reason: String?
 	
