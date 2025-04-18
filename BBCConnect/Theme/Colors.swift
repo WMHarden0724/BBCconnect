@@ -28,9 +28,9 @@ public struct LightColors {
 	static let primaryLight = UIColor(red: 179/255.0, green: 204/255.0, blue: 204/255.0, alpha: 1.0)
 	static let primaryDark = UIColor(red: 94/255.0, green: 120/255.0, blue: 119/255.0, alpha: 1.0)
 	static let secondaryContrast = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
-	static let secondaryMain = UIColor(red: 0.882, green: 0.886, blue: 0.898, alpha: 1)
-	static let secondaryLight = UIColor(red: 0.941, green: 0.945, blue: 0.953, alpha: 1)
-	static let secondaryDark = UIColor(red: 0.773, green: 0.776, blue: 0.788, alpha: 1)
+	static let secondaryMain = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
+	static let secondaryLight = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
+	static let secondaryDark = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
 }
 
 public struct DarkColors {
@@ -51,10 +51,10 @@ public struct DarkColors {
 	static let primaryMain = UIColor(red: 133/255.0, green: 167/255.0, blue: 166/255.0, alpha: 1.0)
 	static let primaryLight = UIColor(red: 179/255.0, green: 204/255.0, blue: 204/255.0, alpha: 1.0)
 	static let primaryDark = UIColor(red: 94/255.0, green: 120/255.0, blue: 119/255.0, alpha: 1.0)
-	static let secondaryContrast = UIColor(red: 1.000, green: 1.000, blue: 1.000, alpha: 1)
-	static let secondaryMain = UIColor(red: 0.271, green: 0.278, blue: 0.286, alpha: 1)
-	static let secondaryLight = UIColor(red: 0.361, green: 0.373, blue: 0.380, alpha: 1)
-	static let secondaryDark = UIColor(red: 0.180, green: 0.192, blue: 0.200, alpha: 1)
+	static let secondaryContrast = UIColor(red: 0.000, green: 0.000, blue: 0.000, alpha: 1)
+	static let secondaryMain = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
+	static let secondaryLight = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
+	static let secondaryDark = UIColor(red: 244/255.0, green: 237/255.0, blue: 229/255.0, alpha: 1.0)
 }
 
 
