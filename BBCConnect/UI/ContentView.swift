@@ -18,7 +18,12 @@ struct ContentView: View {
 			
 			LiveStreamTabView()
 				.tabItem {
-					Label("Stream", systemImage: "video")
+					Label("Live Stream", systemImage: "videoprojector.fill")
+				}
+			
+			OnDemandTabView()
+				.tabItem {
+					Label("On-Demand", systemImage: "video")
 				}
 			
 			ConversationsTabView()

@@ -34,8 +34,8 @@ public class Theme {
 		let standardTabBarAppearance = UITabBarAppearance()
 		standardTabBarAppearance.configureWithDefaultBackground()
 		standardTabBarAppearance.backgroundColor = UIColor(Color.background)
-		standardTabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primary)
-		standardTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.primary)]
+		standardTabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.primaryMain)
+		standardTabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.primaryMain)]
 		standardTabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color.secondary)
 		standardTabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor(Color.secondary)]
 		

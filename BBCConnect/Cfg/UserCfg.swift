@@ -38,6 +38,14 @@ public struct UserCfg {
 		return CfgManager.shared.getValue(cfgType: .role) as? String
 	}
 	
+	public static func isAdmin() -> Bool {
+		if let role = self.role() {
+			return role == "admin"
+		}
+		
+		return false
+	}
+	
 	public static func initials() -> String {
 		if let firstName = self.firstName(), let lastName = self.lastName() {
 			return "\(firstName.first!)\(lastName.first!)"

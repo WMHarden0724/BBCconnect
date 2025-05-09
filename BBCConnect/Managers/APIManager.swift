@@ -118,6 +118,10 @@ enum APIEndpoint: Equatable {
 	case getUsers
 	case getBulletins
 	case getBulletinPreview(Int)
+	case getLiveStream
+	case startLiveStream
+	case stopLiveStream(String)
+	case getOnDemand
 	
 	var path: String {
 		switch self {
@@ -144,6 +148,10 @@ enum APIEndpoint: Equatable {
 		case .unlikeMessage(let cid, let id): return "/api/conversations/\(cid)/messages/\(id)/like"
 		case .getBulletins: return "/api/bulletins/all"
 		case .getBulletinPreview(let id): return "/api/bulletins/\(id)/preview"
+		case .getLiveStream: return "/api/streams/live"
+		case .startLiveStream: return "/api/streams/live"
+		case .stopLiveStream(let id): return "/api/streams/live/\(id)"
+		case .getOnDemand: return "/api/streams/on-demand"
 		}
 	}
 	
@@ -172,6 +180,10 @@ enum APIEndpoint: Equatable {
 		case .unlikeMessage(_, _): return .delete
 		case .getBulletins: return .get
 		case .getBulletinPreview(_): return .get
+		case .getLiveStream: return .get
+		case .startLiveStream: return .post
+		case .stopLiveStream(_): return .delete
+		case .getOnDemand: return .get
 		}
 	}
 }
