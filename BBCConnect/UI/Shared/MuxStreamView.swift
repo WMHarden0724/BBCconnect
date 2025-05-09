@@ -16,6 +16,7 @@ struct MuxLiveStreamView: View {
 	private let isLive: Bool
 	private let title: String
 	private let description: String?
+	private let streamKey: String?
 	private let tracks: [OnDemandTrack]?
 	private let enabled: Bool
 	private let listenForStreamStatus: Bool
@@ -24,6 +25,7 @@ struct MuxLiveStreamView: View {
 		 isLive: Bool = false,
 		 title: String,
 		 description: String?,
+		 streamKey: String? = nil,
 		 tracks: [OnDemandTrack]? = nil,
 		 enabled: Bool = true,
 		 listenForStreamStatus: Bool = false) {
@@ -31,6 +33,7 @@ struct MuxLiveStreamView: View {
 		self.isLive = isLive
 		self.title = title
 		self.description = description
+		self.streamKey = streamKey
 		self.tracks = tracks
 		self.enabled = enabled
 		self.listenForStreamStatus = listenForStreamStatus
@@ -44,6 +47,7 @@ struct MuxLiveStreamView: View {
 						url: self.url,
 						isPlayerFullScreen: self.$isPlayerFullScreen,
 						isLive: self.isLive,
+						streamKey: UserCfg.isAdmin() ? self.streamKey : nil,
 						timecodes: self.tracks?.map {
 							Timecode(title: $0.name ?? "", time: CMTime(seconds: Double($0.duration ?? 0.0), preferredTimescale: 1))
 						} ?? [],
@@ -56,13 +60,16 @@ struct MuxLiveStreamView: View {
 						.foregroundColor(.primary)
 						.frame(maxWidth: .infinity, alignment: .center)
 						.padding(.top, Dimens.verticalPaddingMd)
+						.padding(.horizontal, Dimens.horizontalPadding)
 					
 					if let description = self.description, !description.isEmpty {
 						Text(description)
 							.font(.callout)
 							.foregroundColor(.secondary)
 							.frame(maxWidth: .infinity, alignment: .center)
+							.multilineTextAlignment(.center)
 							.padding(.top, Dimens.verticalPaddingSm)
+							.padding(.horizontal, Dimens.horizontalPadding)
 					}
 				}
 				.padding(.bottom, Dimens.verticalPaddingMd)

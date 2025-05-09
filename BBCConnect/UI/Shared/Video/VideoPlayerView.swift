@@ -20,6 +20,7 @@ public struct VideoPlayerView: View {
     @State var player: AVPlayer
 	@Binding var isPlayerFullScreen: Bool
 	let isLive: Bool
+	let streamKey: String?
     let timecodes: [Timecode]
 	let enabled: Bool
     
@@ -31,7 +32,8 @@ public struct VideoPlayerView: View {
             showPlayerControlButtons: $showControls,
             isPlayerFullScreen: $isPlayerFullScreen,
             avPlayer: $player,
-            timecodes: timecodes
+            timecodes: timecodes,
+			streamKey: streamKey
         )
         
         let player = VideoPlayer(player: $player)
@@ -40,7 +42,22 @@ public struct VideoPlayerView: View {
 			ZStack(alignment: .topLeading) {
 				ZStack {
 					player
-					if showControls && enabled {
+					if !enabled {
+						if let streamKey = streamKey {
+							VStack {
+								Spacer()
+								Text("Stream Key: \(streamKey)")
+									.font(.system(size: 9))
+									.foregroundColor(.secondary)
+									.frame(maxWidth: .infinity, alignment: .trailing)
+									.multilineTextAlignment(.trailing)
+									.padding(.trailing, 5)
+									.padding(.bottom, 5)
+									.backgroundGradientIgnoreSafeArea(colorStart: .clear, colorEnd: .black)
+							}
+						}
+					}
+					else if showControls {
 						controlButtons
 					}
 				}

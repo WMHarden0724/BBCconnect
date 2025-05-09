@@ -107,7 +107,14 @@ struct OnDemandTabView : View {
 			DispatchQueue.main.async {
 				withAnimation {
 					if case .success(let assets) = result {
-						self.assets = assets.assets ?? []
+						self.assets = assets.assets?.filter({
+							if let isLive = $0.info.is_live {
+								!isLive
+							}
+							else {
+								true
+							}
+						}) ?? []
 					}
 					else if case .failure(let aPIError) = result {
 						self.error = aPIError.localizedDescription

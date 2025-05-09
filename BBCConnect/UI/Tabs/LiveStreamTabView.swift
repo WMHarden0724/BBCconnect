@@ -9,7 +9,8 @@ import SwiftUI
 
 struct LiveStreamTabView : View {
 	
-	@State private var livestream: LiveStream?
+	@State private var myLivestream: LiveStream?
+	@State private var livestreams = [LiveStream]()
 	@State private var isLoading = false
 	
 	@State private var isStartingLivestream = false
@@ -20,6 +21,9 @@ struct LiveStreamTabView : View {
 	@State private var livestreamDescription = ""
 	@FocusState private var focusedField: Field?
 	
+	@State private var showIngestUrl = false
+	@State private var showErrorAlert = false
+	
 	enum Field {
 		case livestreamTitle, livestreamDescription
 	}
@@ -27,79 +31,86 @@ struct LiveStreamTabView : View {
 	@ViewBuilder
 	private func adminView() -> some View {
 		VStack(alignment: .leading, spacing: Dimens.verticalPaddingMd) {
-			if let livestream = self.livestream {
-				
-				HStack(alignment: .top) {
-					Text("Stream Key:")
-						.foregroundColor(.primary)
-						.font(.headline)
-					
-					Spacer()
-					
-					Text(livestream.info.stream_key)
-						.foregroundColor(.secondary)
-						.font(.headline)
-						.multilineTextAlignment(.trailing)
+			Text("Live Stream Info")
+				.foregroundColor(self.myLivestream == nil ? .primary : .secondary)
+				.font(.headline)
+			
+			BTextField("Title", text: self.$livestreamTitle)
+				.focused(self.$focusedField, equals: .livestreamTitle)
+				.submitLabel(.next)
+				.disabled(self.myLivestream != nil)
+				.onSubmit {
+					self.focusedField = .livestreamDescription
 				}
-				
-				HStack(alignment: .top) {
-					Text("Ingest Url:")
-						.foregroundColor(.primary)
-						.font(.headline)
-					
-					Spacer()
-					
-					Text("rtmps://global-live.mux.com:443/app")
-						.foregroundColor(.secondary)
-						.font(.headline)
-						.multilineTextAlignment(.trailing)
-				}
-				
-				BButton(style: .primary, text: "End Live Stream", isLoading: self.isEndingLiveStream) {
-					self.endLiveStream(livestream: livestream)
-				}
-				
-				if let error = self.error {
-					Text(error)
-						.font(.callout)
-						.foregroundColor(.errorMain)
-						.frame(maxWidth: .infinity, alignment: .center)
-				}
-			}
-			else {
-				BTextField("Title", text: self.$livestreamTitle)
-					.focused(self.$focusedField, equals: .livestreamTitle)
-					.submitLabel(.next)
-					.onSubmit {
-						self.focusedField = .livestreamDescription
-					}
-				
-				BTextField("Description (Optional)", text: self.$livestreamDescription)
-					.focused(self.$focusedField, equals: .livestreamTitle)
-					.submitLabel(.done)
-					.onSubmit {
-						self.startLiveStream()
-					}
-				
-				BButton(style: .primary, text: "Start Live Stream", isLoading: self.isStartingLivestream) {
+			
+			BTextField("Description (Optional)", text: self.$livestreamDescription)
+				.focused(self.$focusedField, equals: .livestreamTitle)
+				.submitLabel(.done)
+				.disabled(self.myLivestream != nil)
+				.onSubmit {
 					self.startLiveStream()
 				}
-				
-				if let error = self.error {
-					Text(error)
-						.font(.callout)
-						.foregroundColor(.errorMain)
-						.frame(maxWidth: .infinity, alignment: .center)
-				}
-			}
 		}
 		.frame(maxWidth: 600)
 		.padding(.horizontal, Dimens.horizontalPadding)
+		.alert("Error", isPresented: self.$showErrorAlert) {
+			Button("Ok", role: .cancel) { }
+		} message: {
+			Text(self.error ?? "")
+		}
 	}
 	
 	var body: some View {
 		NavigationStack {
 			List {
+				if UserCfg.isAdmin() {
+					self.adminView()
+						.padding(.vertical, Dimens.verticalPadding)
+						.frame(maxWidth: .infinity)
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
+					
+					Divider()
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
+				}
+				
+				if let livestream = self.myLivestream, let url = livestream.info.playback_ids.first?.url {
+					MuxLiveStreamView(url: url,
+									  isLive: true,
+									  title: livestream.metadata?.title ?? "Untitled Stream",
+									  description: livestream.metadata?.description,
+									  streamKey: livestream.info.stream_key)
+					.padding(.top, Dimens.verticalPadding)
+					.padding(.horizontal, Dimens.horizontalPadding)
+					.frame(maxWidth: .infinity)
+					.listRowSeparator(.hidden)
+					.listRowBackground(Color.clear)
+					.listRowSpacing(0)
+					.listRowInsets(EdgeInsets())
+				}
+				
+				ForEach(self.livestreams, id: \.info.id) { livestream in
+					if let url = livestream.info.playback_ids.first?.url {
+						MuxLiveStreamView(url: url,
+										  isLive: true,
+										  title: livestream.metadata?.title ?? "Untitled Stream",
+										  description: livestream.metadata?.description,
+										  streamKey: livestream.info.stream_key)
+						.padding(.top, Dimens.verticalPadding)
+						.padding(.horizontal, Dimens.horizontalPadding)
+						.frame(maxWidth: .infinity)
+						.listRowSeparator(.hidden)
+						.listRowBackground(Color.clear)
+						.listRowSpacing(0)
+						.listRowInsets(EdgeInsets())
+					}
+				}
+				
 				if self.isLoading {
 					HStack {
 						Spacer()
@@ -115,71 +126,90 @@ struct LiveStreamTabView : View {
 					.listRowSpacing(0)
 					.listRowInsets(EdgeInsets())
 				}
-				else {
-					if UserCfg.isAdmin() {
-						self.adminView()
-							.padding(.vertical, Dimens.verticalPadding)
-							.frame(maxWidth: .infinity)
-							.listRowSeparator(.hidden)
-							.listRowBackground(Color.clear)
-							.listRowSpacing(0)
-							.listRowInsets(EdgeInsets())
-					}
-					
-					if let livestream = self.livestream, let url = livestream.info.playback_ids.first?.url {
-						MuxLiveStreamView(url: url,
-										  isLive: true,
-										  title: livestream.metadata?.title ?? "Untitled Stream",
-										  description: livestream.metadata?.description,
-										  listenForStreamStatus: true)
-						.padding(.top, Dimens.verticalPadding)
+				else if self.livestreams.isEmpty && self.myLivestream == nil {
+					Text("No live streams available")
+						.font(.headline)
+						.foregroundColor(.primary)
+						.padding(.vertical, Dimens.verticalPadding)
 						.padding(.horizontal, Dimens.horizontalPadding)
+						.padding(.top, Dimens.verticalPadding)
 						.frame(maxWidth: .infinity)
 						.listRowSeparator(.hidden)
 						.listRowBackground(Color.clear)
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
-					}
-					else {
-						Text("No live stream available")
-							.font(.headline)
-							.foregroundColor(.primary)
-							.padding(.vertical, Dimens.verticalPadding)
-							.padding(.horizontal, Dimens.horizontalPadding)
-							.padding(.top, Dimens.verticalPadding * 2)
-							.frame(maxWidth: .infinity)
-							.listRowSeparator(.hidden)
-							.listRowBackground(Color.clear)
-							.listRowSpacing(0)
-							.listRowInsets(EdgeInsets())
-					}
 				}
 			}
 			.listStyle(.plain)
 			.scrollContentBackground(.hidden)
 			.backgroundIgnoreSafeArea(color: .background)
 			.refreshable {
-				self.loadLiveStream()
+				self.loadLiveStreams()
 			}
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.editor)
 			.navigationTitle("Live Stream")
+			.toolbar {
+				if UserCfg.isAdmin() {
+					ToolbarItem(placement: .navigationBarLeading) {
+						Button(action: {
+							self.showIngestUrl = true
+						}) {
+							Image(systemName: "info.circle")
+								.imageScale(.large)
+								.foregroundColor(.primaryMain)
+						}
+					}
+					
+					ToolbarItem(placement: .navigationBarTrailing) {
+						ZStack {
+							Button(action: {
+								if let livestream = self.myLivestream {
+									self.endLiveStream(livestream: livestream)
+								}
+								else {
+									self.startLiveStream()
+								}
+							}) {
+								Text(self.myLivestream != nil ? "End Live" : "Go Live")
+									.foregroundColor(.primaryMain)
+									.font(.headline)
+							}
+							.disabled(self.isStartingLivestream || self.isEndingLiveStream)
+							.opacity(self.isStartingLivestream || self.isEndingLiveStream ? 0 : 1)
+							
+							if self.isStartingLivestream || self.isEndingLiveStream {
+								ProgressView()
+									.foregroundColor(.primaryMain)
+							}
+						}
+						.animation(.easeInOut, value: self.myLivestream)
+						.animation(.easeInOut, value: self.isStartingLivestream)
+						.animation(.easeInOut, value: self.isEndingLiveStream)
+					}
+				}
+			}
+			.alert("Ingest Url", isPresented: self.$showIngestUrl) {
+				Button("Ok", role: .cancel) { }
+			} message: {
+				Text("rtmps://global-live.mux.com:443/app")
+			}
 			.task {
-				self.loadLiveStream()
+				self.loadLiveStreams()
 			}
 		}
 		.tint(.primaryMain)
 	}
 	
-	private func loadLiveStream() {
+	private func loadLiveStreams() {
 		self.isLoading = true
 		
 		Task {
-			let result = await StreamManager.shared.loadLiveStream()
+			let result = await StreamManager.shared.loadLiveStreams()
 			DispatchQueue.main.async {
 				if case .success(let result) = result {
-					self.livestream = result.livestream
+					self.livestreams = result.livestreams?.filter({ $0.info.id != self.myLivestream?.info.id }) ?? []
 				}
 				
 				withAnimation {
@@ -190,23 +220,19 @@ struct LiveStreamTabView : View {
 	}
 	
 	private func startLiveStream() {
-		withAnimation {
-			self.isStartingLivestream = true
-			self.error = nil
-		}
+		self.isStartingLivestream = true
 		
 		Task {
 			let result = await StreamManager.shared.startLiveStream(title: self.livestreamTitle, description: self.livestreamDescription)
 			DispatchQueue.main.async {
 				if case .success(let result) = result {
-					self.livestream = result.livestream
+					self.myLivestream = result.livestream
 					self.livestreamTitle = ""
 					self.livestreamDescription = ""
 				}
 				else if case .failure(let aPIError) = result {
-					withAnimation {
-						self.error = aPIError.localizedDescription
-					}
+					self.error = aPIError.localizedDescription
+					self.showErrorAlert = true
 				}
 				
 				withAnimation {
@@ -217,21 +243,17 @@ struct LiveStreamTabView : View {
 	}
 	
 	private func endLiveStream(livestream: LiveStream) {
-		withAnimation {
-			self.isEndingLiveStream = true
-			self.error = nil
-		}
+		self.isEndingLiveStream = true
 		
 		Task {
 			let result = await StreamManager.shared.stopLiveStream(livestream.info.id)
 			DispatchQueue.main.async {
 				if case .success(_) = result {
-					self.livestream = nil
+					self.myLivestream = nil
 				}
 				else if case .failure(let aPIError) = result {
-					withAnimation {
-						self.error = aPIError.localizedDescription
-					}
+					self.error = aPIError.localizedDescription
+					self.showErrorAlert = true
 				}
 					
 				withAnimation {

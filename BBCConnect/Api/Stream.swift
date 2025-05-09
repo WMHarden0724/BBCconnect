@@ -12,8 +12,12 @@ struct LiveStreamParams: Codable {
 	let description: String
 }
 
+struct LiveStreamsResult: Codable, Equatable {
+	let livestreams: [LiveStream]?
+}
+
 struct LiveStreamResult: Codable, Equatable {
-	let livestream: LiveStream
+	let livestream: LiveStream?
 }
 
 struct LiveStream: Codable, Equatable {

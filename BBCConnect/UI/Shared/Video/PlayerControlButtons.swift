@@ -20,6 +20,7 @@ public struct PlayerControlButtons: View {
     @Binding var isPlayerFullScreen: Bool
     @Binding var avPlayer: AVPlayer
     let timecodes: [Timecode]
+	let streamKey: String?
     
     private var currentTimeText: String {
        if let duration = avPlayer.currentItem?.duration.seconds {
@@ -110,6 +111,15 @@ public struct PlayerControlButtons: View {
                 
                 Spacer()
                 VStack (spacing: 5) {
+					if let streamKey = streamKey {
+						Text("Stream Key: \(streamKey)")
+							.font(.system(size: 9))
+							.foregroundColor(.secondary)
+							.frame(maxWidth: .infinity, alignment: .trailing)
+							.multilineTextAlignment(.trailing)
+							.padding(.bottom, 5)
+					}
+					
                     CustomProgressBar(
                         value: $sliderValue,
                         avPlayer: $avPlayer,

@@ -14,8 +14,8 @@ class StreamManager: ObservableObject {
 	
 	// MARK: Live Stream
 	
-	func loadLiveStream() async -> APIResult<LiveStreamResult> {
-		let result: APIResult<LiveStreamResult> = await APIManager.shared.request(endpoint: .getLiveStream)
+	func loadLiveStreams() async -> APIResult<LiveStreamsResult> {
+		let result: APIResult<LiveStreamsResult> = await APIManager.shared.request(endpoint: .getLiveStream)
 		return result
 	}
 	
