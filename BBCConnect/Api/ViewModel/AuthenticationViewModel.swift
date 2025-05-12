@@ -13,10 +13,10 @@ class AuthenticationViewModel: ObservableObject {
 	
 	@Published var loadingState: APIResult<UserAuthentication> = .none
 	
-	func createUser(email: String, firstName: String, lastName: String, password: String, accessKey: String) async {
-		guard !email.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !password.isEmpty, !accessKey.isEmpty else {
+	func createUser(email: String, firstName: String, lastName: String, password: String) async -> Bool {
+		guard !email.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !password.isEmpty else {
 			self.loadingState = .failure(.apiError("Please check all required fields."))
-			return
+			return false
 		}
 		
 		self.loadingState = .loading
@@ -24,16 +24,17 @@ class AuthenticationViewModel: ObservableObject {
 																					body: UserSignUp(first_name: firstName,
 																									 last_name: lastName,
 																									 email: email,
-																									 password: password,
-																									 access_key: accessKey))
+																									 password: password))
 		
 		DispatchQueue.main.async {
-			if case .success(let data) = result {
-				UserCfg.logIn(result: data)
-			}
-			
 			self.loadingState = result
 		}
+		
+		if case .success(_) = result {
+			return true
+		}
+		
+		return false
 	}
 	
 	func loginUser(email: String, password: String) async {

@@ -9,36 +9,18 @@ import SwiftUI
 
 struct ContentView: View {
 	
+	@StateObject var manager = AppStateManager.shared
+	
 	var body: some View {
-		TabView {
-			BulletinTabView()
-				.tabItem {
-					Label("Bulletin", systemImage: "newspaper")
-				}
-			
-			ConversationsTabView()
-				.tabItem {
-					Label("Messages", systemImage: "message.fill")
-				}
-			
-			LiveStreamTabView()
-				.tabItem {
-					Label("Live Stream", systemImage: "videoprojector.fill")
-				}
-			
-			OnDemandTabView()
-				.tabItem {
-					Label("On-Demand", systemImage: "video")
-				}
-			
-			MembersTabView()
-				.tabItem {
-					Label("Members", systemImage: "person.2.fill")
-				}
+		Group {
+			switch self.manager.currentState {
+			case .main:
+				MainTabsView()
+			case .authLanding:
+				AuthenticationLandingView()
+			}
 		}
-		.tint(.primaryMain)
-		.toolbarBackground(.hidden, for: .tabBar)
-		.checkAuthentication()
+		.animation(.easeInOut, value: self.manager.currentState)
 	}
 }
 

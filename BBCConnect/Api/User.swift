@@ -29,7 +29,6 @@ public struct UserSignUp: Codable, Equatable {
 	public let last_name: String
 	public let email: String
 	public let password: String
-	public let access_key: String
 }
 
 public struct UserLogIn: Codable, Equatable {

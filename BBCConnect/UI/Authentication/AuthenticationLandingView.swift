@@ -13,7 +13,7 @@ enum NavigationDestination: Hashable {
     case logIn
 }
 
-struct AuthenticationLanding: View {
+struct AuthenticationLandingView: View {
 
     @State private var navigationDestination: NavigationDestination? = nil
     @State private var viewSize: CGSize = .zero
@@ -62,6 +62,6 @@ struct AuthenticationLanding: View {
 
 struct LandingView_Previews: PreviewProvider {
     static var previews: some View {
-        AuthenticationLanding()
+		AuthenticationLandingView()
     }
 }

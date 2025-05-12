@@ -96,6 +96,13 @@ struct AuthenticationLogInView: View {
 		.backgroundIgnoreSafeArea(color: .background)
 		.toolbarBackground(Color.clear, for: .navigationBar)
 		.toolbarRole(.editor)
+		.onCfgChanged { cfgType, value in
+			if cfgType == .sessionToken {
+				if UserCfg.isLoggedIn() {
+					AppStateManager.shared.navigateToMain()
+				}
+			}
+		}
 	}
 	
 	private func logIn() {

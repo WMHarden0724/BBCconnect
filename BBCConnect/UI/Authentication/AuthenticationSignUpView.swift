@@ -17,7 +17,6 @@ struct AuthenticationSignUpView: View {
 	@State private var firstName = ""
 	@State private var lastName = ""
 	@State private var password = ""
-	@State private var accessKey = ""
 	
 	@FocusState private var focusedField: Field?
 	
@@ -78,15 +77,15 @@ struct AuthenticationSignUpView: View {
 						self.focusedField = .accessKey
 					}
 				
-				BSecureField("Access Key", text: self.$accessKey)
-					.focused(self.$focusedField, equals: .accessKey)
-					.submitLabel(.done)
-					.onSubmit {
+				if case .success(_) = self.viewModel.loadingState {
+					Text("Account created. You will receive an email once an admin has approved.")
+						.foregroundColor(.primaryMain)
+						.frame(maxWidth: .infinity, alignment: .center)
+				}
+				else {
+					BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
 						self.signUp()
 					}
-				
-				BButton(style: .primary, text: "Sign Up", isLoading: self.viewModel.loadingState.isLoading) {
-					self.signUp()
 				}
 			}
 		}
@@ -106,8 +105,7 @@ struct AuthenticationSignUpView: View {
 			await self.viewModel.createUser(email: self.email,
 											firstName: self.firstName,
 											lastName: self.lastName,
-											password: self.password,
-											accessKey: self.accessKey)
+											password: self.password)
 		}
 	}
 }

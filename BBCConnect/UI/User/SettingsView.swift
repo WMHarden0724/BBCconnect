@@ -113,6 +113,7 @@ struct SettingsView : View {
 			Button("Cancel", role: .cancel) { }
 			Button("Log Out", role: .destructive) {
 				UserCfg.logOut()
+				AppStateManager.shared.navigateToAuth()
 			}
 		} message: {
 			Text("Are you sure you want to log out?")
