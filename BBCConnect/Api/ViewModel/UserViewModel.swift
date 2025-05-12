@@ -74,14 +74,21 @@ open class UserSearchViewModel: ObservableObject {
 	@Published var users = [User]()
 	@Published var groupedUsers: [String : [User]] = [:]
 	@Published var canLoadMore = false
+	@Published var showPending = false {
+		didSet {
+			self.searchUsers(reset: true, query: self.searchQuery)
+		}
+	}
 	
 	private var page = 0
 	private let limit = 25
 	private var totalPages = 1
+	private let filterOutMe: Bool
 	
 	private var cancellables = Set<AnyCancellable>()
 	
-	init() {
+	init(filterOutMe: Bool = true) {
+		self.filterOutMe = filterOutMe
 		if let sortOptionString = UserDefaults.standard.string(forKey: "userSortOption") {
 			self.sortOption = UserSearchSortOption(rawValue: sortOptionString) ?? .lastname
 		}
@@ -120,7 +127,7 @@ open class UserSearchViewModel: ObservableObject {
 		self.page = self.page + 1
 		
 		Task {
-			let queryParams = [ "query": query, "page": self.page, "limit": self.limit, "sortby": self.sortOption ]
+			let queryParams = [ "query": query, "page": self.page, "limit": self.limit, "sortby": self.sortOption, "pending": self.showPending ]
 			let result: APIResult<SearchUsersResponse> = await APIManager.shared.request(endpoint: .getUsers, queryParams: queryParams)
 			
 			DispatchQueue.main.async {
@@ -128,11 +135,17 @@ open class UserSearchViewModel: ObservableObject {
 				
 				if case .success(let response) = result {
 					self.isError = false
+					
+					var filteredUsers = response.users
+					if self.filterOutMe {
+						filteredUsers = filteredUsers.filter { $0.id != UserCfg.userId() }
+					}
+					
 					if response.page == 1 {
-						self.users = response.users
+						self.users = filteredUsers
 					}
 					else {
-						self.users.append(contentsOf: response.users)
+						self.users.append(contentsOf: filteredUsers)
 					}
 					
 					self.groupUsersByFirstLetter()

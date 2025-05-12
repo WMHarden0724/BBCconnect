@@ -1,5 +1,5 @@
 //
-//  NewConversationView.swift
+//  MembersTabView.swift
 //  BBCconnect
 //
 //  Created by Garrett Franks on 3/18/25.
@@ -8,24 +8,27 @@
 import SwiftUI
 import AlertToast
 
-struct AddUsersToConversationView : View {
+struct MembersTabView : View {
 	
-	@Environment(\.dismiss) var dismiss
-	
-	@ObservedObject var viewModel: ConversationViewModel
 	@StateObject private var searchViewModel = UserSearchViewModel()
-	
-	@State private var selectedUsers = [User]()
 	
 	@State private var viewSize: CGSize = .zero
 	@State private var message = ""
 	
 	@State private var alertToastError: String?
 	
-	var filteredUsers: [User] {
-		let users = self.searchViewModel.users
-		return users.filter {
-			!self.viewModel.conversation.users.contains($0) && !self.selectedUsers.contains($0)
+	private var emptyText: String {
+		if !self.searchViewModel.searchQuery.isEmpty && self.searchViewModel.showPending {
+			return "No pending members match your search criteria"
+		}
+		else if !self.searchViewModel.searchQuery.isEmpty {
+			return "No members match your search criteria"
+		}
+		else if self.searchViewModel.showPending {
+			return "No pending members"
+		}
+		else {
+			return "No members"
 		}
 	}
 	
@@ -40,9 +43,7 @@ struct AddUsersToConversationView : View {
 									.font(.headline)
 						) {
 							ForEach(users, id: \.id) { user in
-								Button {
-									self.selectedUsers.append(user)
-								} label: {
+								ZStack {
 									HStack(spacing: Dimens.horizontalPadding) {
 										Avatar(type: .image(user), size: .sm, state: .normal)
 										
@@ -60,8 +61,10 @@ struct AddUsersToConversationView : View {
 									}
 									.padding(.horizontal, Dimens.horizontalPadding)
 									.padding(.bottom, Dimens.verticalPaddingMd)
+									NavigationLink(destination: MemberDetailsView(user: user)) {
+										EmptyView()
+									}.opacity(0)
 								}
-								.buttonStyle(.plain)
 								.listRowSeparator(.hidden)
 								.listRowBackground(Color.clear)
 								.listRowSpacing(0)
@@ -86,7 +89,7 @@ struct AddUsersToConversationView : View {
 					.listRowInsets(EdgeInsets())
 				}
 				else if self.searchViewModel.isError {
-					Text("Failed to load users")
+					Text("Failed to load members")
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
@@ -97,8 +100,8 @@ struct AddUsersToConversationView : View {
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
 				}
-				else if self.filteredUsers.isEmpty {
-					Text(!self.searchViewModel.searchQuery.isEmpty ? "No users match your search criteria" : "No users available")
+				else if self.searchViewModel.groupedUsers.isEmpty {
+					Text(self.emptyText)
 						.font(.headline)
 						.foregroundColor(.primary)
 						.padding(.vertical, Dimens.verticalPadding)
@@ -133,11 +136,7 @@ struct AddUsersToConversationView : View {
 				self.searchViewModel.searchUsers(reset: true, query: self.searchViewModel.searchQuery)
 			}
 			.searchable(text: self.$searchViewModel.searchQuery,
-						tokens: self.$selectedUsers,
-						prompt: "Search users by name, email, or role",
-						token: { user in
-				Text(user.fullName())
-			})
+						prompt: "Search users by name, email, or role")
 			.searchPresentationToolbarBehavior(.avoidHidingContent)
 			.animation(.easeInOut, value: self.searchViewModel.users)
 			.animation(.easeInOut, value: self.searchViewModel.isLoading)
@@ -154,22 +153,12 @@ struct AddUsersToConversationView : View {
 			}, completion: {
 				self.alertToastError = nil
 			})
-			.navigationTitle("Group")
+			.navigationTitle("Members")
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
 			.toolbarRole(.automatic)
 			.backgroundIgnoreSafeArea(color: .background)
 			.toolbar {
-				ToolbarItem(placement: .navigationBarLeading) {
-					Button(action: {
-						self.dismiss()
-					}) {
-						Text("Cancel")
-							.foregroundColor(.primaryMain)
-							.font(.system(size: 17, weight: .medium))
-					}
-				}
-				
 				ToolbarItem(placement: .navigationBarTrailing) {
 					HStack {
 						Menu {
@@ -180,38 +169,21 @@ struct AddUsersToConversationView : View {
 									Label(option.uiName, systemImage: self.searchViewModel.sortOption == option ? "checkmark" : "")
 								}
 							}
+							
+							Button(action: {
+								self.searchViewModel.showPending.toggle()
+							}) {
+								Label("View Pending Users", systemImage: self.searchViewModel.showPending ? "eye" : "")
+							}
 						} label: {
-							Image(systemName: "arrow.up.arrow.down")
+							Image(systemName: "line.3.horizontal.decrease.circle")
 								.imageScale(.large)
 								.foregroundColor(.primaryMain)
 						}
-						
-						Button(action: {
-							self.updateConversation()
-						}) {
-							Text("Done")
-								.foregroundColor(self.selectedUsers.isEmpty ? .gray.opacity(0.5) : .primaryMain)
-								.font(.system(size: 17, weight: .medium))
-						}
-						.disabled(self.selectedUsers.isEmpty)
 					}
 				}
 			}
 		}
 		.tint(.primaryMain)
-	}
-	
-	private func updateConversation() {
-		Task {
-			let result = await self.viewModel.addUsersToConversation(newUsers: self.selectedUsers)
-			DispatchQueue.main.async {
-				if result.0 {
-					self.dismiss()
-				}
-				else if let error = result.1 {
-					self.alertToastError = error
-				}
-			}
-		}
 	}
 }

@@ -16,6 +16,11 @@ struct ContentView: View {
 					Label("Bulletin", systemImage: "newspaper")
 				}
 			
+			ConversationsTabView()
+				.tabItem {
+					Label("Messages", systemImage: "message.fill")
+				}
+			
 			LiveStreamTabView()
 				.tabItem {
 					Label("Live Stream", systemImage: "videoprojector.fill")
@@ -26,9 +31,9 @@ struct ContentView: View {
 					Label("On-Demand", systemImage: "video")
 				}
 			
-			ConversationsTabView()
+			MembersTabView()
 				.tabItem {
-					Label("Messages", systemImage: "message.fill")
+					Label("Members", systemImage: "person.2.fill")
 				}
 		}
 		.tint(.primaryMain)

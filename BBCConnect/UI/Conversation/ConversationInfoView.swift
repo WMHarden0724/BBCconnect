@@ -167,7 +167,7 @@ struct ConversationInfoView : View {
 				VStack(spacing: Dimens.verticalPadding) {
 					let users = self.viewModel.conversation.users.filter { $0.id != UserCfg.userId() }
 					if users.count == 1 {
-						Avatar(type: .image(self.viewModel.conversation.users[0]), size: .custom(100), state: .normal)
+						Avatar(type: .image(users[0]), size: .custom(100), state: .normal)
 					}
 					else {
 						AvatarGroup(users: users,

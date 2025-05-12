@@ -179,10 +179,10 @@ struct NewConversationView : View {
 				ToolbarItem(placement: .navigationBarTrailing) {
 					Menu {
 						ForEach(UserSearchViewModel.UserSearchSortOption.allCases, id: \.self) { option in
-							Button {
+							Button(action: {
 								self.viewModel.sortOption = option
-							} label: {
-								Text(self.viewModel.sortOption == option ? "• \(option.uiName)" : option.uiName)
+							}) {
+								Label(option.uiName, systemImage: self.viewModel.sortOption == option ? "checkmark" : "")
 							}
 						}
 					} label: {

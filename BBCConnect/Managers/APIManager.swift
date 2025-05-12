@@ -100,6 +100,9 @@ enum APIEndpoint: Equatable {
 	case forgotPassword
 	case userProfile
 	case updateUserProfile
+	case getUsers
+	case deleteUser(Int)
+	case approveUser(Int)
 	case createConversation
 	case getConversations
 	case getConversation(Int)
@@ -115,7 +118,6 @@ enum APIEndpoint: Equatable {
 	case deleteMessage(Int, Int)
 	case likeMessage(Int, Int)
 	case unlikeMessage(Int, Int)
-	case getUsers
 	case getBulletins
 	case getBulletinPreview(Int)
 	case getLiveStream
@@ -131,6 +133,8 @@ enum APIEndpoint: Equatable {
 		case .userProfile: return "/api/users/profile"
 		case .updateUserProfile: return "/api/users/profile"
 		case .getUsers: return "/api/users/all"
+		case .deleteUser(let id): return "/api/users/\(id)"
+		case .approveUser(let id): return "/api/users/\(id)/approve"
 		case .createConversation: return "/api/conversations"
 		case .getConversations: return "/api/conversations"
 		case .getConversation(let id): return "/api/conversations/\(id)"
@@ -163,6 +167,8 @@ enum APIEndpoint: Equatable {
 		case .userProfile: return .get
 		case .updateUserProfile: return .put
 		case .getUsers: return .get
+		case .deleteUser(_): return .delete
+		case .approveUser(_): return .post
 		case .createConversation: return .post
 		case .getConversations: return .get
 		case .getConversation(_): return .get
