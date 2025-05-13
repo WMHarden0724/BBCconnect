@@ -29,11 +29,4 @@ class StreamManager: ObservableObject {
 		let result: APIResult<APIMessage> = await APIManager.shared.request(endpoint: .stopLiveStream(id))
 		return result
 	}
-	
-	// MARK: On-Demand
-	
-	func loadOnDemand() async -> APIResult<OnDemandAssets> {
-		let result: APIResult<OnDemandAssets> = await APIManager.shared.request(endpoint: .getOnDemand)
-		return result
-	}
 }

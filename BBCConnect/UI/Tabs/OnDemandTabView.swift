@@ -13,6 +13,10 @@ struct OnDemandTabView : View {
 	@State private var assets = [OnDemand]()
 	@State private var error: String?
 	@State private var isLoading = true
+	@State private var canLoadMore = false
+	@State private var page = 0
+	
+	private let limit = 10
 	
 	var body: some View {
 		NavigationStack {
@@ -72,6 +76,23 @@ struct OnDemandTabView : View {
 						.listRowSpacing(0)
 						.listRowInsets(EdgeInsets())
 				}
+				else if self.canLoadMore {
+					Button(action: {
+						self.loadOnDemand()
+					}) {
+						Text("Load More")
+							.font(.headline)
+							.foregroundColor(.primary)
+							.frame(maxWidth: .infinity)
+							.padding(.vertical, Dimens.verticalPadding)
+							.padding(.horizontal, Dimens.horizontalPadding)
+					}
+					.buttonStyle(.plain)
+					.listRowSeparator(.hidden)
+					.listRowBackground(Color.clear)
+					.listRowSpacing(0)
+					.listRowInsets(EdgeInsets())
+				}
 
 				// Extra text for spacing
 				Text("")
@@ -86,7 +107,7 @@ struct OnDemandTabView : View {
 			.scrollContentBackground(.hidden)
 			.backgroundIgnoreSafeArea(color: .background)
 			.refreshable {
-				self.loadOnDemand()
+				self.loadOnDemand(reset: true)
 			}
 			.navigationBarTitleDisplayMode(.inline)
 			.toolbarBackground(.ultraThinMaterial, for: .navigationBar)
@@ -99,15 +120,24 @@ struct OnDemandTabView : View {
 		.tint(.primaryMain)
 	}
 	
-	private func loadOnDemand() {
+	private func loadOnDemand(reset: Bool = false) {
+		if reset {
+			self.page = 0
+			self.canLoadMore = false
+		}
+		
 		self.isLoading = true
 		
+		// Load next page
+		self.page = self.page + 1
+		
 		Task {
-			let result = await StreamManager.shared.loadOnDemand()
+			let queryParams = [ "page": page, "limit": limit ]
+			let result: APIResult<OnDemandAssets> = await APIManager.shared.request(endpoint: .getOnDemand, queryParams: queryParams)
 			DispatchQueue.main.async {
 				withAnimation {
 					if case .success(let assets) = result {
-						self.assets = assets.assets?.filter({
+						var filteredAssets = assets.assets?.filter({
 							if let isLive = $0.info.is_live {
 								!isLive
 							}
@@ -115,6 +145,15 @@ struct OnDemandTabView : View {
 								true
 							}
 						}) ?? []
+						
+						if assets.page == 1 {
+							self.assets = filteredAssets
+						}
+						else {
+							self.assets.append(contentsOf: filteredAssets)
+						}
+						
+						self.canLoadMore = assets.total == self.limit
 					}
 					else if case .failure(let aPIError) = result {
 						self.error = aPIError.localizedDescription

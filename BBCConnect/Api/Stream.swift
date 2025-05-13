@@ -27,6 +27,8 @@ struct LiveStream: Codable, Equatable {
 
 struct OnDemandAssets: Codable, Equatable {
 	let assets: [OnDemand]?
+	let page: Int
+	let total: Int
 }
 
 struct OnDemand: Codable, Equatable {
